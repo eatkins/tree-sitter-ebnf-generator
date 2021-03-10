@@ -709,6 +709,8 @@ for _, v in ipairs(tokens) do
   local index_prefix = file .. ":" .. line_num .. " "
   local prefix = { base_indent .. "/*", base_indent .. " * " .. index_prefix }
   for i, v in ipairs(full_body) do
+    local start, space_end = v:find("%s+")
+    if start == 1 then v = v:sub(space_end + 1) end
     table.insert(prefix, base_indent .. " * " .. v:gsub("*/", "*∕")) -- this adds a unicode division sign
   end
   prefix = table.concat(prefix, "\n") .. "\n" .. base_indent .. " */\n"

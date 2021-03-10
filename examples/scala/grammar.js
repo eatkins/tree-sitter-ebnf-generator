@@ -15,24 +15,24 @@ module.exports = grammar({
   rules: {
     /*
      * scala.ebnf:6 
-     *   [c]ompilation_unit   ::= (floatingPointLiteral | booleanLiteral)+
+     * [c]ompilation_unit   ::= (floatingPointLiteral | booleanLiteral)+
      */
     compilation_unit: $ => repeat1(choice($._floatingPointLiteral, $._booleanLiteral)),
     /*
      * scala.ebnf:7 
-     *   whiteSpace           ::= [\u0020\u0009\u000D\u000A]
+     * whiteSpace           ::= [\u0020\u0009\u000D\u000A]
      */
     _whiteSpace: $ => /[\u0020\u0009\u000D\u000A]/,
     /*
      * scala.ebnf:8 
-     *   upper                ::= [\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}$]
+     * upper                ::= [\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}$]
      */
     _upper: $ => /[\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}$]/,
     /*
      * scala.ebnf:9-11 
-     *   lower                ::= [\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4]
-     *                          | [\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C]
-     *                          | [\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F]
+     * lower                ::= [\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4]
+     * | [\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C]
+     * | [\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F]
      */
     _lower: $ => choice(
                    /[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4]/,
@@ -41,77 +41,77 @@ module.exports = grammar({
                  ),
     /*
      * scala.ebnf:12 
-     *   letter               ::= lower | upper
+     * letter               ::= lower | upper
      */
     _letter: $ => choice($._lower, $._upper),
     /*
      * scala.ebnf:13 
-     *   digit                ::= [0-9]
+     * digit                ::= [0-9]
      */
     _digit: $ => /[0-9]/,
     /*
      * scala.ebnf:14 
-     *   paren                ::= [(){}\[\]]
+     * paren                ::= [(){}\[\]]
      */
     _paren: $ => /[(){}\[\]]/,
     /*
      * scala.ebnf:15 
-     *   delim                ::= [`'".;,]
+     * delim                ::= [`'".;,]
      */
     _delim: $ => /[`'".;,]/,
     /*
      * scala.ebnf:16 
-     *   opchar               ::= [!#%&*+\u002d/\\:<=>?@\u005e\u007c~]
+     * opchar               ::= [!#%&*+\u002d/\\:<=>?@\u005e\u007c~]
      */
     _opchar: $ => /[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]/,
     /*
      * scala.ebnf:17 
-     *   printableChar        ::= [\u0020-\u007F]
+     * printableChar        ::= [\u0020-\u007F]
      */
     _printableChar: $ => /[\u0020-\u007F]/,
     /*
      * scala.ebnf:18 
-     *   unicodeEscape        ::= "\\" "u"+ hexDigit hexDigit hexDigit hexDigit
+     * unicodeEscape        ::= "\\" "u"+ hexDigit hexDigit hexDigit hexDigit
      */
     _unicodeEscape: $ => seq("\\", repeat1("u"), $._hexDigit, $._hexDigit, $._hexDigit, $._hexDigit),
     /*
      * scala.ebnf:19 
-     *   hexDigit             ::= [0-9a-fA-F]
+     * hexDigit             ::= [0-9a-fA-F]
      */
     _hexDigit: $ => /[0-9a-fA-F]/,
     /*
      * scala.ebnf:20 
-     *   charEscapeSeq        ::= "\\" [btnfr"'\\]
+     * charEscapeSeq        ::= "\\" [btnfr"'\\]
      */
     _charEscapeSeq: $ => seq("\\", /[btnfr"'\\]/),
     /*
      * scala.ebnf:21 
-     *   escapeSeq            ::= unicodeEscape | charEscapeSeq
+     * escapeSeq            ::= unicodeEscape | charEscapeSeq
      */
     _escapeSeq: $ => choice($._unicodeEscape, $._charEscapeSeq),
     /*
      * scala.ebnf:22 
-     *   op                   ::= >(opchar+)
+     * op                   ::= >(opchar+)
      */
     _op: $ => prec.right(repeat1($._opchar)),
     /*
      * scala.ebnf:23 
-     *   varid                ::= lower idrest
+     * varid                ::= lower idrest
      */
     _varid: $ => seq($._lower, $._idrest),
     /*
      * scala.ebnf:24 
-     *   boundvarid           ::= varid |  '`' varid '`'
+     * boundvarid           ::= varid |  '`' varid '`'
      */
     _boundvarid: $ => choice($._varid, seq('`', $._varid, '`')),
     /*
      * scala.ebnf:25 
-     *   plainid              ::= upper idrest | varid | op
+     * plainid              ::= upper idrest | varid | op
      */
     _plainid: $ => choice(seq($._upper, $._idrest), $._varid, $._op),
     /*
      * scala.ebnf:27 
-     *   id                   ::= plainid |  '`' ($charNoBQOrNL | escapeSeq)* '`'
+     * id                   ::= plainid |  '`' ($charNoBQOrNL | escapeSeq)* '`'
      */
     _id: $ => choice(
                 $._plainid,
@@ -119,30 +119,30 @@ module.exports = grammar({
               ),
     /*
      * scala.ebnf:28 
-     *   idrest               ::= (letter | digit)+ ('_' op)?
+     * idrest               ::= (letter | digit)+ ('_' op)?
      */
     _idrest: $ => seq(repeat1(choice($._letter, $._digit)), optional(seq('_', $._op))),
     /*
      * scala.ebnf:29 
-     *   integerLiteral       ::= (decimalNumeral | hexNumeral) [Ll]?
+     * integerLiteral       ::= (decimalNumeral | hexNumeral) [Ll]?
      */
     _integerLiteral: $ => seq(choice($._decimalNumeral, $._hexNumeral), optional(/[Ll]/)),
     /*
      * scala.ebnf:30 
-     *   decimalNumeral       ::= digit+
+     * decimalNumeral       ::= digit+
      */
     _decimalNumeral: $ => repeat1($._digit),
     /*
      * scala.ebnf:31 
-     *   hexNumeral           ::= "0" [xX]? hexDigit+
+     * hexNumeral           ::= "0" [xX]? hexDigit+
      */
     _hexNumeral: $ => seq("0", optional(/[xX]/), repeat1($._hexDigit)),
     /*
      * scala.ebnf:32-35 
-     *   floatingPointLiteral ::= >(digit+ decimalPoint digit+ exponentPart? floatType?
-     *                          | decimalPoint digit+ exponentPart? floatType?
-     *                          | digit+ exponentPart floatType?
-     *                          | digit+ exponentPart? floatType)
+     * floatingPointLiteral ::= >(digit+ decimalPoint digit+ exponentPart? floatType?
+     * | decimalPoint digit+ exponentPart? floatType?
+     * | digit+ exponentPart floatType?
+     * | digit+ exponentPart? floatType)
      */
     _floatingPointLiteral: $ => prec.right(
                                   choice(
@@ -165,37 +165,37 @@ module.exports = grammar({
                                 ),
     /*
      * scala.ebnf:36 
-     *   exponentPart         ::= >([Ee] [+-]? digit+)
+     * exponentPart         ::= >([Ee] [+-]? digit+)
      */
     _exponentPart: $ => prec.right(seq(/[Ee]/, optional(/[+-]/), repeat1($._digit))),
     /*
      * scala.ebnf:37 
-     *   floatType            ::= [FfDd]
+     * floatType            ::= [FfDd]
      */
     _floatType: $ => /[FfDd]/,
     /*
      * scala.ebnf:38 
-     *   booleanLiteral       ::= "true" | "false"
+     * booleanLiteral       ::= "true" | "false"
      */
     _booleanLiteral: $ => choice("true", "false"),
     /*
      * scala.ebnf:40 
-     *   characterLiteral     ::= "'" ($charNoBQOrNL | escapeSeq) "'"
+     * characterLiteral     ::= "'" ($charNoBQOrNL | escapeSeq) "'"
      */
     _characterLiteral: $ => seq("'", choice(/[\u0020-\u005f\u0061-\u007f]/, $._escapeSeq), "'"),
     /*
      * scala.ebnf:41 
-     *   stringLiteral        ::= '"' stringElement* '"'
+     * stringLiteral        ::= '"' stringElement* '"'
      */
     _stringLiteral: $ => seq('"', repeat($._stringElement), '"'),
     /*
      * scala.ebnf:43 
-     *   stringElement        ::= $charNoDQuoteOrNL | escapeSeq
+     * stringElement        ::= $charNoDQuoteOrNL | escapeSeq
      */
     _stringElement: $ => choice(/[\u0020-\u0021\u0023-\u007f]/, $._escapeSeq),
     /*
      * scala.ebnf:44 
-     *   multiLineChars       ::= ('"'? '"'? $charNoDQuoteOrNL)* '"'*
+     * multiLineChars       ::= ('"'? '"'? $charNoDQuoteOrNL)* '"'*
      */
     _multiLineChars: $ => seq(
                             repeat(seq(optional('"'), optional('"'), /[\u0020-\u0021\u0023-\u007f]/)),
@@ -203,18 +203,18 @@ module.exports = grammar({
                           ),
     /*
      * scala.ebnf:45 
-     *   decimalPoint         ::= '.'
+     * decimalPoint         ::= '.'
      */
     _decimalPoint: $ => '.',
     /*
      * scala.ebnf:46 
-     *   charMinusQuoteDollar ::= [ !#\u0025-\u007f]
+     * charMinusQuoteDollar ::= [ !#\u0025-\u007f]
      */
     _charMinusQuoteDollar: $ => /[ !#\u0025-\u007f]/,
     /*
      * scala.ebnf:47-48 
-     *   interpolatedString   ::= alphaid '"' (charMinusQuoteDollar | escape)+ '"'
-     *                          | alphaid '"""' ('"'? '"'? charMinusQuoteDollar | escape)* '"'? '"""'
+     * interpolatedString   ::= alphaid '"' (charMinusQuoteDollar | escape)+ '"'
+     * | alphaid '"""' ('"'? '"'? charMinusQuoteDollar | escape)* '"'? '"""'
      */
     _interpolatedString: $ => choice(
                                 seq($._alphaid, '"', repeat1(choice($._charMinusQuoteDollar, $._escape)), '"'),
@@ -228,32 +228,32 @@ module.exports = grammar({
                               ),
     /*
      * scala.ebnf:49 
-     *   escape               ::= "$$" | "$" id ; TODO block expr
+     * escape               ::= "$$" | "$" id ; TODO block expr
      */
     _escape: $ => choice("$$", seq("$", $._id)),
     /*
      * scala.ebnf:50 
-     *   alphaid              ::= upper idrest | varid
+     * alphaid              ::= upper idrest | varid
      */
     _alphaid: $ => choice(seq($._upper, $._idrest), $._varid),
     /*
      * scala.ebnf:51 
-     *   symbolLiteral        ::= "'" plainid
+     * symbolLiteral        ::= "'" plainid
      */
     _symbolLiteral: $ => seq("'", $._plainid),
     /*
      * scala.ebnf:52 
-     *   comment              ::= "/*" multi_comment "*∕" | "//" /.*∕
+     * comment              ::= "/*" multi_comment "*∕" | "//" /.*∕
      */
     _comment: $ => choice(seq("/*", $._multi_comment, "*/"), seq("//", /.*/)),
     /*
      * scala.ebnf:53 
-     *   nl                   ::= '\\n'
+     * nl                   ::= '\\n'
      */
     _nl: $ => '\\n',
     /*
      * scala.ebnf:54 
-     *   semi                 ::= ';' | nl+
+     * semi                 ::= ';' | nl+
      */
     _semi: $ => choice(';', repeat1($._nl))
   }

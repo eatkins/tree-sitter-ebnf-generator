@@ -5,32 +5,32 @@ module.exports = grammar({
   rules: {
     /*
      * lua.ebnf:4 
-     *   SourceFile       ::= stat*
+     * SourceFile       ::= stat*
      */
     SourceFile: $ => repeat($._stat),
     /*
      * lua.ebnf:5 
-     *   chunk            ::= (stat ";"?)+ (laststat ";"?)?
+     * chunk            ::= (stat ";"?)+ (laststat ";"?)?
      */
     _chunk: $ => seq(repeat1(seq($._stat, optional(";"))), optional(seq($._laststat, optional(";")))),
     /*
      * lua.ebnf:6 
-     *   block            ::= chunk
+     * block            ::= chunk
      */
     _block: $ => $._chunk,
     /*
      * lua.ebnf:7-17 
-     *   stat             ::= varlist "=" explist |
-     *                      functioncall |
-     *                      "do" block "end" |
-     *                      "while" exp "do" block "end" |
-     *                      "repeat" block "until" exp |
-     *                      "if" exp "then" block ("elseif" exp "then" block)* ("else" block)? "end" |
-     *                      "for" Name "=" exp "," exp ("," exp)? "do" block "end" |
-     *                      "for" namelist "in" explist "do" block "end" |
-     *                      "function" funcname funcbody |
-     *                      "local function" Name funcbody |
-     *                      "local" namelist ("=" explist)?
+     * stat             ::= varlist "=" explist |
+     * functioncall |
+     * "do" block "end" |
+     * "while" exp "do" block "end" |
+     * "repeat" block "until" exp |
+     * "if" exp "then" block ("elseif" exp "then" block)* ("else" block)? "end" |
+     * "for" Name "=" exp "," exp ("," exp)? "do" block "end" |
+     * "for" namelist "in" explist "do" block "end" |
+     * "function" funcname funcbody |
+     * "local function" Name funcbody |
+     * "local" namelist ("=" explist)?
      */
     _stat: $ => choice(
                   seq($._varlist, "=", $._explist),
@@ -66,38 +66,38 @@ module.exports = grammar({
                 ),
     /*
      * lua.ebnf:18 
-     *   laststat         ::= "return" explist? | "break"
+     * laststat         ::= "return" explist? | "break"
      */
     _laststat: $ => choice(seq("return", optional($._explist)), "break"),
     /*
      * lua.ebnf:19 
-     *   funcname         ::= Name ("." Name)* (":" Name)?
+     * funcname         ::= Name ("." Name)* (":" Name)?
      */
     _funcname: $ => seq($.Name, repeat(seq(".", $.Name)), optional(seq(":", $.Name))),
     /*
      * lua.ebnf:20 
-     *   varlist          ::= "var" ("," var)*
+     * varlist          ::= "var" ("," var)*
      */
     _varlist: $ => seq("var", repeat(seq(",", $._var))),
     /*
      * lua.ebnf:21 
-     *   var              ::= Name | prefixexp "(" exp ")?" | prefixexp "." Name
+     * var              ::= Name | prefixexp "(" exp ")?" | prefixexp "." Name
      */
     _var: $ => choice($.Name, seq($._prefixexp, "(", $._exp, ")?"), seq($._prefixexp, ".", $.Name)),
     /*
      * lua.ebnf:22 
-     *   namelist         ::= Name ("," Name)*
+     * namelist         ::= Name ("," Name)*
      */
     _namelist: $ => seq($.Name, repeat(seq(",", $.Name))),
     /*
      * lua.ebnf:23 
-     *   explist          ::= (exp ",")* exp
+     * explist          ::= (exp ",")* exp
      */
     _explist: $ => seq(repeat(seq($._exp, ",")), $._exp),
     /*
      * lua.ebnf:24-25 
-     *   exp              ::= "nil" | "false" | "true" | Number | String | "..." | function |
-     *                      prefixexp | tableconstructor | exp binop exp | unop exp
+     * exp              ::= "nil" | "false" | "true" | Number | String | "..." | function |
+     * prefixexp | tableconstructor | exp binop exp | unop exp
      */
     _exp: $ => choice(
                  "nil",
@@ -114,59 +114,59 @@ module.exports = grammar({
                ),
     /*
      * lua.ebnf:26 
-     *   prefixexp        ::= "var" | functioncall | "(" exp ")"
+     * prefixexp        ::= "var" | functioncall | "(" exp ")"
      */
     _prefixexp: $ => choice("var", $._functioncall, seq("(", $._exp, ")")),
     /*
      * lua.ebnf:27 
-     *   functioncall     ::= prefixexp args | prefixexp ":" Name args
+     * functioncall     ::= prefixexp args | prefixexp ":" Name args
      */
     _functioncall: $ => choice(seq($._prefixexp, $._args), seq($._prefixexp, ":", $.Name, $._args)),
     /*
      * lua.ebnf:28 
-     *   args             ::= "(" (explist)? ")" | tableconstructor | String
+     * args             ::= "(" (explist)? ")" | tableconstructor | String
      */
     _args: $ => choice(seq("(", optional($._explist), ")"), $._tableconstructor, $.String),
     /*
      * lua.ebnf:29 
-     *   function         ::= "function" funcbody
+     * function         ::= "function" funcbody
      */
     _function: $ => seq("function", $._funcbody),
     /*
      * lua.ebnf:30 
-     *   funcbody         ::= "(" (parlist)? ")" block "end"
+     * funcbody         ::= "(" (parlist)? ")" block "end"
      */
     _funcbody: $ => seq("(", optional($._parlist), ")", $._block, "end"),
     /*
      * lua.ebnf:31 
-     *   parlist          ::= namelist ("," "...")? | "..."
+     * parlist          ::= namelist ("," "...")? | "..."
      */
     _parlist: $ => choice(seq($._namelist, optional(seq(",", "..."))), "..."),
     /*
      * lua.ebnf:32 
-     *   tableconstructor ::= "{" (fieldlist)? "}"
+     * tableconstructor ::= "{" (fieldlist)? "}"
      */
     _tableconstructor: $ => seq("{", optional($._fieldlist), "}"),
     /*
      * lua.ebnf:33 
-     *   fieldlist        ::= field (fieldsep field)* (fieldsep)?
+     * fieldlist        ::= field (fieldsep field)* (fieldsep)?
      */
     _fieldlist: $ => seq($._field, repeat(seq($._fieldsep, $._field)), optional($._fieldsep)),
     /*
      * lua.ebnf:34 
-     *   field            ::= "(" exp ")?" "=" exp | Name "=" exp | exp
+     * field            ::= "(" exp ")?" "=" exp | Name "=" exp | exp
      */
     _field: $ => choice(seq("(", $._exp, ")?", "=", $._exp), seq($.Name, "=", $._exp), $._exp),
     /*
      * lua.ebnf:35 
-     *   fieldsep         ::= "," | ";"
+     * fieldsep         ::= "," | ";"
      */
     _fieldsep: $ => choice(",", ";"),
     /*
      * lua.ebnf:36-38 
-     *   binop            ::= "+" | "-" | "*" | "/" | "^" | "%" | ".." |
-     *                      "<" | "<=" | ">" | ">=" | "==" | "~=" |
-     *                      "and" | "or"
+     * binop            ::= "+" | "-" | "*" | "/" | "^" | "%" | ".." |
+     * "<" | "<=" | ">" | ">=" | "==" | "~=" |
+     * "and" | "or"
      */
     _binop: $ => choice(
                    "+",
@@ -187,22 +187,22 @@ module.exports = grammar({
                  ),
     /*
      * lua.ebnf:39 
-     *   unop             ::= "-" | "not" | "#"
+     * unop             ::= "-" | "not" | "#"
      */
     _unop: $ => choice("-", "not", "#"),
     /*
      * lua.ebnf:40 
-     *   Name             ::= [a-zA-Z_0-9]+
+     * Name             ::= [a-zA-Z_0-9]+
      */
     Name: $ => repeat1(/[a-zA-Z_0-9]/),
     /*
      * lua.ebnf:41 
-     *   Number           ::= [0-9]+
+     * Number           ::= [0-9]+
      */
     Number: $ => repeat1(/[0-9]/),
     /*
      * lua.ebnf:42 
-     *   String           ::= '"' [^"]* '"' | "'" [^"]* "'"
+     * String           ::= '"' [^"]* '"' | "'" [^"]* "'"
      */
     String: $ => choice(seq('"', repeat(/[^"]/), '"'), seq("'", repeat(/[^"]/), "'"))
   }
