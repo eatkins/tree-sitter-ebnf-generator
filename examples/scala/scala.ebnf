@@ -1,0 +1,54 @@
+externals ::= { multi_comment }
+
+extras    ::= { whiteSpace comment }
+
+rules:
+  [c]ompilation_unit   ::= (floatingPointLiteral | booleanLiteral)+
+  whiteSpace           ::= [\u0020\u0009\u000D\u000A]
+  upper                ::= [\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}$]
+  lower                ::= [\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4]
+                         | [\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C]
+                         | [\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F]
+  letter               ::= lower | upper
+  digit                ::= [0-9]
+  paren                ::= [(){}\[\]]
+  delim                ::= [`'".;,]
+  opchar               ::= [!#%&*+\u002d/\\:<=>?@\u005e\u007c~]
+  printableChar        ::= [\u0020-\u007F]
+  unicodeEscape        ::= "\\" "u"+ hexDigit hexDigit hexDigit hexDigit
+  hexDigit             ::= [0-9a-fA-F]
+  charEscapeSeq        ::= "\\" [btnfr"'\\]
+  escapeSeq            ::= unicodeEscape | charEscapeSeq
+  op                   ::= >(opchar+)
+  varid                ::= lower idrest
+  boundvarid           ::= varid |  '`' varid '`'
+  plainid              ::= upper idrest | varid | op
+  charNoBQOrNL         := [\u0020-\u005f\u0061-\u007f]
+  id                   ::= plainid |  '`' ($charNoBQOrNL | escapeSeq)* '`'
+  idrest               ::= (letter | digit)+ ('_' op)?
+  integerLiteral       ::= (decimalNumeral | hexNumeral) [Ll]?
+  decimalNumeral       ::= digit+
+  hexNumeral           ::= "0" [xX]? hexDigit+
+  floatingPointLiteral ::= >(digit+ decimalPoint digit+ exponentPart? floatType?
+                         | decimalPoint digit+ exponentPart? floatType?
+                         | digit+ exponentPart floatType?
+                         | digit+ exponentPart? floatType)
+  exponentPart         ::= >([Ee] [+-]? digit+)
+  floatType            ::= [FfDd]
+  booleanLiteral       ::= "true" | "false"
+  charNoQuoteOrNL      := [\u0020-\u0026\u0028-\u007f]
+  characterLiteral     ::= "'" ($charNoBQOrNL | escapeSeq) "'"
+  stringLiteral        ::= '"' stringElement* '"'
+  charNoDQuoteOrNL     := [\u0020-\u0021\u0023-\u007f]
+  stringElement        ::= $charNoDQuoteOrNL | escapeSeq
+  multiLineChars       ::= ('"'? '"'? $charNoDQuoteOrNL)* '"'*
+  decimalPoint         ::= '.'
+  charMinusQuoteDollar ::= [ !#\u0025-\u007f]
+  interpolatedString   ::= alphaid '"' (charMinusQuoteDollar | escape)+ '"'
+                         | alphaid '"""' ('"'? '"'? charMinusQuoteDollar | escape)* '"'? '"""'
+  escape               ::= "$$" | "$" id ; TODO block expr
+  alphaid              ::= upper idrest | varid
+  symbolLiteral        ::= "'" plainid
+  comment              ::= "/*" multi_comment "*/" | "//" /.*/
+  nl                   ::= '\\n'
+  semi                 ::= ';' | nl+

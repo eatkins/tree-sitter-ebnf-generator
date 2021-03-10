@@ -1,0 +1,30 @@
+{
+  "name": "tree-sitter-lua",
+  "version": "0.1.0",
+  "description": "lua grammar for tree-sitter",
+  "main": "index.js",
+  "keywords": [
+    "parser",
+    "lua"
+  ],
+  "author": "Ethan Atkins",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.14.1"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.19.0"
+  },
+  "scripts": {
+    "build": "tree-sitter generate && node-gyp build",
+    "test": "tree-sitter test"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.lua",
+      "file-types": [
+        "lua"
+      ]
+    }
+  ]
+}
