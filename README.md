@@ -8,9 +8,14 @@ which should make writing grammars more straightforward and less error prone.
 The examples directory shows how the ebnf format can be used to generate
 tree-sitter grammars for a language. The lua language context free grammar can
 be found [here](examples/lua/lua.ebnf) along with its generated tree-sitter
-[grammar](examples/lua/grammar.js). Similarly, a subset of the scala language
-context free grammar can be found [here](examples/scala/scala.ebnf) along with
-its generated tree-sitter [grammar](examples/scala/grammar.js).
+[grammar](examples/lua/grammar.js). Similarly, scala language context free
+grammar can be found [here](examples/scala/scala.ebnf) along with its generated
+tree-sitter [grammar](examples/scala/grammar.js). All syntactical elements in
+the lua and scala grammars can be converted to the tree-sitter. It is not yet
+possible to create a parser from the grammars because of issues with precedence
+rules and tree-sitter's requirement that syntactic rules may not match the empty
+string. Future work is to modify the grammars so that they do not rely on rules
+that can match the empty string.
 
 Usage: invoke this script with optional arguments leading grammar file as the first
        command argument along with optional tail argument, e.g.:
