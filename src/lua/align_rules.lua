@@ -47,8 +47,8 @@ for line in io.lines(file) do
       table.insert(raw_lines, { key, delim, value })
     else
       local pipe_pattern = "%s+([^%s;].*)"
-      local tail = line:match(pipe_pattern)
-      if tail then
+      local s, _, tail = line:find(pipe_pattern)
+      if tail and s == 1 then
         table.insert(raw_lines, { "", tail })
       else
         table.insert(raw_lines, { line })
