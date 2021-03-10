@@ -1,0 +1,97 @@
+====================
+If
+====================
+if (true) 1 else if (false) 2 else "foo"
+--------------------
+(SourceFile
+  (IfExpression (Literal) (Literal)
+  (IfExpression (Literal) (Literal) (Literal))))
+
+====================
+While
+====================
+while(true) 1
+--------------------
+(SourceFile
+  (WhileExpression (Literal) (Literal)))
+
+====================
+Try
+====================
+try 1
+try 1 catch 2 finally 3
+--------------------
+(SourceFile
+  (TryExpression (Literal))
+  (TryExpression (Literal) (Literal) (Literal)))
+
+====================
+Do
+====================
+do 1; while (true)
+do 1 while (true)
+--------------------
+(SourceFile
+  (DoExpression (Literal) (Literal))
+  (DoExpression (Literal) (Literal)))
+
+====================
+Throw
+====================
+throw 1
+--------------------
+(SourceFile
+  (ThrowExpression (Literal)))
+
+====================
+For loops
+====================
+for { x <- y } yield { Seq("foo", "bar") }
+--------------------
+(SourceFile
+  (ForExpression (Literal)))
+
+====================
+Kitchen sink
+====================
+class Foo[+T <: String >: Nothing: TypeClass, _, +M[K[_], _], -Z[_]: OClass](val x: Int, val z: Double)
+(val g: String)(implicit val k: Manifest[String]) extends { val x = 1 } with Bar with Baz {
+	for (x <- y) println("foo");
+	def bar(): Unit = {}
+}
+--------------------
+
+
+====================
+Class
+====================
+class Foo[+T <: String >: Nothing: TypeClass, _, +M[K[_], _], -Z[_]: OClass](val x: Int, val z: Double)
+(val g: String)(implicit val k: Manifest[String]) extends { val x = 1 } with Bar with Baz {
+  type x = Int
+  import foo._;
+  import foo.bar.x;
+  import foo.baz.{ x => y };
+	for (
+    x <- y if foo == "1"
+    z <- x
+  ) println("foo");
+	def bar(): Unit = {}
+}
+--------------------
+(SourceFile)
+====================
+Imports
+====================
+import Foo.{ z => _, x => y };
+class Foo { self =>
+}
+--------------------
+(SourceFile)
+
+====================
+Return
+====================
+return 1
+--------------------
+(SourceFile
+  (ReturnExpression (Literal)))

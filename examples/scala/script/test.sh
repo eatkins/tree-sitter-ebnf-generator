@@ -1,24 +1,29 @@
 #!/usr/bin/env bash --noprofile
 
-set -e
+set -eE
 
 PARAMS=""
 WATCH=
 VERBOSE=
 DEBUG=
+TEST_FILTER=
+TEST_FLAG=
 
 while (( "$#" )); do
   case "$1" in
     -w|--watch)
-			echo "watch"
 			WATCH="true"
 			shift
       ;;
 		-d|--debug)
-			echo "debug"
 			VERBOSE="-v"
 			DEBUG="-d"
-			PARAMS="$PARAMS $1"
+			shift
+			;;
+		-f)
+			TEST_FLAG="-f"
+			shift
+			TEST_FILTER="$1"
 			shift
 			;;
     *) # preserve positional arguments
@@ -27,13 +32,13 @@ while (( "$#" )); do
       ;;
   esac
 done
+COMMAND="make VERBOSE=$VERBOSE DEBUG=$DEBUG TEST_FLAG=$TEST_FLAG TEST_FILTER=$TEST_FILTER"
 
 if [ -n "$WATCH" ]; then
-	echo `pwd`
+	trap "exec $0 $PARAMS -w $DEBUG $TEST_FLAG $TEST_FILTER" ERR
 	ls ../../src/lua/parse_grammar.lua
-	ls **.ebnf **/*.txt ../../src/lua/parse_grammar.lua src/*.c | entr -c $0 $PARAMS
+	ls Makefile scala.ebnf corpus/*.txt ../../src/lua/parse_grammar.lua src/scanner.c |
+		entr -d -c $COMMAND
 fi
 
-../../src/lua/parse_grammar.lua -o grammar.js scala.ebnf $VERBOSE
-tree-sitter generate
-tree-sitter test $DEBUG
+$COMMAND

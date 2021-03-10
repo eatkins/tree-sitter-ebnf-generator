@@ -1,8 +1,2041 @@
 [
   {
-    "type": "compilation_unit",
+    "type": "AccessModifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "AccessQualifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "AccessQualifier",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "AnnotType",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "SimpleType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Annotation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ArgumentExprs",
+          "named": true
+        },
+        {
+          "type": "SimpleType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ArgumentExprs",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "BlockExpr",
+          "named": true
+        },
+        {
+          "type": "Exprs",
+          "named": true
+        },
+        {
+          "type": "PostfixExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Ascription",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "InfixType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Binding",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Bindings",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Binding",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "BlockExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "BlockStat",
+          "named": true
+        },
+        {
+          "type": "CaseClauses",
+          "named": true
+        },
+        {
+          "type": "ResultExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "BlockStat",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "Def",
+          "named": true
+        },
+        {
+          "type": "Expr1",
+          "named": true
+        },
+        {
+          "type": "Import",
+          "named": true
+        },
+        {
+          "type": "LocalModifier",
+          "named": true
+        },
+        {
+          "type": "TmplDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "CaseClause",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "BlockStat",
+          "named": true
+        },
+        {
+          "type": "Guard",
+          "named": true
+        },
+        {
+          "type": "Literal",
+          "named": true
+        },
+        {
+          "type": "ResultExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "CaseClauses",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "CaseClause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "CaseExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "CaseClauses",
+          "named": true
+        },
+        {
+          "type": "PostfixExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ClassDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "AccessModifier",
+          "named": true
+        },
+        {
+          "type": "ClassParamClause",
+          "named": true
+        },
+        {
+          "type": "ClassParams",
+          "named": true
+        },
+        {
+          "type": "ClassTemplate",
+          "named": true
+        },
+        {
+          "type": "ConstrAnnotation",
+          "named": true
+        },
+        {
+          "type": "TemplateBody",
+          "named": true
+        },
+        {
+          "type": "TypeParamClause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ClassParam",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "Expr",
+          "named": true
+        },
+        {
+          "type": "Modifier",
+          "named": true
+        },
+        {
+          "type": "ParamType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ClassParamClause",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "ClassParams",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ClassParams",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ClassParam",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ClassParents",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "AnnotType",
+          "named": true
+        },
+        {
+          "type": "Constr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ClassTemplate",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ClassParents",
+          "named": true
+        },
+        {
+          "type": "EarlyDefs",
+          "named": true
+        },
+        {
+          "type": "TemplateBody",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "CompoundType",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "AnnotType",
+          "named": true
+        },
+        {
+          "type": "Refinement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Constr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "AnnotType",
+          "named": true
+        },
+        {
+          "type": "ArgumentExprs",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ConstrAnnotation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ArgumentExprs",
+          "named": true
+        },
+        {
+          "type": "SimpleType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ConstrBlock",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "BlockStat",
+          "named": true
+        },
+        {
+          "type": "SelfInvocation",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ConstrExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ConstrBlock",
+          "named": true
+        },
+        {
+          "type": "SelfInvocation",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Dcl",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "FunDcl",
+          "named": true
+        },
+        {
+          "type": "TypeDcl",
+          "named": true
+        },
+        {
+          "type": "ValDcl",
+          "named": true
+        },
+        {
+          "type": "VarDcl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Def",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "FunDef",
+          "named": true
+        },
+        {
+          "type": "PatVarDef",
+          "named": true
+        },
+        {
+          "type": "TmplDef",
+          "named": true
+        },
+        {
+          "type": "TypeDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "DoExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "EarlyDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "Modifier",
+          "named": true
+        },
+        {
+          "type": "PatVarDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "EarlyDefs",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "EarlyDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Enumerators",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Generator",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ExistentialClause",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ExistentialDcl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ExistentialDcl",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "TypeDcl",
+          "named": true
+        },
+        {
+          "type": "ValDcl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Expr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Bindings",
+          "named": true
+        },
+        {
+          "type": "Expr",
+          "named": true
+        },
+        {
+          "type": "Expr1",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Expr1",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Ascription",
+          "named": true
+        },
+        {
+          "type": "CaseExpression",
+          "named": true
+        },
+        {
+          "type": "DoExpression",
+          "named": true
+        },
+        {
+          "type": "ForExpression",
+          "named": true
+        },
+        {
+          "type": "IfExpression",
+          "named": true
+        },
+        {
+          "type": "PostfixExpr",
+          "named": true
+        },
+        {
+          "type": "ReturnExpression",
+          "named": true
+        },
+        {
+          "type": "ThrowExpression",
+          "named": true
+        },
+        {
+          "type": "TryExpression",
+          "named": true
+        },
+        {
+          "type": "WhileExpression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Exprs",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Foo",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "TemplateStat",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ForExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Enumerators",
+          "named": true
+        },
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "FunDcl",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "FunSig",
+          "named": true
+        },
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "FunDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "BlockStat",
+          "named": true
+        },
+        {
+          "type": "ConstrBlock",
+          "named": true
+        },
+        {
+          "type": "ConstrExpr",
+          "named": true
+        },
+        {
+          "type": "Expr",
+          "named": true
+        },
+        {
+          "type": "FunSig",
+          "named": true
+        },
+        {
+          "type": "ParamClause",
+          "named": true
+        },
+        {
+          "type": "Params",
+          "named": true
+        },
+        {
+          "type": "ResultExpr",
+          "named": true
+        },
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "FunSig",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "FunTypeParamClause",
+          "named": true
+        },
+        {
+          "type": "ParamClause",
+          "named": true
+        },
+        {
+          "type": "Params",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "FunTypeParamClause",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "TypeParam",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "FunctionArgTypes",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "InfixType",
+          "named": true
+        },
+        {
+          "type": "ParamType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Generator",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        },
+        {
+          "type": "Guard",
+          "named": true
+        },
+        {
+          "type": "Pattern1",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Guard",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "PostfixExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "IfExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Import",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ImportExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ImportExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ImportSelectors",
+          "named": true
+        },
+        {
+          "type": "StableId",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ImportSelector",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "ImportSelectors",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "ImportSelector",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "InfixExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "InfixExpr",
+          "named": true
+        },
+        {
+          "type": "PrefixExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "InfixType",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "CompoundType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Literal",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "Modifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "AccessModifier",
+          "named": true
+        },
+        {
+          "type": "LocalModifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ObjectDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "ClassTemplate",
+          "named": true
+        },
+        {
+          "type": "TemplateBody",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "PackageObject",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ObjectDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Packaging",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "QualId",
+          "named": true
+        },
+        {
+          "type": "TopStatSeq",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Param",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "Expr",
+          "named": true
+        },
+        {
+          "type": "ParamType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ParamClause",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "Params",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ParamType",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Params",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Param",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "PatDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        },
+        {
+          "type": "Pattern2",
+          "named": true
+        },
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "PatVarDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "PatDef",
+          "named": true
+        },
+        {
+          "type": "VarDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Path",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "StableId",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Pattern1",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Pattern1",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Pattern2",
+          "named": true
+        },
+        {
+          "type": "TypePat",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Pattern2",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "Pattern3",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Pattern3",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "SimplePattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Patterns",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "Pattern",
+          "named": true
+        },
+        {
+          "type": "Patterns",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "PostfixExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "InfixExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "PrefixExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "SimpleExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "RefineStat",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Dcl",
+          "named": true
+        },
+        {
+          "type": "TypeDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Refinement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "RefineStat",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ResultExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Bindings",
+          "named": true
+        },
+        {
+          "type": "BlockStat",
+          "named": true
+        },
+        {
+          "type": "CompoundType",
+          "named": true
+        },
+        {
+          "type": "Expr1",
+          "named": true
+        },
+        {
+          "type": "ResultExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ReturnExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "SelfInvocation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ArgumentExprs",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "SelfType",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "SimpleExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "BlockExpr",
+          "named": true
+        },
+        {
+          "type": "ClassTemplate",
+          "named": true
+        },
+        {
+          "type": "SimpleExpr1",
+          "named": true
+        },
+        {
+          "type": "TemplateBody",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "SimpleExpr1",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "ArgumentExprs",
+          "named": true
+        },
+        {
+          "type": "Exprs",
+          "named": true
+        },
+        {
+          "type": "Literal",
+          "named": true
+        },
+        {
+          "type": "Path",
+          "named": true
+        },
+        {
+          "type": "SimpleExpr",
+          "named": true
+        },
+        {
+          "type": "SimpleExpr1",
+          "named": true
+        },
+        {
+          "type": "TypeArgs",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "SimplePattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "Literal",
+          "named": true
+        },
+        {
+          "type": "Patterns",
+          "named": true
+        },
+        {
+          "type": "StableId",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "SimpleType",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Path",
+          "named": true
+        },
+        {
+          "type": "SimpleType",
+          "named": true
+        },
+        {
+          "type": "StableId",
+          "named": true
+        },
+        {
+          "type": "TypeArgs",
+          "named": true
+        },
+        {
+          "type": "Types",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "StableId",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "Path",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TemplateBody",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "SelfType",
+          "named": true
+        },
+        {
+          "type": "TemplateStat",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TemplateStat",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "Dcl",
+          "named": true
+        },
+        {
+          "type": "Def",
+          "named": true
+        },
+        {
+          "type": "Expr",
+          "named": true
+        },
+        {
+          "type": "Import",
+          "named": true
+        },
+        {
+          "type": "Modifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ThrowExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TmplDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ClassDef",
+          "named": true
+        },
+        {
+          "type": "ObjectDef",
+          "named": true
+        },
+        {
+          "type": "TraitDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TopStat",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "Import",
+          "named": true
+        },
+        {
+          "type": "Modifier",
+          "named": true
+        },
+        {
+          "type": "PackageObject",
+          "named": true
+        },
+        {
+          "type": "Packaging",
+          "named": true
+        },
+        {
+          "type": "TmplDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TopStatSeq",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "TopStat",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TraitDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "TemplateBody",
+          "named": true
+        },
+        {
+          "type": "TraitTemplate",
+          "named": true
+        },
+        {
+          "type": "TypeParamClause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TraitParents",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "AnnotType",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TraitTemplate",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "EarlyDefs",
+          "named": true
+        },
+        {
+          "type": "TemplateBody",
+          "named": true
+        },
+        {
+          "type": "TraitParents",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TryExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Type",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ExistentialClause",
+          "named": true
+        },
+        {
+          "type": "FunctionArgTypes",
+          "named": true
+        },
+        {
+          "type": "InfixType",
+          "named": true
+        },
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TypeArgs",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Types",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TypeDcl",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        },
+        {
+          "type": "TypeParamClause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TypeDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        },
+        {
+          "type": "TypeParamClause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TypeParam",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        },
+        {
+          "type": "TypeParamClause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TypeParamClause",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "VariantTypeParam",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "TypePat",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "Types",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ValDcl",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "VarDcl",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "VarDef",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "PatDef",
+          "named": true
+        },
+        {
+          "type": "Type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "VariantTypeParam",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Annotation",
+          "named": true
+        },
+        {
+          "type": "TypeParam",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "WhileExpression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "Expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "",
+    "named": false
+  },
+  {
+    "type": "!",
+    "named": false
   },
   {
     "type": "\"",
@@ -13,15 +2046,19 @@
     "named": false
   },
   {
-    "type": "$",
+    "type": "#",
     "named": false
   },
   {
-    "type": "$$",
+    "type": "(",
     "named": false
   },
   {
-    "type": "'",
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": "*",
     "named": false
   },
   {
@@ -29,7 +2066,19 @@
     "named": false
   },
   {
+    "type": "+",
+    "named": false
+  },
+  {
+    "type": ",",
+    "named": false
+  },
+  {
     "type": "-",
+    "named": false
+  },
+  {
+    "type": ".",
     "named": false
   },
   {
@@ -41,7 +2090,7 @@
     "named": false
   },
   {
-    "type": "0",
+    "type": ":",
     "named": false
   },
   {
@@ -49,7 +2098,47 @@
     "named": false
   },
   {
-    "type": "\\",
+    "type": "<%",
+    "named": false
+  },
+  {
+    "type": "<-",
+    "named": false
+  },
+  {
+    "type": "<:",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "=>",
+    "named": false
+  },
+  {
+    "type": ">:",
+    "named": false
+  },
+  {
+    "type": "@",
+    "named": false
+  },
+  {
+    "type": "LocalModifier",
+    "named": true
+  },
+  {
+    "type": "QualId",
+    "named": true
+  },
+  {
+    "type": "[",
+    "named": false
+  },
+  {
+    "type": "]",
     "named": false
   },
   {
@@ -57,7 +2146,31 @@
     "named": false
   },
   {
-    "type": "`",
+    "type": "case",
+    "named": false
+  },
+  {
+    "type": "catch",
+    "named": false
+  },
+  {
+    "type": "class",
+    "named": false
+  },
+  {
+    "type": "def",
+    "named": false
+  },
+  {
+    "type": "do",
+    "named": false
+  },
+  {
+    "type": "else",
+    "named": false
+  },
+  {
+    "type": "extends",
     "named": false
   },
   {
@@ -65,7 +2178,75 @@
     "named": false
   },
   {
+    "type": "finally",
+    "named": false
+  },
+  {
+    "type": "for",
+    "named": false
+  },
+  {
+    "type": "forSome",
+    "named": false
+  },
+  {
+    "type": "if",
+    "named": false
+  },
+  {
+    "type": "implicit",
+    "named": false
+  },
+  {
+    "type": "import",
+    "named": false
+  },
+  {
+    "type": "lazy",
+    "named": false
+  },
+  {
+    "type": "match",
+    "named": false
+  },
+  {
+    "type": "new",
+    "named": false
+  },
+  {
     "type": "null",
+    "named": false
+  },
+  {
+    "type": "object",
+    "named": false
+  },
+  {
+    "type": "override",
+    "named": false
+  },
+  {
+    "type": "package",
+    "named": false
+  },
+  {
+    "type": "return",
+    "named": false
+  },
+  {
+    "type": "super",
+    "named": false
+  },
+  {
+    "type": "this",
+    "named": false
+  },
+  {
+    "type": "throw",
+    "named": false
+  },
+  {
+    "type": "trait",
     "named": false
   },
   {
@@ -73,7 +2254,47 @@
     "named": false
   },
   {
-    "type": "u",
+    "type": "try",
+    "named": false
+  },
+  {
+    "type": "type",
+    "named": false
+  },
+  {
+    "type": "val",
+    "named": false
+  },
+  {
+    "type": "var",
+    "named": false
+  },
+  {
+    "type": "while",
+    "named": false
+  },
+  {
+    "type": "with",
+    "named": false
+  },
+  {
+    "type": "yield",
+    "named": false
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "|",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
+  },
+  {
+    "type": "~",
     "named": false
   }
 ]

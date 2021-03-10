@@ -6,9 +6,7 @@ comments
  * /*
  *    * ******* ////
    * / /*/**/*/
- */*/ true /* */ false 1.0e5F
- 1.0 // foo
- 2.0
- // blah
+ */*/
+ true
 -------
-(compilation_unit)
+(SourceFile (Literal))

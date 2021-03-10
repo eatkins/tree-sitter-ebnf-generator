@@ -11,8 +11,11 @@ Usage: invoke this script with optional arguments leading grammar file as the fi
 
 Options:
   -o|--output-file  specifies the optional output file for the tree-sitter dsl
-                    (default nil)
-  -v|--verbose      prints the out (default true if output_file == nil, otherwise false)
+                      default: nil
+  -v|--verbose      prints the parsed tree to stdout
+                      default: true if output_file == nil, otherwise false
+  -q|--quiet        disables printing the parsed tree to stdout
+                      default: false
   -h|--help         prints this message
 ]]
 
@@ -123,6 +126,7 @@ local function print_help()
   os.exit(0)
 end
 local verbose = false
+local quiet = false
 local output_file = nil
 local file = nil
 
@@ -144,6 +148,8 @@ local function parse_args()
   while arg do
     if arg == "-v" or arg == "--verbose" then
       verbose = true
+    elseif arg == "-q" or arg == "--quiet" then
+      quiet = true
     elseif arg == "-o" or arg == "--output-file" then
       output_file = table.remove(args, 1)
       assert(output_file, "usage: must provide an output file with " .. arg)
@@ -170,22 +176,23 @@ parse_args()
 local function print_table(t)
   print("{" .. table.concat(t, ", ") .. "}")
 end
-local function savetoken(clear)
-  local function replace_dollars(token)
-    if token:find("%$") then
-      return token:gsub("%$([(]?)(%w+)([)]?)", function(lp, w, rp)
-        local value = values[w]
-        if not value then
-          error("no constant defined for " .. w .. " in " .. token)
-        end
-        return value .. (#lp == 0 and rp or "")
-      end)
-    else
-      return token
-    end
+local function replace_dollars(token, debug)
+  if token:find("%$") then
+    return token:gsub("%$([(]?)(%w+)([)]?)", function(lp, w, rp)
+      local value = values[w]
+      if not value then
+        error("no constant defined for " .. w .. " in " .. token)
+      end
+      if not value.replaced then value.replaced = replace_dollars(value.raw) end
+      return value.replaced .. (#lp == 0 and rp or "")
+    end)
+  else
+    return token
   end
+end
+local function savetoken(clear)
   if id and body and is_value then
-    values[id] = replace_dollars(table.concat(body, " "))
+    values[id] = { raw = table.concat(body, " ") }
   elseif id and body and def then
     local full_body = table.concat(body, " ")
     local start, _, literal = id:find("%[([a-z])]")
@@ -197,7 +204,7 @@ local function savetoken(clear)
         id = "_" .. id
       end
     end
-    table.insert(tokens, { id, replace_dollars(full_body), rules })
+    table.insert(tokens, { id, full_body , rules })
     tokenmap[id] = { def, line_num, math.max(count - 1, line_num) }
   end
   id = nil
@@ -252,29 +259,6 @@ end
 savetoken()
 
 local contextFree = {}
-local function grouped(string)
-  local s, e, prec, content = string:find("([0-9<>])[(](.*)[)]")
-  if s and s > 1 then
-    local _, e = string:find("(%s+)")
-    if e == s - 1 then s = 1 end
-  end
-  if e and e < #string then
-    _, e = string:find("%s+")
-  end
-  prec = s == 1 and e == #string and prec
-  content = prec and content or string
-  return function(continuation)
-    local result = continuation(content)
-    local num = tonumber(prec)
-    if num then
-      return "prec(" .. num .. ", " .. result .. ")"
-    elseif prec then
-      return "prec." .. (prec == "<" and "left" or "right") .. "(" .. result .. ")"
-    else
-      return result
-    end
-  end
-end
 
 local char = string.char
 local SPACE = 0x20
@@ -337,6 +321,7 @@ local REPEAT = "repeat"
 local OPTIONAL = "optional"
 local MULTI_CHOICE = "multi_choice"
 local PRECEDENCE = "precedence"
+local IMMEDIATE = "immediate"
 
 local function new_sequence(precedence)
   return { sequence = {}, precedence = precedence or 0, kind = SEQUENCE }
@@ -394,7 +379,7 @@ local function print_node(n, offset, max_width)
     end
     local function handle_children(node)
       return function(outer, new_offset)
-        if outer == "seq(" or outer == "choice(" or outer == "[" then
+        if outer == "seq(" or outer == "choice(" or outer == "[" or outer == "token.immediate(" then
           local parts = {}
           local multi_line = false
           for _, n in ipairs(node.children) do
@@ -450,10 +435,13 @@ local function print_node(n, offset, max_width)
       write_repeat(OPTIONAL)
     elseif n.kind == CHOICE then
       return write_function_with_args(CHOICE, { kind = SEQUENCE, children = n.children })
+    elseif n.kind == IMMEDIATE then
+      return write_function_with_args("token.immediate", { kind = SEQUENCE, children = n.children })
     elseif n.kind == PRECEDENCE then
       local modifier, next_node = unpack(n.children)
       local prec = tonumber(modifier:match("([0-9]+)"))
       local assoc = modifier:match("([<>])")
+      local immediate = modifier:match("([%!])")
       local func =
         (assoc == LEFT_ASSOCIATIVE and "prec.left") or
         (assoc == RIGHT_ASSOCIATIVE and "prec.right") or
@@ -522,6 +510,12 @@ local function flatten(n, string)
       table.insert(result.children, node)
     elseif n.kind == ARRAY then
       table.insert(result.children, n)
+    elseif n.kind == IMMEDIATE then
+      local immediate = new_node(IMMEDIATE)
+      for _, c in ipairs(n.children) do
+        table.insert(immediate.children, flatten(c))
+      end
+      table.insert(result.children, immediate)
     else
       error("unknown kind: " .. (n.kind or "nil"))
     end
@@ -532,9 +526,16 @@ local function flatten(n, string)
   return #result.children == 1 and result.children[1] or result
 end
 
-local function maybe_add_reference_impl(node, current_word, externals, string)
+local function source_error(comment, source_info)
+  local msg = comment .. " in"
+  .. " rule '" .. source_info.lhs .. "' defined at line " .. source_info.start_line
+  .. "\n" .. source_info.rhs
+  error(msg)
+end
+local function maybe_add_reference_impl(node, current_word, externals, source_info)
   local id = table.concat(current_word)
-  id = tokenmap[id] and id or tokenmap["_" .. id] and "_" .. id
+  local init_id = id
+  id = tokenmap[id] and id or (tokenmap["_" .. id] and "_" .. id)
   if id then
     add_reference(node, id)
   elseif externals then
@@ -542,21 +543,28 @@ local function maybe_add_reference_impl(node, current_word, externals, string)
     tokenmap[id] = true
     add_reference(node, id)
   else
-    error("no reference exists for " .. table.concat(current_word) .. " in " .. tostring(string))
+    source_error("no reference exists for " .. table.concat(current_word), source_info)
   end
 end
 
-local function parse_body(string, externals)
+local function parse_body(id, string)
+  local externals = id == "externals"
   local bytes = { string:byte(1, -1) }
   local node_stack = { new_node(ROOT) }
   local last_byte = nil
   local current_word = {}
   local state_stack = { NONE }
+  local _, start_line, end_line = unpack(tokenmap[id])
+  local source_info = {
+    lhs = id,
+    rhs = string,
+    start_line = start_line
+  }
   for _, b in ipairs(bytes) do
     local state = state_stack[#state_stack]
     local node = node_stack[#node_stack]
     local function maybe_add_reference()
-      if current_word then maybe_add_reference_impl(node, current_word, externals, string) end
+      if current_word then maybe_add_reference_impl(node, current_word, externals, source_info) end
       current_word = nil
     end
     if (b == SPACE or b == NEWLINE) and state < _IN_CHAR_GROUPING then
@@ -590,7 +598,7 @@ local function parse_body(string, externals)
       add_literal(node, current_word)
       current_word = nil
       table.remove(state_stack)
-    elseif b == LEFT_CURLY_BRACKET and state == NONE then
+    elseif b == LEFT_CURLY_BRACKET and state < _IN_CHAR_GROUPING  then
       current_word = nil
       local array = new_node(ARRAY)
       local next_node = new_node(SEQUENCE)
@@ -631,12 +639,20 @@ local function parse_body(string, externals)
       current_word = nil
       local next_node = new_node(SEQUENCE)
       local prec = nil
+      local is_immediate = false
+      local immediate = nil
+      modifier = modifier:gsub("!", function(i) is_immediate = true; return "" end)
       if #modifier > 0 then
         prec = new_node(PRECEDENCE)
         table.insert(prec.children, modifier)
         table.insert(prec.children, next_node)
       end
-      table.insert(node.children, prec or next_node)
+      if is_immediate then
+        immediate = new_node(IMMEDIATE)
+        table.insert(immediate.children, prec or next_node)
+      end
+      local nn = prec or immediate or next_node
+      table.insert(node.children, prec or immediate or next_node)
       table.insert(node_stack, next_node)
       table.insert(state_stack, IN_GROUP)
     elseif b == RIGHT_PARENS and state == NONE then
@@ -651,7 +667,9 @@ local function parse_body(string, externals)
       end
     elseif b == PIPE and (state == NONE or state == IN_GROUP or state == IN_CHOICE) then
       local seq = node.children
-      assert(#seq > 0, "must have element to left of choice in (" .. string .. ")")
+      if #seq == 0 then
+        source_error("must have element to left of choice", source_info)
+      end
       local choice_node = new_node(SEQUENCE)
       table.insert(state_stack, IN_CHOICE)
       table.insert(node_stack, choice_node)
@@ -683,7 +701,7 @@ local function parse_body(string, externals)
     last_byte = b
   end
   if current_word then
-    maybe_add_reference_impl(node_stack[#node_stack], current_word, externals, string)
+    maybe_add_reference_impl(node_stack[#node_stack], current_word, externals, source_info)
     current_word = nil
   end
   while #state_stack > 1 do
@@ -701,8 +719,9 @@ local rule_defs = {}
 
 for _, v in ipairs(tokens) do
   local id, body, in_rules = unpack(v)
+  local replaced = replace_dollars(body)
   local tree_sitter_body = {}
-  local parsed = parse_body(body, id == "externals")
+  local parsed = parse_body(id, replaced)
   local base_indent = in_rules and "    " or "  "
   local def = { base_indent .. id .. ": $ => " }
   for line in parsed:gmatch("([^\n]*)") do table.insert(tree_sitter_body, line) end
@@ -722,7 +741,7 @@ for _, v in ipairs(tokens) do
   local prefix = { base_indent .. "/*", base_indent .. " * " .. index_prefix }
   for i, v in ipairs(full_body) do
     local start, space_end = v:find("%s+")
-    if start == 1 then v = v:sub(space_end + 1) end
+    if start == 1 then v = v:sub(start + 2) end
     table.insert(prefix, base_indent .. " * " .. v:gsub("*/", "*∕")) -- this adds a unicode division sign
   end
   prefix = table.concat(prefix, "\n") .. "\n" .. base_indent .. " */\n"
@@ -738,9 +757,34 @@ while slash_index do
   name = name:sub(slash_index + 1)
   slash_index = name:find("/")
 end
+local constants = {}
+for k, v in pairs(values) do
+  table.insert(constants, { k, v })
+end
+table.sort(constants, function(a, b) return a[1] < b[1] end)
+local max_key_len = 0
+for _, c in ipairs(constants) do max_key_len = math.max(max_key_len, #c[1]) end
+local key_padding = max_key_len + 2
+local constants_comment = { "/*", " * inline constants: " }
+for _, c in ipairs(constants) do
+  local key, value = unpack(c)
+  local padding = ""
+  for i = #key, key_padding do padding = padding .. " " end
+  local base = key .. padding .. ":= " .. value.raw
+  table.insert(constants_comment, " * " .. base)
+  if not value.replaced then error(key .. " is unused") end
+  if value.replaced ~= value.raw then
+    table.insert(constants_comment, " *     (" .. value.replaced .. ")")
+  end
+end
+table.insert(constants_comment, " */")
 
 local content = [[
 // This file was autogenerated by parse_grammar.lua from ]] .. file .. [[.
+
+]] .. table.concat(constants_comment, "\n") .. [[
+
+
 module.exports = grammar({
   name: ']] .. name .. [[',
 
@@ -751,4 +795,4 @@ if output_file then
   print("writing to " .. output_file)
   io.open(output_file, "w"):write(content)
 end
-if verbose then print(content) end
+if not quiet and verbose then print(content) end

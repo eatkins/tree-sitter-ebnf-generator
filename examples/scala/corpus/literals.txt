@@ -1,0 +1,208 @@
+====================
+Numbers: Integer
+====================
+1
+123456789
+123456789L
+123456789l
+0x1234abcd
+0xABCDl
+0xABCDL
+0xDEADBEEF
+--------------------
+(SourceFile
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal))
+
+====================
+Numbers: Float
+====================
+3.14159
+3.14159f
+2.71828F
+12345.2
+12345.2e1
+12345.2e123
+12345.2e+123
+12345.2e-1234
+12345.2e-1
+12345.2e123
+12345.2e-123
+12345.2e-123f
+12345.2e-123F
+12345.2F
+12345.2f
+.1234
+.1234f
+.1234F
+.12345e1
+.12345e123
+.12345e+123
+.12345e-12
+.12345e1f
+.12345e123f
+.12345e+123f
+.12345e-12f
+.12345e-1f
+.12345e1F
+.12345e123F
+.12345e+123F
+.12345e-12F
+.12345e1F
+.12345e123F
+.12345e-123F
+--------------------
+(SourceFile
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal))
+
+====================
+Numbers: Double
+====================
+3.14159d
+2.71828D
+12345.2e-123d
+12345.2e-123D
+12345.2D
+12345.2d
+.1234d
+.1234D
+.12345e1d
+.12345e123d
+.12345e+123d
+.12345e-12d
+.12345e-1d
+.12345e1D
+.12345e123D
+.12345e+123D
+.12345e-12D
+.12345e1D
+.12345e123D
+.12345e-123D
+--------------------
+(SourceFile
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal)
+  (Literal))
+
+
+====================
+Character
+====================
+'a'
+'\t'
+--------------------
+(SourceFile
+	(Literal)
+	(Literal))
+
+====================
+Boolean
+====================
+true
+false
+--------------------
+(SourceFile (Literal) (Literal))
+
+====================
+Character
+====================
+'a'
+'\t'
+--------------------
+(SourceFile
+	(Literal)
+	(Literal))
+
+====================
+Normal strings
+====================
+"hello"
+"blah\n"
+"tabs\t spaces \"'"
+--------------------
+(SourceFile
+	(Literal)
+	(Literal)
+	(Literal))
+
+====================
+Raw strings
+====================
+"""foo"""
+--------------------
+(SourceFile
+	(Literal))
+
+====================
+Symbols
+====================
+'foo
+'foo_bar
+--------------------
+(SourceFile
+	(Literal)
+	(Literal))
+
+====================
+Null
+====================
+null
+--------------------
+(SourceFile (Literal))
+

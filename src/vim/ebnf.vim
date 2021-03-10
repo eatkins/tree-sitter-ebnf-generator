@@ -22,6 +22,6 @@ syn match comment /^[ ]*;.\+\n\|; [^'"]\+\n/
 syn region CONST_RHS start='/ [:][=] /' end=/\n/ contains=any
 hi def link dollar_expansion Keyword
 hi def link constant_assign Keyword
-hi def link assign StorageClass
+"hi def link assign StorageClass
 hi def link any StorageClass
 hi def link comment Comment

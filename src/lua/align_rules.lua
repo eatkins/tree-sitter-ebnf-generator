@@ -26,7 +26,8 @@ local function reformat_lines()
     if key and delim and value then
       local aligned_line = { (in_rules and "  " or "") .. key }
       for i = 1, max_len - #key do table.insert(aligned_line, " ") end
-      table.insert(lines, table.concat(aligned_line) .. " " .. delim .. " " .. value)
+      local padded_delim = #delim == 3 and delim or (delim .. " ")
+      table.insert(lines, table.concat(aligned_line) .. " " .. padded_delim .. " " .. value)
     elseif key and delim then
       table.insert(lines, pipe_indent .. delim)
     else
@@ -40,6 +41,8 @@ for line in io.lines(file) do
     raw_lines = {}
     in_rules = true
     table.insert(lines, line)
+  elseif line:find("%s*;") == 1 then
+    table.insert(raw_lines, { line })
   else
     local start_pattern = (in_rules and "  " or "") .. "([^%s]+)%s*(:?:=)%s*(.*)"
     local key, delim, value = line:match(start_pattern)
