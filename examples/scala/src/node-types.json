@@ -29,6 +29,10 @@
     "named": false
   },
   {
+    "type": "-",
+    "named": false
+  },
+  {
     "type": "/*",
     "named": false
   },
@@ -58,6 +62,10 @@
   },
   {
     "type": "false",
+    "named": false
+  },
+  {
+    "type": "null",
     "named": false
   },
   {

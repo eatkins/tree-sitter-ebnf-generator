@@ -171,8 +171,21 @@ local function print_table(t)
   print("{" .. table.concat(t, ", ") .. "}")
 end
 local function savetoken(clear)
+  local function replace_dollars(token)
+    if token:find("%$") then
+      return token:gsub("%$([(]?)(%w+)([)]?)", function(lp, w, rp)
+        local value = values[w]
+        if not value then
+          error("no constant defined for " .. w .. " in " .. token)
+        end
+        return value .. (#lp == 0 and rp or "")
+      end)
+    else
+      return token
+    end
+  end
   if id and body and is_value then
-    values[id] = table.concat(body, " ")
+    values[id] = replace_dollars(table.concat(body, " "))
   elseif id and body and def then
     local full_body = table.concat(body, " ")
     local start, _, literal = id:find("%[([a-z])]")
@@ -184,10 +197,7 @@ local function savetoken(clear)
         id = "_" .. id
       end
     end
-    local sanitized = full_body:gsub("%$([(]?)(%w+)([)]?)", function(lp, w, rp)
-      return values[w] .. (#lp == 0 and rp or "")
-    end)
-    table.insert(tokens, { id, sanitized, rules })
+    table.insert(tokens, { id, replace_dollars(full_body), rules })
     tokenmap[id] = { def, line_num, math.max(count - 1, line_num) }
   end
   id = nil
@@ -460,7 +470,7 @@ local function print_node(n, offset, max_width)
   return res
 end
 
-local function flatten(n)
+local function flatten(n, string)
   local function impl(n, result)
     local function flatten_repeat(n, result, kind)
       local opt_node = new_node(kind)
@@ -470,7 +480,7 @@ local function flatten(n)
     if n.kind == SEQUENCE or n.kind == ROOT then
       local seq = result
       local len = #n.children
-      if len == 0 then error("empty sequence") end
+      if len == 0 then error("empty sequence in " .. tostring(string)) end
       if len > 1 then
         if n.kind == SEQUENCE then
           seq = new_node(SEQUENCE)
@@ -495,7 +505,7 @@ local function flatten(n)
     elseif n.kind == CHOICE then
       local node = new_node(CHOICE)
       local children = {}
-      for _, v in ipairs(n.children) do table.insert(children, flatten(v)) end
+      for _, v in ipairs(n.children) do table.insert(children, flatten(v, string)) end
       for _, v in ipairs(children) do
         if v.kind == CHOICE then
           for _, n in ipairs(v.children) do table.insert(node.children, n) end
@@ -508,7 +518,7 @@ local function flatten(n)
       local p, next_node = unpack(n.children)
       local node = new_node(PRECEDENCE)
       table.insert(node.children, p)
-      table.insert(node.children, flatten(next_node))
+      table.insert(node.children, flatten(next_node, string))
       table.insert(result.children, node)
     elseif n.kind == ARRAY then
       table.insert(result.children, n)
@@ -522,7 +532,7 @@ local function flatten(n)
   return #result.children == 1 and result.children[1] or result
 end
 
-local function maybe_add_reference(node, current_word, externals)
+local function maybe_add_reference_impl(node, current_word, externals, string)
   local id = table.concat(current_word)
   id = tokenmap[id] and id or tokenmap["_" .. id] and "_" .. id
   if id then
@@ -532,7 +542,7 @@ local function maybe_add_reference(node, current_word, externals)
     tokenmap[id] = true
     add_reference(node, id)
   else
-    error("no reference exists for " .. table.concat(current_word))
+    error("no reference exists for " .. table.concat(current_word) .. " in " .. tostring(string))
   end
 end
 
@@ -545,8 +555,12 @@ local function parse_body(string, externals)
   for _, b in ipairs(bytes) do
     local state = state_stack[#state_stack]
     local node = node_stack[#node_stack]
+    local function maybe_add_reference()
+      if current_word then maybe_add_reference_impl(node, current_word, externals, string) end
+      current_word = nil
+    end
     if (b == SPACE or b == NEWLINE) and state < _IN_CHAR_GROUPING then
-      if current_word then maybe_add_reference(node, current_word, externals) end
+      maybe_add_reference()
       current_word = nil
     elseif b == DOUBLE_QUOTE and state ~= IN_SINGLE_QUOTE and state < _ANY_REGEX then
       if state == IN_DOUBLE_QUOTE then
@@ -585,8 +599,7 @@ local function parse_body(string, externals)
       table.insert(node_stack, next_node)
       table.insert(state_stack, IN_ARRAY)
     elseif b == RIGHT_CURLY_BRACKET and state == IN_ARRAY then
-      if current_word then maybe_add_reference(node, current_word, externals) end
-      current_word = nil
+      maybe_add_reference()
       table.remove(node_stack)
       local prev_state = table.remove(state_stack)
       while prev_state == IN_CHOICE do
@@ -629,8 +642,7 @@ local function parse_body(string, externals)
     elseif b == RIGHT_PARENS and state == NONE then
       error("unmatched right parens")
     elseif b == RIGHT_PARENS and (state == IN_GROUP or state == IN_CHOICE) then
-      if current_word then maybe_add_reference(node, current_word, externals) end
-      current_word = nil
+      maybe_add_reference()
       table.remove(node_stack)
       local prev_state = table.remove(state_stack)
       while prev_state == IN_CHOICE do
@@ -649,8 +661,7 @@ local function parse_body(string, externals)
 
       node.children = { { kind = CHOICE, children = { left, right } } }
     elseif state < _IN_CHAR_GROUPING and (b == PLUS or b == TIMES or b == QUESTION_MARK) then
-      if current_word then maybe_add_reference(node, current_word, externals) end
-      current_word = nil
+      maybe_add_reference()
       assert(#node.children >= 1, "no modifiers allowed for empty sequence")
       local kind =
         (b == PLUS and REPEAT_AT_LEAST_ONCE)
@@ -672,7 +683,7 @@ local function parse_body(string, externals)
     last_byte = b
   end
   if current_word then
-    maybe_add_reference(node_stack[#node_stack], current_word, externals)
+    maybe_add_reference_impl(node_stack[#node_stack], current_word, externals, string)
     current_word = nil
   end
   while #state_stack > 1 do
@@ -682,7 +693,8 @@ local function parse_body(string, externals)
     if removed == IN_CHOICE then table.remove(node_stack) end
   end
   assert(#node_stack == 1, "unbalanced node stack for (" .. string .. ")")
-  return print_node(flatten(table.remove(node_stack)))
+  return print_node(flatten(table.remove(node_stack), string))
+
 end
 
 local rule_defs = {}

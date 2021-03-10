@@ -29,10 +29,11 @@ while (( "$#" )); do
 done
 
 if [ -n "$WATCH" ]; then
-	ls **.ebnf **/*.txt **/*.lua src/*.c | entr -c $0 $PARAMS
+	echo `pwd`
+	ls ../../src/lua/parse_grammar.lua
+	ls **.ebnf **/*.txt ../../src/lua/parse_grammar.lua src/*.c | entr -c $0 $PARAMS
 fi
 
-echo `pwd`
 ../../src/lua/parse_grammar.lua -o grammar.js scala.ebnf $VERBOSE
 tree-sitter generate
 tree-sitter test $DEBUG

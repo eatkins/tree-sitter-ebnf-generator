@@ -255,6 +255,828 @@ module.exports = grammar({
      * scala.ebnf:54 
      * semi                 ::= ';' | nl+
      */
-    _semi: $ => choice(';', repeat1($._nl))
+    _semi: $ => choice(';', repeat1($._nl)),
+    /*
+     * scala.ebnf:57-64 
+     * Literal           ::=  '-'? integerLiteral
+     * |  '-'? floatingPointLiteral
+     * |  booleanLiteral
+     * |  characterLiteral
+     * |  stringLiteral
+     * |  interpolatedString
+     * |  symbolLiteral
+     * |  'null'
+     */
+    Literal: $ => choice(
+                    seq(optional('-'), $._integerLiteral),
+                    seq(optional('-'), $._floatingPointLiteral),
+                    $._booleanLiteral,
+                    $._characterLiteral,
+                    $._stringLiteral,
+                    $._interpolatedString,
+                    $._symbolLiteral,
+                    'null'
+                  ),
+    /*
+     * scala.ebnf:66 
+     * QualId            ::=  id ('.' id)*
+     */
+    QualId: $ => seq($._id, repeat(seq('.', $._id))),
+    /*
+     * scala.ebnf:67 
+     * ids               ::=  id (',' id)*
+     */
+    _ids: $ => seq($._id, repeat(seq(',', $._id))),
+    /*
+     * scala.ebnf:69-70 
+     * Path              ::=  StableId
+     * |  (id '.')? 'this'
+     */
+    Path: $ => choice($.StableId, seq(optional(seq($._id, '.')), 'this')),
+    /*
+     * scala.ebnf:71-73 
+     * StableId          ::=  id
+     * |  Path '.' id
+     * |  (id '.')? 'super' ClassQualifier? '.' id
+     */
+    StableId: $ => choice(
+                     $._id,
+                     seq($.Path, '.', $._id),
+                     seq(optional(seq($._id, '.')), 'super', optional($.ClassQualifier), '.', $._id)
+                   ),
+    /*
+     * scala.ebnf:74 
+     * ClassQualifier    ::=  '[' id ']'
+     */
+    ClassQualifier: $ => seq('[', $._id, ']'),
+    /*
+     * scala.ebnf:76-77 
+     * Type              ::=  FunctionArgTypes '=>' Type
+     * |  InfixType ExistentialClause?
+     */
+    Type: $ => choice(
+                 seq($.FunctionArgTypes, '=>', $.Type),
+                 seq($.InfixType, optional($.ExistentialClause))
+               ),
+    /*
+     * scala.ebnf:78-79 
+     * FunctionArgTypes  ::= InfixType
+     * | '(' ParamType (',' ParamType )*? ')'
+     */
+    FunctionArgTypes: $ => choice($.InfixType, seq('(', $.ParamType, optional(repeat(seq(',', $.ParamType))), ')')),
+    /*
+     * scala.ebnf:80 
+     * ExistentialClause ::=  'forSome' '{' ExistentialDcl (semi ExistentialDcl)* '}'
+     */
+    ExistentialClause: $ => seq('forSome', '{', $.ExistentialDcl, repeat(seq($._semi, $.ExistentialDcl)), '}'),
+    /*
+     * scala.ebnf:81-82 
+     * ExistentialDcl    ::=  'type' TypeDcl
+     * |  'val' ValDcl
+     */
+    ExistentialDcl: $ => choice(seq('type', $.TypeDcl), seq('val', $.ValDcl)),
+    /*
+     * scala.ebnf:83 
+     * InfixType         ::=  CompoundType (id nl? CompoundType)*
+     */
+    InfixType: $ => seq($.CompoundType, repeat(seq($._id, optional($._nl), $.CompoundType))),
+    /*
+     * scala.ebnf:84-85 
+     * CompoundType      ::=  AnnotType ('with' AnnotType)* Refinement?
+     * |  Refinement
+     */
+    CompoundType: $ => choice(
+                         seq($.AnnotType, repeat(seq('with', $.AnnotType)), optional($.Refinement)),
+                         $.Refinement
+                       ),
+    /*
+     * scala.ebnf:86 
+     * AnnotType         ::=  SimpleType Annotation*
+     */
+    AnnotType: $ => seq($.SimpleType, repeat($.Annotation)),
+    /*
+     * scala.ebnf:87-91 
+     * SimpleType        ::=  SimpleType TypeArgs
+     * |  SimpleType '#' id
+     * |  StableId
+     * |  Path '.' 'type'
+     * |  '(' Types ')'
+     */
+    SimpleType: $ => choice(
+                       seq($.SimpleType, $.TypeArgs),
+                       seq($.SimpleType, '#', $._id),
+                       $.StableId,
+                       seq($.Path, '.', 'type'),
+                       seq('(', $.Types, ')')
+                     ),
+    /*
+     * scala.ebnf:92 
+     * TypeArgs          ::=  '[' Types ']'
+     */
+    TypeArgs: $ => seq('[', $.Types, ']'),
+    /*
+     * scala.ebnf:93 
+     * Types             ::=  Type (',' Type)*
+     */
+    Types: $ => seq($.Type, repeat(seq(',', $.Type))),
+    /*
+     * scala.ebnf:94 
+     * Refinement        ::=  nl? '{' RefineStat (semi RefineStat)* '}'
+     */
+    Refinement: $ => seq(optional($._nl), '{', $.RefineStat, repeat(seq($._semi, $.RefineStat)), '}'),
+    /*
+     * scala.ebnf:95-96 
+     * RefineStat        ::=  Dcl
+     * |  'type' TypeDef
+     */
+    RefineStat: $ => choice($.Dcl, seq('type', $.TypeDef)),
+    /*
+     * scala.ebnf:97 
+     * TypePat           ::=  Type
+     */
+    TypePat: $ => $.Type,
+    /*
+     * scala.ebnf:99-101 
+     * Ascription        ::=  ':' InfixType
+     * |  ':' Annotation Annotation*
+     * |  ':' '_' '*'
+     */
+    Ascription: $ => choice(
+                       seq(':', $.InfixType),
+                       seq(':', $.Annotation, repeat($.Annotation)),
+                       seq(':', '_', '*')
+                     ),
+    /*
+     * scala.ebnf:103-104 
+     * Expr              ::=  (Bindings | 'implicit'? id | '_') '=>' Expr
+     * |  Expr1
+     */
+    Expr: $ => choice(
+                 seq(choice($.Bindings, seq(optional('implicit'), $._id), '_'), '=>', $.Expr),
+                 $.Expr1
+               ),
+    /*
+     * scala.ebnf:105-116 
+     * Expr1             ::=  'if' '(' Expr ')' nl* Expr (semi? 'else' Expr)?
+     * |  'while' '(' Expr ')' nl* Expr
+     * |  'try' Expr ('catch' Expr)? ('finally' Expr)?
+     * |  'do' Expr semi? 'while' '(' Expr ')'
+     * |  'for' ('(' Enumerators ')' | '{' Enumerators '}') nl* 'yield'? Expr
+     * |  'throw' Expr
+     * |  'return' Expr?
+     * |  (SimpleExpr '.')? id '=' Expr
+     * |  SimpleExpr1 ArgumentExprs '=' Expr
+     * |  PostfixExpr
+     * |  PostfixExpr Ascription
+     * |  PostfixExpr 'match' '{' CaseClauses '}'
+     */
+    Expr1: $ => choice(
+                  seq(
+                    'if',
+                    '(',
+                    $.Expr,
+                    ')',
+                    repeat($._nl),
+                    $.Expr,
+                    optional(seq(optional($._semi), 'else', $.Expr))
+                  ),
+                  seq('while', '(', $.Expr, ')', repeat($._nl), $.Expr),
+                  seq('try', $.Expr, optional(seq('catch', $.Expr)), optional(seq('finally', $.Expr))),
+                  seq('do', $.Expr, optional($._semi), 'while', '(', $.Expr, ')'),
+                  seq(
+                    'for',
+                    choice(seq('(', $.Enumerators, ')'), seq('{', $.Enumerators, '}')),
+                    repeat($._nl),
+                    optional('yield'),
+                    $.Expr
+                  ),
+                  seq('throw', $.Expr),
+                  seq('return', optional($.Expr)),
+                  seq(optional(seq($.SimpleExpr, '.')), $._id, '=', $.Expr),
+                  seq($.SimpleExpr1, $.ArgumentExprs, '=', $.Expr),
+                  $.PostfixExpr,
+                  seq($.PostfixExpr, $.Ascription),
+                  seq($.PostfixExpr, 'match', '{', $.CaseClauses, '}')
+                ),
+    /*
+     * scala.ebnf:117 
+     * PostfixExpr       ::=  InfixExpr (id nl?)?
+     */
+    PostfixExpr: $ => seq($.InfixExpr, optional(seq($._id, optional($._nl)))),
+    /*
+     * scala.ebnf:118-119 
+     * InfixExpr         ::=  PrefixExpr
+     * |  InfixExpr id nl? InfixExpr
+     */
+    InfixExpr: $ => choice($.PrefixExpr, seq($.InfixExpr, $._id, optional($._nl), $.InfixExpr)),
+    /*
+     * scala.ebnf:120 
+     * PrefixExpr        ::=  ('-' | '+' | '~' | '!')? SimpleExpr
+     */
+    PrefixExpr: $ => seq(optional(choice('-', '+', '~', '!')), $.SimpleExpr),
+    /*
+     * scala.ebnf:121-123 
+     * SimpleExpr        ::=  'new' (ClassTemplate | TemplateBody)
+     * |  BlockExpr
+     * |  SimpleExpr1 '_'?
+     */
+    SimpleExpr: $ => choice(
+                       seq('new', choice($.ClassTemplate, $.TemplateBody)),
+                       $.BlockExpr,
+                       seq($.SimpleExpr1, optional('_'))
+                     ),
+    /*
+     * scala.ebnf:124-130 
+     * SimpleExpr1       ::=  Literal
+     * |  Path
+     * |  '_'
+     * |  '(' Exprs? ')'
+     * |  SimpleExpr '.' id
+     * |  SimpleExpr TypeArgs
+     * |  SimpleExpr1 ArgumentExprs
+     */
+    SimpleExpr1: $ => choice(
+                        $.Literal,
+                        $.Path,
+                        '_',
+                        seq('(', optional($.Exprs), ')'),
+                        seq($.SimpleExpr, '.', $._id),
+                        seq($.SimpleExpr, $.TypeArgs),
+                        seq($.SimpleExpr1, $.ArgumentExprs)
+                      ),
+    /*
+     * scala.ebnf:131 
+     * Exprs             ::=  Expr (',' Expr)*
+     */
+    Exprs: $ => seq($.Expr, repeat(seq(',', $.Expr))),
+    /*
+     * scala.ebnf:132-134 
+     * ArgumentExprs     ::=  '(' Exprs? ')'
+     * |  '(' (Exprs ',')? PostfixExpr ':' '_' '*' ')'
+     * |  nl? BlockExpr
+     */
+    ArgumentExprs: $ => choice(
+                          seq('(', optional($.Exprs), ')'),
+                          seq('(', optional(seq($.Exprs, ',')), $.PostfixExpr, ':', '_', '*', ')'),
+                          seq(optional($._nl), $.BlockExpr)
+                        ),
+    /*
+     * scala.ebnf:135-136 
+     * BlockExpr         ::=  '{' CaseClauses '}'
+     * |  '{' Block '}'
+     */
+    BlockExpr: $ => choice(seq('{', $.CaseClauses, '}'), seq('{', $.Block, '}')),
+    /*
+     * scala.ebnf:137 
+     * Block             ::=  BlockStat (semi BlockStat)* ResultExpr?
+     */
+    Block: $ => seq($.BlockStat, repeat(seq($._semi, $.BlockStat)), optional($.ResultExpr)),
+    /*
+     * scala.ebnf:138-141 
+     * BlockStat         ::=  Import
+     * |  Annotation* 'implicit'? 'lazy'? Def
+     * |  Annotation* LocalModifier* TmplDef
+     * |  Expr1
+     */
+    BlockStat: $ => choice(
+                      $.Import,
+                      seq(repeat($.Annotation), optional('implicit'), optional('lazy'), $.Def),
+                      seq(repeat($.Annotation), repeat($.LocalModifier), $.TmplDef),
+                      $.Expr1
+                    ),
+    /*
+     * scala.ebnf:142-143 
+     * ResultExpr        ::=  Expr1
+     * |  (Bindings | ('implicit'? id | '_') ':' CompoundType) '=>' Block
+     */
+    ResultExpr: $ => choice(
+                       $.Expr1,
+                       seq(
+                         choice(
+                           $.Bindings,
+                           seq(choice(seq(optional('implicit'), $._id), '_'), ':', $.CompoundType)
+                         ),
+                         '=>',
+                         $.Block
+                       )
+                     ),
+    /*
+     * scala.ebnf:145 
+     * Enumerators       ::=  Generator (semi Generator)*
+     */
+    Enumerators: $ => seq($.Generator, repeat(seq($._semi, $.Generator))),
+    /*
+     * scala.ebnf:146 
+     * Generator         ::=  Pattern1 '<-' Expr (semi? Guard | semi Pattern1 '=' Expr)*
+     */
+    Generator: $ => seq(
+                      $.Pattern1,
+                      '<-',
+                      $.Expr,
+                      repeat(choice(seq(optional($._semi), $.Guard), seq($._semi, $.Pattern1, '=', $.Expr)))
+                    ),
+    /*
+     * scala.ebnf:148 
+     * CaseClauses       ::=  CaseClause CaseClause*
+     */
+    CaseClauses: $ => seq($.CaseClause, repeat($.CaseClause)),
+    /*
+     * scala.ebnf:149 
+     * CaseClause        ::=  'case' Pattern Guard? '=>' Block
+     */
+    CaseClause: $ => seq('case', $.Pattern, optional($.Guard), '=>', $.Block),
+    /*
+     * scala.ebnf:150 
+     * Guard             ::=  'if' PostfixExpr
+     */
+    Guard: $ => seq('if', $.PostfixExpr),
+    /*
+     * scala.ebnf:152 
+     * Pattern           ::=  Pattern1 '|' Pattern1*
+     */
+    Pattern: $ => seq($.Pattern1, '|', repeat($.Pattern1)),
+    /*
+     * scala.ebnf:153-155 
+     * Pattern1          ::=  boundvarid ':' TypePat
+     * |  '_' ':' TypePat
+     * |  Pattern2
+     */
+    Pattern1: $ => choice(seq($._boundvarid, ':', $.TypePat), seq('_', ':', $.TypePat), $.Pattern2),
+    /*
+     * scala.ebnf:156-157 
+     * Pattern2          ::=  id ('@' Pattern3)?
+     * |  Pattern3
+     */
+    Pattern2: $ => choice(seq($._id, optional(seq('@', $.Pattern3))), $.Pattern3),
+    /*
+     * scala.ebnf:158-159 
+     * Pattern3          ::=  SimplePattern
+     * |  SimplePattern id nl? SimplePattern*
+     */
+    Pattern3: $ => choice(
+                     $.SimplePattern,
+                     seq($.SimplePattern, $._id, optional($._nl), repeat($.SimplePattern))
+                   ),
+    /*
+     * scala.ebnf:160-166 
+     * SimplePattern     ::=  '_'
+     * |  varid
+     * |  Literal
+     * |  StableId
+     * |  StableId '(' Patterns? ')'
+     * |  StableId '(' (Patterns ',')? (id '@')? '_' '*' ')'
+     * |  '(' Patterns? ')'
+     */
+    SimplePattern: $ => choice(
+                          '_',
+                          $._varid,
+                          $.Literal,
+                          $.StableId,
+                          seq($.StableId, '(', optional($.Patterns), ')'),
+                          seq(
+                            $.StableId,
+                            '(',
+                            optional(seq($.Patterns, ',')),
+                            optional(seq($._id, '@')),
+                            '_',
+                            '*',
+                            ')'
+                          ),
+                          seq('(', optional($.Patterns), ')')
+                        ),
+    /*
+     * scala.ebnf:167-168 
+     * Patterns          ::=  Pattern (',' Patterns)?
+     * |  '_' '*'
+     */
+    Patterns: $ => choice(seq($.Pattern, optional(seq(',', $.Patterns))), seq('_', '*')),
+    /*
+     * scala.ebnf:170 
+     * TypeParamClause   ::=  '[' VariantTypeParam (',' VariantTypeParam)* ']'
+     */
+    TypeParamClause: $ => seq('[', $.VariantTypeParam, repeat(seq(',', $.VariantTypeParam)), ']'),
+    /*
+     * scala.ebnf:171 
+     * FunTypeParamClause::=  '[' TypeParam (',' TypeParam)* ']'
+     */
+    FunTypeParamClause: $ => seq('[', $.TypeParam, repeat(seq(',', $.TypeParam)), ']'),
+    /*
+     * scala.ebnf:172 
+     * VariantTypeParam  ::=  Annotation* ('+' | '-')? TypeParam
+     */
+    VariantTypeParam: $ => seq(repeat($.Annotation), optional(choice('+', '-')), $.TypeParam),
+    /*
+     * scala.ebnf:173-174 
+     * TypeParam         ::=  (id | '_') TypeParamClause? ('>:' Type)? ('<:' Type)?
+     * ('<%' Type)* (':' Type)*
+     */
+    TypeParam: $ => seq(
+                      choice($._id, '_'),
+                      optional($.TypeParamClause),
+                      optional(seq('>:', $.Type)),
+                      optional(seq('<:', $.Type)),
+                      repeat(seq('<%', $.Type)),
+                      repeat(seq(':', $.Type))
+                    ),
+    /*
+     * scala.ebnf:175 
+     * ParamClauses      ::=  ParamClause* (nl? '(' 'implicit' Params ')')?
+     */
+    ParamClauses: $ => seq(
+                         repeat($.ParamClause),
+                         optional(seq(optional($._nl), '(', 'implicit', $.Params, ')'))
+                       ),
+    /*
+     * scala.ebnf:176 
+     * ParamClause       ::=  nl? '(' Params? ')'
+     */
+    ParamClause: $ => seq(optional($._nl), '(', optional($.Params), ')'),
+    /*
+     * scala.ebnf:177 
+     * Params            ::=  Param (',' Param)*
+     */
+    Params: $ => seq($.Param, repeat(seq(',', $.Param))),
+    /*
+     * scala.ebnf:178 
+     * Param             ::=  Annotation* id (':' ParamType)? ('=' Expr)?
+     */
+    Param: $ => seq(
+                  repeat($.Annotation),
+                  $._id,
+                  optional(seq(':', $.ParamType)),
+                  optional(seq('=', $.Expr))
+                ),
+    /*
+     * scala.ebnf:179-181 
+     * ParamType         ::=  Type
+     * |  '=>' Type
+     * |  Type '*'
+     */
+    ParamType: $ => choice($.Type, seq('=>', $.Type), seq($.Type, '*')),
+    /*
+     * scala.ebnf:182-183 
+     * ClassParamClauses ::=  ClassParamClause*
+     * (nl? '(' 'implicit' ClassParams ')')?
+     */
+    ClassParamClauses: $ => seq(
+                              repeat($.ClassParamClause),
+                              optional(seq(optional($._nl), '(', 'implicit', $.ClassParams, ')'))
+                            ),
+    /*
+     * scala.ebnf:184 
+     * ClassParamClause  ::=  nl? '(' ClassParams? ')'
+     */
+    ClassParamClause: $ => seq(optional($._nl), '(', optional($.ClassParams), ')'),
+    /*
+     * scala.ebnf:185 
+     * ClassParams       ::=  ClassParam (',' ClassParam)*
+     */
+    ClassParams: $ => seq($.ClassParam, repeat(seq(',', $.ClassParam))),
+    /*
+     * scala.ebnf:186-187 
+     * ClassParam        ::=  Annotation* Modifier* (('val' | 'var'))?
+     * id ':' ParamType ('=' Expr)?
+     */
+    ClassParam: $ => seq(
+                       repeat($.Annotation),
+                       repeat($.Modifier),
+                       optional(choice('val', 'var')),
+                       $._id,
+                       ':',
+                       $.ParamType,
+                       optional(seq('=', $.Expr))
+                     ),
+    /*
+     * scala.ebnf:188 
+     * Bindings          ::=  '(' Binding (',' Binding)* ')'
+     */
+    Bindings: $ => seq('(', $.Binding, repeat(seq(',', $.Binding)), ')'),
+    /*
+     * scala.ebnf:189 
+     * Binding           ::=  (id | '_') (':' Type)?
+     */
+    Binding: $ => seq(choice($._id, '_'), optional(seq(':', $.Type))),
+    /*
+     * scala.ebnf:191-193 
+     * Modifier          ::=  LocalModifier
+     * |  AccessModifier
+     * |  'override'
+     */
+    Modifier: $ => choice($.LocalModifier, $.AccessModifier, 'override'),
+    /*
+     * scala.ebnf:194-198 
+     * LocalModifier     ::=  'abstract'
+     * |  'final'
+     * |  'sealed'
+     * |  'implicit'
+     * |  'lazy'
+     */
+    LocalModifier: $ => choice('abstract', 'final', 'sealed', 'implicit', 'lazy'),
+    /*
+     * scala.ebnf:199 
+     * AccessModifier    ::=  ('private' | 'protected') AccessQualifier?
+     */
+    AccessModifier: $ => seq(choice('private', 'protected'), optional($.AccessQualifier)),
+    /*
+     * scala.ebnf:200 
+     * AccessQualifier   ::=  '[' (id | 'this') ']'
+     */
+    AccessQualifier: $ => seq('[', choice($._id, 'this'), ']'),
+    /*
+     * scala.ebnf:202 
+     * Annotation        ::=  '@' SimpleType ArgumentExprs*
+     */
+    Annotation: $ => seq('@', $.SimpleType, repeat($.ArgumentExprs)),
+    /*
+     * scala.ebnf:203 
+     * ConstrAnnotation  ::=  '@' SimpleType ArgumentExprs
+     */
+    ConstrAnnotation: $ => seq('@', $.SimpleType, $.ArgumentExprs),
+    /*
+     * scala.ebnf:205 
+     * TemplateBody      ::=  nl? '{' SelfType? TemplateStat (semi TemplateStat)* '}'
+     */
+    TemplateBody: $ => seq(
+                         optional($._nl),
+                         '{',
+                         optional($.SelfType),
+                         $.TemplateStat,
+                         repeat(seq($._semi, $.TemplateStat)),
+                         '}'
+                       ),
+    /*
+     * scala.ebnf:206-209 
+     * TemplateStat      ::=  Import
+     * |  (Annotation nl?)* Modifier* Def
+     * |  (Annotation nl?)* Modifier* Dcl
+     * |  Expr
+     */
+    TemplateStat: $ => choice(
+                         $.Import,
+                         seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.Def),
+                         seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.Dcl),
+                         $.Expr
+                       ),
+    /*
+     * scala.ebnf:210-211 
+     * SelfType          ::=  id (':' Type)? '=>'
+     * |  'this' ':' Type '=>'
+     */
+    SelfType: $ => choice(seq($._id, optional(seq(':', $.Type)), '=>'), seq('this', ':', $.Type, '=>')),
+    /*
+     * scala.ebnf:213 
+     * Import            ::=  'import' ImportExpr (',' ImportExpr)*
+     */
+    Import: $ => seq('import', $.ImportExpr, repeat(seq(',', $.ImportExpr))),
+    /*
+     * scala.ebnf:214 
+     * ImportExpr        ::=  StableId '.' (id | '_' | ImportSelectors)
+     */
+    ImportExpr: $ => seq($.StableId, '.', choice($._id, '_', $.ImportSelectors)),
+    /*
+     * scala.ebnf:215 
+     * ImportSelectors   ::=  '{' (ImportSelector ',')* (ImportSelector | '_') '}'
+     */
+    ImportSelectors: $ => seq('{', repeat(seq($.ImportSelector, ',')), choice($.ImportSelector, '_'), '}'),
+    /*
+     * scala.ebnf:216 
+     * ImportSelector    ::=  id ('=>' id | '=>' '_')?
+     */
+    ImportSelector: $ => seq($._id, optional(choice(seq('=>', $._id), seq('=>', '_')))),
+    /*
+     * scala.ebnf:218-221 
+     * Dcl               ::=  'val' ValDcl
+     * |  'var' VarDcl
+     * |  'def' FunDcl
+     * |  'type' nl* TypeDcl
+     */
+    Dcl: $ => choice(
+                seq('val', $.ValDcl),
+                seq('var', $.VarDcl),
+                seq('def', $.FunDcl),
+                seq('type', repeat($._nl), $.TypeDcl)
+              ),
+    /*
+     * scala.ebnf:223 
+     * ValDcl            ::=  ids ':' Type
+     */
+    ValDcl: $ => seq($._ids, ':', $.Type),
+    /*
+     * scala.ebnf:224 
+     * VarDcl            ::=  ids ':' Type
+     */
+    VarDcl: $ => seq($._ids, ':', $.Type),
+    /*
+     * scala.ebnf:225 
+     * FunDcl            ::=  FunSig (':' Type)?
+     */
+    FunDcl: $ => seq($.FunSig, optional(seq(':', $.Type))),
+    /*
+     * scala.ebnf:226 
+     * FunSig            ::=  id FunTypeParamClause? ParamClauses
+     */
+    FunSig: $ => seq($._id, optional($.FunTypeParamClause), $.ParamClauses),
+    /*
+     * scala.ebnf:227 
+     * TypeDcl           ::=  id TypeParamClause? ('>:' Type)? ('<:' Type)?
+     */
+    TypeDcl: $ => seq(
+                    $._id,
+                    optional($.TypeParamClause),
+                    optional(seq('>:', $.Type)),
+                    optional(seq('<:', $.Type))
+                  ),
+    /*
+     * scala.ebnf:229-230 
+     * PatVarDef         ::=  'val' PatDef
+     * |  'var' VarDef
+     */
+    PatVarDef: $ => choice(seq('val', $.PatDef), seq('var', $.VarDef)),
+    /*
+     * scala.ebnf:231-234 
+     * Def               ::=  PatVarDef
+     * |  'def' FunDef
+     * |  'type' nl* TypeDef
+     * |  TmplDef
+     */
+    Def: $ => choice(
+                $.PatVarDef,
+                seq('def', $.FunDef),
+                seq('type', repeat($._nl), $.TypeDef),
+                $.TmplDef
+              ),
+    /*
+     * scala.ebnf:235 
+     * PatDef            ::=  Pattern2 (',' Pattern2)* (':' Type)? '=' Expr
+     */
+    PatDef: $ => seq(
+                   $.Pattern2,
+                   repeat(seq(',', $.Pattern2)),
+                   optional(seq(':', $.Type)),
+                   '=',
+                   $.Expr
+                 ),
+    /*
+     * scala.ebnf:236-237 
+     * VarDef            ::=  PatDef
+     * |  ids ':' Type '=' '_'
+     */
+    VarDef: $ => choice($.PatDef, seq($._ids, ':', $.Type, '=', '_')),
+    /*
+     * scala.ebnf:238-241 
+     * FunDef            ::=  FunSig (':' Type)? '=' Expr
+     * |  FunSig nl? '{' Block '}'
+     * |  'this' ParamClause ParamClauses
+     * ('=' ConstrExpr | nl? ConstrBlock)
+     */
+    FunDef: $ => choice(
+                   seq($.FunSig, optional(seq(':', $.Type)), '=', $.Expr),
+                   seq($.FunSig, optional($._nl), '{', $.Block, '}'),
+                   seq(
+                     'this',
+                     $.ParamClause,
+                     $.ParamClauses,
+                     choice(seq('=', $.ConstrExpr), seq(optional($._nl), $.ConstrBlock))
+                   )
+                 ),
+    /*
+     * scala.ebnf:242 
+     * TypeDef           ::=  id TypeParamClause? '=' Type
+     */
+    TypeDef: $ => seq($._id, optional($.TypeParamClause), '=', $.Type),
+    /*
+     * scala.ebnf:244-246 
+     * TmplDef           ::=  'case'? 'class' ClassDef
+     * |  'case'? 'object' ObjectDef
+     * |  'trait' TraitDef
+     */
+    TmplDef: $ => choice(
+                    seq(optional('case'), 'class', $.ClassDef),
+                    seq(optional('case'), 'object', $.ObjectDef),
+                    seq('trait', $.TraitDef)
+                  ),
+    /*
+     * scala.ebnf:247-248 
+     * ClassDef          ::=  id TypeParamClause? ConstrAnnotation* AccessModifier?
+     * ClassParamClauses ClassTemplateOpt
+     */
+    ClassDef: $ => seq(
+                     $._id,
+                     optional($.TypeParamClause),
+                     repeat($.ConstrAnnotation),
+                     optional($.AccessModifier),
+                     $.ClassParamClauses,
+                     $.ClassTemplateOpt
+                   ),
+    /*
+     * scala.ebnf:249 
+     * TraitDef          ::=  id TypeParamClause? TraitTemplateOpt
+     */
+    TraitDef: $ => seq($._id, optional($.TypeParamClause), $.TraitTemplateOpt),
+    /*
+     * scala.ebnf:250 
+     * ObjectDef         ::=  id ClassTemplateOpt
+     */
+    ObjectDef: $ => seq($._id, $.ClassTemplateOpt),
+    /*
+     * scala.ebnf:251 
+     * ClassTemplateOpt  ::=  'extends' ClassTemplate | ('extends'? TemplateBody)?
+     */
+    ClassTemplateOpt: $ => choice(
+                             seq('extends', $.ClassTemplate),
+                             optional(seq(optional('extends'), $.TemplateBody))
+                           ),
+    /*
+     * scala.ebnf:252 
+     * TraitTemplateOpt  ::=  'extends' TraitTemplate | ('extends'? TemplateBody)?
+     */
+    TraitTemplateOpt: $ => choice(
+                             seq('extends', $.TraitTemplate),
+                             optional(seq(optional('extends'), $.TemplateBody))
+                           ),
+    /*
+     * scala.ebnf:253 
+     * ClassTemplate     ::=  EarlyDefs? ClassParents TemplateBody?
+     */
+    ClassTemplate: $ => seq(optional($.EarlyDefs), $.ClassParents, optional($.TemplateBody)),
+    /*
+     * scala.ebnf:254 
+     * TraitTemplate     ::=  EarlyDefs? TraitParents TemplateBody?
+     */
+    TraitTemplate: $ => seq(optional($.EarlyDefs), $.TraitParents, optional($.TemplateBody)),
+    /*
+     * scala.ebnf:255 
+     * ClassParents      ::=  Constr ('with' AnnotType)*
+     */
+    ClassParents: $ => seq($.Constr, repeat(seq('with', $.AnnotType))),
+    /*
+     * scala.ebnf:256 
+     * TraitParents      ::=  AnnotType ('with' AnnotType)*
+     */
+    TraitParents: $ => seq($.AnnotType, repeat(seq('with', $.AnnotType))),
+    /*
+     * scala.ebnf:257 
+     * Constr            ::=  AnnotType ArgumentExprs*
+     */
+    Constr: $ => seq($.AnnotType, repeat($.ArgumentExprs)),
+    /*
+     * scala.ebnf:258 
+     * EarlyDefs         ::=  '{' (EarlyDef (semi EarlyDef)*)? '}' 'with'
+     */
+    EarlyDefs: $ => seq('{', optional(seq($.EarlyDef, repeat(seq($._semi, $.EarlyDef)))), '}', 'with'),
+    /*
+     * scala.ebnf:259 
+     * EarlyDef          ::=  (Annotation nl?)* Modifier* PatVarDef
+     */
+    EarlyDef: $ => seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.PatVarDef),
+    /*
+     * scala.ebnf:261-262 
+     * ConstrExpr        ::=  SelfInvocation
+     * |  ConstrBlock
+     */
+    ConstrExpr: $ => choice($.SelfInvocation, $.ConstrBlock),
+    /*
+     * scala.ebnf:263 
+     * ConstrBlock       ::=  '{' SelfInvocation (semi BlockStat)* '}'
+     */
+    ConstrBlock: $ => seq('{', $.SelfInvocation, repeat(seq($._semi, $.BlockStat)), '}'),
+    /*
+     * scala.ebnf:264 
+     * SelfInvocation    ::=  'this' ArgumentExprs ArgumentExprs*
+     */
+    SelfInvocation: $ => seq('this', $.ArgumentExprs, repeat($.ArgumentExprs)),
+    /*
+     * scala.ebnf:266 
+     * TopStatSeq        ::=  TopStat (semi TopStat)*
+     */
+    TopStatSeq: $ => seq($.TopStat, repeat(seq($._semi, $.TopStat))),
+    /*
+     * scala.ebnf:267-270 
+     * TopStat           ::=  (Annotation nl?)* Modifier* TmplDef
+     * |  Import
+     * |  Packaging
+     * |  PackageObject
+     */
+    TopStat: $ => choice(
+                    seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.TmplDef),
+                    $.Import,
+                    $.Packaging,
+                    $.PackageObject
+                  ),
+    /*
+     * scala.ebnf:271 
+     * Packaging         ::=  'package' QualId nl? '{' TopStatSeq '}'
+     */
+    Packaging: $ => seq('package', $.QualId, optional($._nl), '{', $.TopStatSeq, '}'),
+    /*
+     * scala.ebnf:272 
+     * PackageObject     ::=  'package' 'object' ObjectDef
+     */
+    PackageObject: $ => seq('package', 'object', $.ObjectDef),
+    /*
+     * scala.ebnf:274 
+     * CompilationUnit   ::=  ('package' QualId semi)* TopStatSeq
+     */
+    CompilationUnit: $ => seq(repeat(seq('package', $.QualId, $._semi)), $.TopStatSeq)
   }
 });

@@ -8,9 +8,9 @@
 #define LANGUAGE_VERSION 12
 #define STATE_COUNT 30
 #define LARGE_STATE_COUNT 2
-#define SYMBOL_COUNT 45
+#define SYMBOL_COUNT 46
 #define ALIAS_COUNT 0
-#define TOKEN_COUNT 38
+#define TOKEN_COUNT 39
 #define EXTERNAL_TOKEN_COUNT 1
 #define FIELD_COUNT 0
 #define MAX_ALIAS_SEQUENCE_LENGTH 5
@@ -52,14 +52,15 @@ enum {
   anon_sym_SLASH_SLASH = 34,
   aux_sym__comment_token1 = 35,
   anon_sym_SEMI = 36,
-  sym__multi_comment = 37,
-  sym_compilation_unit = 38,
-  sym__floatingPointLiteral = 39,
-  sym__exponentPart = 40,
-  sym__booleanLiteral = 41,
-  sym__comment = 42,
-  aux_sym_compilation_unit_repeat1 = 43,
-  aux_sym__floatingPointLiteral_repeat1 = 44,
+  anon_sym_DASH = 37,
+  sym__multi_comment = 38,
+  sym_compilation_unit = 39,
+  sym__floatingPointLiteral = 40,
+  sym__exponentPart = 41,
+  sym__booleanLiteral = 42,
+  sym__comment = 43,
+  aux_sym_compilation_unit_repeat1 = 44,
+  aux_sym__floatingPointLiteral_repeat1 = 45,
 };
 
 static const char *ts_symbol_names[] = {
@@ -100,6 +101,7 @@ static const char *ts_symbol_names[] = {
   [anon_sym_SLASH_SLASH] = "//",
   [aux_sym__comment_token1] = "_comment_token1",
   [anon_sym_SEMI] = ";",
+  [anon_sym_DASH] = "-",
   [sym__multi_comment] = "_multi_comment",
   [sym_compilation_unit] = "compilation_unit",
   [sym__floatingPointLiteral] = "_floatingPointLiteral",
@@ -148,6 +150,7 @@ static TSSymbol ts_symbol_map[] = {
   [anon_sym_SLASH_SLASH] = anon_sym_SLASH_SLASH,
   [aux_sym__comment_token1] = aux_sym__comment_token1,
   [anon_sym_SEMI] = anon_sym_SEMI,
+  [anon_sym_DASH] = anon_sym_DASH,
   [sym__multi_comment] = sym__multi_comment,
   [sym_compilation_unit] = sym_compilation_unit,
   [sym__floatingPointLiteral] = sym__floatingPointLiteral,
@@ -307,6 +310,10 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = false,
   },
+  [anon_sym_DASH] = {
+    .visible = true,
+    .named = false,
+  },
   [sym__multi_comment] = {
     .visible = false,
     .named = true,
@@ -359,7 +366,9 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead == '"') ADVANCE(33);
       if (lookahead == '$') ADVANCE(35);
       if (lookahead == '\'') ADVANCE(32);
+      if (lookahead == '+') ADVANCE(18);
       if (lookahead == ',') ADVANCE(17);
+      if (lookahead == '-') ADVANCE(45);
       if (lookahead == '.') ADVANCE(34);
       if (lookahead == '/') ADVANCE(19);
       if (lookahead == '0') ADVANCE(25);
@@ -378,7 +387,6 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead == 'u') ADVANCE(22);
       if (lookahead == 'x') ADVANCE(14);
       if (lookahead == 127) ADVANCE(20);
-      if (('+' <= lookahead && lookahead <= '-')) ADVANCE(18);
       if (('D' <= lookahead && lookahead <= 'F')) ADVANCE(13);
       if (('a' <= lookahead && lookahead <= 'c')) ADVANCE(14);
       if (lookahead == 'n' ||
@@ -1661,6 +1669,9 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
     case 44:
       ACCEPT_TOKEN(anon_sym_SEMI);
       END_STATE();
+    case 45:
+      ACCEPT_TOKEN(anon_sym_DASH);
+      END_STATE();
     default:
       return false;
   }
@@ -1749,6 +1760,7 @@ static uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_SLASH_STAR] = ACTIONS(5),
     [anon_sym_SLASH_SLASH] = ACTIONS(7),
     [anon_sym_SEMI] = ACTIONS(1),
+    [anon_sym_DASH] = ACTIONS(1),
     [sym__multi_comment] = ACTIONS(1),
   },
   [1] = {
