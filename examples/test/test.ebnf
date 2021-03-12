@@ -1,0 +1,8 @@
+conflicts ::= { { ValDef ValDcl } }
+
+rules:
+  Foo ::= ValDcl | ValDef
+  id ::= [a-zA-Z0-9]+
+  id1 ::= [a-zA-Z0-9]+
+  ValDcl ::= ('val' id ':' id)
+  ValDef ::= 'val' id1 (':' id)? '=' id

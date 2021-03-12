@@ -16,6 +16,8 @@ Options:
                       default: true if output_file == nil, otherwise false
   -q|--quiet        disables printing the parsed tree to stdout
                       default: false
+  -s|--show-hidden  shows hidden nodes
+  --camel-to-snake  converts camel case references to snake case
   -h|--help         prints this message
 ]]
 
@@ -141,6 +143,8 @@ local count = 0
 local is_value = nil
 local values = {}
 local rules = nil
+local hidden = nil
+local camel_to_snake = nil
 
 local function parse_args()
   local args = arg
@@ -150,6 +154,10 @@ local function parse_args()
       verbose = true
     elseif arg == "-q" or arg == "--quiet" then
       quiet = true
+    elseif arg == "-s" or arg == "--show-hidden" then
+      hidden = true
+    elseif arg == "--camel-to-snake" then
+      camel_to_snake = true
     elseif arg == "-o" or arg == "--output-file" then
       output_file = table.remove(args, 1)
       assert(output_file, "usage: must provide an output file with " .. arg)
@@ -176,10 +184,32 @@ parse_args()
 local function print_table(t)
   print("{" .. table.concat(t, ", ") .. "}")
 end
+
+local function format_reference(s)
+  if camel_to_snake then
+    local pattern = "([A-Z][a-z0-9]*)"
+    local prefix_start, prefix_end, match = s:find(pattern)
+    if prefix_start then
+      local res = {}
+      while (prefix_start) do
+        if #res == 0 and prefix_start > 1 then table.insert(res, s:sub(1, prefix_start - 1)) end
+        if #res > 0 then table.insert(res, "_") end
+        table.insert(res, match:lower())
+        prefix_start, prefix_end, match = s:find(pattern, prefix_end + 1)
+      end
+      return table.concat(res)
+    else
+      return s
+    end
+  else
+    return s
+  end
+end
+
 local function replace_dollars(token, debug)
   if token:find("%$") then
     return token:gsub("%$([(]?)(%w+)([)]?)", function(lp, w, rp)
-      local value = values[w]
+      local value = values[w] or values[format_reference(w)]
       if not value then
         error("no constant defined for " .. w .. " in " .. token)
       end
@@ -190,6 +220,10 @@ local function replace_dollars(token, debug)
     return token
   end
 end
+local function is_lower_byte(s, i)
+  local b = s:byte(i, i)
+  return b > 96 and b < 123
+end
 local function savetoken(clear)
   if id and body and is_value then
     values[id] = { raw = table.concat(body, " ") }
@@ -197,11 +231,12 @@ local function savetoken(clear)
     local full_body = table.concat(body, " ")
     local start, _, literal = id:find("%[([a-z])]")
     if literal then
-      id = literal .. id:sub(4)
+      id = format_reference(literal .. id:sub(4))
     else
-      local first = id:byte(1, 1)
-      if first > 96 and first < 123 and rules then
-        id = "_" .. id
+      if is_lower_byte(id, 1) and rules and (not hidden or id == "whiteSpace") then
+        id = "_" .. format_reference(id)
+      else
+        id = format_reference(id)
       end
     end
     table.insert(tokens, { id, full_body , rules })
@@ -272,7 +307,7 @@ local RIGHT_PARENS = 0x29
 local LEFT_BRACKET = 0x5b
 local RIGHT_BRACKET= 0x5d
 local FORWARD_SLASH = 0x2f
-local BACK_SLASH = 0x2f
+local BACK_SLASH = 0x5c
 local PIPE = 0x7c
 local QUESTION_MARK = 0x3f
 local PLUS = 0x2b
@@ -309,6 +344,7 @@ end
 local NO_PRECEDENCE = 0
 local LEFT_ASSOCIATIVE = "<"
 local RIGHT_ASSOCIATIVE = ">"
+local DYNAMIC = "~"
 
 local ROOT = "root"
 local CHOICE = "choice"
@@ -440,11 +476,12 @@ local function print_node(n, offset, max_width)
     elseif n.kind == PRECEDENCE then
       local modifier, next_node = unpack(n.children)
       local prec = tonumber(modifier:match("([0-9]+)"))
-      local assoc = modifier:match("([<>])")
+      local assoc = modifier:match("([<>~])")
       local immediate = modifier:match("([%!])")
       local func =
         (assoc == LEFT_ASSOCIATIVE and "prec.left") or
         (assoc == RIGHT_ASSOCIATIVE and "prec.right") or
+        (assoc == DYNAMIC and "prec.dynamic") or
         "prec"
       write_precedence(func, prec, next_node)
     elseif n.kind == ARRAY then
@@ -530,16 +567,17 @@ local function source_error(comment, source_info)
   local msg = comment .. " in"
   .. " rule '" .. source_info.lhs .. "' defined at line " .. source_info.start_line
   .. "\n" .. source_info.rhs
-  error(msg)
+  print(msg)
+  error("")
 end
 local function maybe_add_reference_impl(node, current_word, externals, source_info)
-  local id = table.concat(current_word)
+  local id = format_reference(table.concat(current_word))
   local init_id = id
   id = tokenmap[id] and id or (tokenmap["_" .. id] and "_" .. id)
   if id then
     add_reference(node, id)
   elseif externals then
-    local id = "_" .. table.concat(current_word)
+    local id = "_" .. format_reference(table.concat(current_word))
     tokenmap[id] = true
     add_reference(node, id)
   else
@@ -656,7 +694,7 @@ local function parse_body(id, string)
       table.insert(node_stack, next_node)
       table.insert(state_stack, IN_GROUP)
     elseif b == RIGHT_PARENS and state == NONE then
-      error("unmatched right parens")
+      source_error("unmatched right parens", source_info)
     elseif b == RIGHT_PARENS and (state == IN_GROUP or state == IN_CHOICE) then
       maybe_add_reference()
       table.remove(node_stack)

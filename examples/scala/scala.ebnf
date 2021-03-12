@@ -1,47 +1,84 @@
-externals ::= { multi_comment }
+externals ::= { multiComment automaticNewline val var def1 interpStart openMultiComment empty trailingComma }
 
 extras    ::= { whiteSpace comment }
 
 word      ::= identifier
 
-conflicts ::= { { Literal } { Refinement } }
+conflicts ::= { { SimpleExpr }
+                { Def EarlyDef }
+                { Path SimpleType }
+                { Path ImportExpr }
+                { Path SelfType }
+                { IfExpression }
+                { SimpleExpr1 Binding }
+                { SimpleExpr1 SimpleExpr }
+                { AnnotType SimpleType }
+                { ClassDef }
+                { ObjectDef }
+                { TraitDef }
+                { Exprs }
+                { InfixType }
+                { CompoundType }
+                { Block }
+                { Constr }
+                { ClassTemplate }
+                { TraitTemplate }
+                { Generator }
+                { TemplateBody }
+                { BlockStat LocalModifier }
+                { ImplicitClassParams LocalModifier }
+                { InfixExpr }
+                { Annotation }
+                { Patterns }
+                { SimpleType Annotation }
+                { SimplePattern Patterns }
+                { ReturnExpression }
+                { FunSig }
+                { TryExpression }
+                { Expr SelfType }
+                { SelfInvocation }
+                { Enumerators }
+                { SimpleExpr1 ResultExpr }
+                { TopStatSeq }
+                { Refinement } }
 
 rules:
-  Foo ::= TemplateStat (semi ("" | TemplateStat))*
-  ;SourceFile           ::= CompilationUnit | TopStatSeq | Expr*
-  CompilationUnit      ::= ('package' QualId semi)+ TopStatSeq
+  SourceFile           ::= (CompilationUnit | TemplateStat (semi TemplateStat)*) semi?
+  CompilationUnit      ::= ('package' QualId semi)* TopStatSeq
   whiteSpace           ::= /[\u0020\u0009\u000D\u000A]/
   upperChars           :=  \p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$
+;  upperChars           :=  A-Z\$
   upper                :=  [$upperChars]
   lowerChars1          :=  \p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4
   lowerChars2          :=  \u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C
   lowerChars3          :=  \u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F
   lowerChars           :=  $lowerChars1$lowerChars2$lowerChars3
+; lowerChars           :=  a-z_
   lower                ::= [$lowerChars]
   letter               :=  $upperChars$lowerChars
   paren                ::= [(){}\[\]]
-  opchar               :=  [!#%&*+\u002d/\\:<=>?@\u005e\u007c~]
+  opchar               :=  [\-!#%&*+/\\:<=>?@\u005e\u007c~]
   unicodeEscape        :=  \\u+$hexDigit$hexDigit$hexDigit$hexDigit
   charEscapeSeq        :=  \\[btnfr"'\\]
   escapeSeq            :=  ($unicodeEscape|$charEscapeSeq)
   idrest               :=  [$(letter)0-9]*(_$opchar+)?
   varidRegex           :=  [$lowerChars_]$idrest
-  varid                ::= /$varidRegex/
+  [v]arid              ::= /$varidRegex/
   boundvarid           ::= /($varidRegex|[`]$varidRegex[`])/
   plainid              :=  ($upper$idrest|$varidRegex|$opchar+)
   charNoBQOrNL         :=  [\u0020-\u005f\u0061-\u007f]
-  id                   :=  $plainid|[`]($charNoBQOrNL|$escapeSeq)*[`]
-  identifier           ::= /($opchar+|$id|$varidRegex|[`]$varidRegex[`])/
+  idRegex              :=  $plainid|[`]($charNoBQOrNL|$escapeSeq)*[`]
+  identifier           ::= /($opchar+|$idRegex|$varidRegex|[`]$varidRegex[`])/
   decimalNumeral       :=  [0-9]+
   hexNumeral           :=  0[xX]$hexDigit+
-  integerLiteral       ::= /($decimalNumeral|$hexNumeral)[Ll]?/
+  integerLiteral       ::= /-?($decimalNumeral|$hexNumeral)[Ll]?/
   decimalNumeral       ::= /[0-9]+/
   hexDigit             :=  [0-9a-fA-F]
   fpLit1               :=  $decimalNumeral[.]$decimalNumeral$exponentPart?$floatType?
   fpLit2               :=  [.]$decimalNumeral$exponentPart?$floatType?
   fpLit3               :=  $decimalNumeral$exponentPart?$floatType
   fpLit4               :=  $decimalNumeral$exponentPart$floatType?
-  floatingPointLiteral ::= /($fpLit1|$fpLit2|$fpLit3|$fpLit4)/
+  floatingPointLiteral ::= /-?($fpLit1|$fpLit2|$fpLit3|$fpLit4)/
   exponentPart         :=  ([Ee][+-]?$decimalNumeral)
   floatType            :=  [FfDd]
   booleanLiteral       ::= "true" | "false"
@@ -50,71 +87,74 @@ rules:
   stringLiteral        ::= string | rawString
   string               ::= /"([^"\u000A]|$escapeSeq)*"/
   charMinusQuoteDollar ::= [ !#\u0025-\u007f]
-  interpolatedString   ::= alphaid '"' (charMinusQuoteDollar | escape)+ '"'
+  charMinusQuoteDollar ::= [^"\$]
+  [i]nterpolatedString ::= alphaid '"' (charMinusQuoteDollar | escape)* '"'
                          | alphaid '"""' ('"'? '"'? charMinusQuoteDollar | escape)* '"'? '"""'
-  escape               ::= /(\$\$|\$$id)/ | BlockExpr
+  [e]scape             ::= "$$" | "$" id | "$" BlockExpr
   alphaid              ::= $upper $idrest | varid
   symbolLiteral        ::= /[']$plainid/
-  comment              ::= "/*" multi_comment "*/" | "//" /.*/
-  nl                   ::= '\\n'
-  semi                 ::= ';' | nl+
+  comment              ::= openMultiComment multiComment "*/" | "//" /.*/
+  nl                   ::= "\\n"
+  semi                 ::= (';' | automaticNewline)
+  id                   ::= /$idRegex/
 
 ; context free section
-  Literal              ::= '-'? integerLiteral
-                         |  '-'? floatingPointLiteral
-                         |  booleanLiteral
-                         |  characterLiteral
-                         |  stringLiteral
-                     ; |  interpolatedString
-                         |  symbolLiteral
-                         |  "null"
+  Literal              ::= integerLiteral
+                         | floatingPointLiteral
+                         | booleanLiteral
+                         | characterLiteral
+                         | stringLiteral
+                         | interpStart interpolatedString
+                         | symbolLiteral
+                         | "null"
 
-  QualId               ::= /$id([.]$id)*/
-  ids                  ::= /$id(,$id)*/
+  QualId               ::= id ("." id)*
+  ids                  ::= id ("," id)*
 
-  Path                 ::= StableId
-                         |  (/$id/ '.')? 'this'
-  StableId             ::= 10(/$id/
-                         |  Path '.' /$id/
-                         |  (/$id/ '.')? 'super' /$ClassQualifier/? '.' /$id/)
-  ClassQualifier       :=  [\[]$id[\]]
-  ValDef               ::= "val" /$id/ "=" Literal
+  Path                 ::= (StableId
+                         | (id '.')? 'this')
+  StableId             ::= 5(id
+                         | Path '.' id
+                         | (id '.')? 'super' ClassQualifier? '.' id)
+  ClassQualifier       ::= "[" id "]"
+  ValDef               ::= "val" id "=" Literal
 
-  Type                 ::= 10(FunctionArgTypes '=>' Type | InfixType ExistentialClause?)
+  Type                 ::= 1(FunctionArgTypes '=>' Type | InfixType
+                             ExistentialClause?)
   FunctionArgTypes     ::= InfixType
                          | '(' ParamType (',' ParamType )*? ')'
   ExistentialClause    ::= 'forSome' '{' ExistentialDcl (semi ExistentialDcl)* '}'
   ExistentialDcl       ::= 'type' TypeDcl
-                         |  'val' ValDcl
-  InfixType            ::= >(CompoundType (/$id/ nl? CompoundType)*)
-  CompoundType         ::= >(AnnotType ('with' AnnotType)* Refinement? | Refinement)
-  AnnotType            ::= >(SimpleType Annotation*)
-  SimpleType           ::= 3(SimpleType TypeArgs
-                         |  SimpleType '#' /$id/
-                         |  StableId
-                         |  Path '.' 'type'
-                         |  '(' Types ')')
+                         | 'val' ValDcl
+  InfixType            ::= CompoundType (id nl? CompoundType)*
+  CompoundType         ::= AnnotType ('with' AnnotType)* Refinement? | Refinement
+  AnnotType            ::= SimpleType Annotation*
+  SimpleType           ::= SimpleType TypeArgs
+                         | SimpleType '#' id
+                         | StableId
+                         | Path '.' 'type'
+                         | '(' Types ')'
   TypeArgs             ::= '[' Types ']'
-  Types                ::= Type (',' Type)*
+  Types                ::= 1(Type (',' Type)*)
   Refinement           ::= nl? '{' RefineStat? (semi RefineStat)* '}'
   RefineStat           ::= Dcl
-                         |  'type' TypeDef
+                         | 'type' TypeDef
   TypePat              ::= Type
 
-  Ascription           ::= >(':' InfixType
-                         |  ':' Annotation Annotation*
-                         |  ':' '_' '*')
+  Ascription           ::= 1(':' InfixType
+                         | ':' Annotation Annotation*
+                         | ':' '_' '*')
 
-  IfExpression         ::= >('if' '(' Expr ')' nl* Expr (semi? 'else' Expr)?)
+  IfExpression         ::= ('if' '(' Expr ')' nl* Expr (semi? 'else' Expr)?)
   WhileExpression      ::= 'while' '(' Expr ')' nl* Expr
-  TryExpression        ::= >('try' Expr ('catch' Expr)? ('finally' Expr)?)
-  DoExpression         ::= >('do' Expr semi? 'while' '(' Expr ')')
+  TryExpression        ::= ('try' Expr ('catch' Expr)? ('finally' Expr)?)
+  DoExpression         ::= ('do' Expr semi? 'while' '(' Expr ')')
   ThrowExpression      ::= 'throw' Expr
-  ReturnExpression     ::= >('return' Expr?)
-  ForExpression        ::= 'for' ('(' Enumerators ')' | '{' Enumerators '}') nl* 'yield'? Expr
-  CaseExpression       ::= <(PostfixExpr 'match' '{' CaseClauses '}')
-  Expr                 ::= (Bindings | 'implicit'? /$id/ | '_') '=>' Expr | Expr1
-  Expr1                ::= IfExpression
+  ReturnExpression     ::= ('return' Expr?)
+  ForExpression        ::= 'for' ('(' Enumerators ')' | '{' Enumerators semi? '}') nl* 'yield'? Expr
+  CaseExpression       ::= PostfixExpr 'match' '{' CaseClauses '}'
+  Expr                 ::= 1((Bindings | 'implicit'? id | '_') '=>' Expr | Expr1)
+  Expr1                ::= 1(IfExpression
                          | WhileExpression
                          | TryExpression
                          | DoExpression
@@ -123,149 +163,162 @@ rules:
                          | ForExpression
                          | PostfixExpr
                          | PostfixExpr Ascription
-                         | CaseExpression
-  PostfixExpr          ::= InfixExpr /$id\\n?/?
-  InfixExpr            ::= <2((PrefixExpr | InfixExpr /$id\\n?/? InfixExpr))
+                         | CaseExpression)
+  PostfixExpr          ::= -1(InfixExpr (id nl?)?)
+  InfixExpr            ::= <((PrefixExpr | InfixExpr id nl? InfixExpr))
   PrefixExpr           ::= ('-' | '+' | '~' | '!')? SimpleExpr
-  SimpleExpr           ::= >('new' (ClassTemplate | TemplateBody)
-                         |  BlockExpr
-                         |  SimpleExpr1 '_'?)
-  SimpleExpr1          ::= >(Literal
-                         |  Path
-                         |  '_'
-                         |  '(' Exprs? ')'
-                         |  SimpleExpr '.' /$id/
-                         |  SimpleExpr TypeArgs
-                         |  SimpleExpr1 ArgumentExprs)
-  Exprs                ::= >(Expr (',' Expr)*)
+  SimpleExpr           ::= 'new' (ClassTemplate | TemplateBody)
+                         | BlockExpr
+                         | SimpleExpr1 '_'?
+  SimpleExpr1          ::= 10(Literal
+                         | Path
+                         | '_'
+                         | '(' Exprs? ')'
+                         | SimpleExpr '.' id
+                         | SimpleExpr TypeArgs
+                         | SimpleExpr1 ArgumentExprs)
+  Exprs                ::= Expr (',' Expr)*
   ArgumentExprs        ::= '(' Exprs? ')'
-                         |  '(' (Exprs ',')? PostfixExpr ':' '_' '*' ')'
-                         |  nl? BlockExpr
+                         | '(' (Exprs ',')? PostfixExpr ':' '_' '*' ')'
+                         | nl? BlockExpr
   BlockExpr            ::= '{' CaseClauses '}'
-                         |  '{' $Block '}'
-  Block                :=  (BlockStat? (semi BlockStat)*) ResultExpr?
-  BlockStat            ::= 2(Import
-                         |  Annotation* 'implicit'? 'lazy'? Def
-                         |  Annotation* LocalModifier* TmplDef
-                         |  Expr1)
-  ResultExpr           ::= Expr1
-                         |  (Bindings | ('implicit'? /$id/ | '_') ':' CompoundType) '=>' $Block
+                         | '{' nl* Block '}'
+  Block                ::= BlockStat (semi BlockStat)* ResultExpr?
+  BlockStat            ::= Import
+                         | Annotation* 'implicit'? 'lazy'? Def
+                         | Annotation* LocalModifier* TmplDef
+                         | Expr1
+                         | empty
+  ResultExpr           ::= -10(Expr1
+                         | (Bindings | ('implicit'? id | '_') ':'
+                             CompoundType) '=>' Block)
 
   Enumerators          ::= Generator (semi Generator)*
-  Generator            ::= >(Pattern1 '<-' Expr (semi? Guard | semi Pattern1 '=' Expr)*)
+  Generator            ::= Pattern1 '<-' Expr (semi? Guard | semi Pattern1 '=' Expr)*
 
-  CaseClauses          ::= CaseClause+
-  CaseClause           ::= <(/case/ Literal Guard? /=>/ $Block)
+  CaseClauses          ::= CaseClause (semi? CaseClause)*
+  CaseClause           ::= "case" Pattern Guard? "=>" Block
   Guard                ::= 'if' PostfixExpr
 
   Pattern              ::= Pattern1 ('|' Pattern1)*
   Pattern1             ::= boundvarid ':' TypePat
-                         |  '_' ':' TypePat
-                         |  Pattern2
-  Pattern2             ::= /$id/ ('@' Pattern3)?
-                         |  Pattern3
-  Pattern3             ::= >(SimplePattern | SimplePattern /$id/ nl?  SimplePattern*)
-  SimplePattern        ::= >('_'
-                         |  varid
-                         |  Literal
-                         |  StableId
-                         |  StableId '(' Patterns? ')'
-                         |  StableId '(' (Patterns ',')? (/$id/ '@')? '_' '*' ')'
-                         |  '(' Patterns? ')')
-  Patterns             ::= >(Pattern (',' Patterns)?  |  '_' '*')
+                         | '_' ':' TypePat
+                         | Pattern2
+  Pattern2             ::= 10(id ('@' Pattern3)?
+                         | Pattern3)
+  Pattern3             ::= SimplePattern
+                         | SimplePattern (id nl? SimplePattern)*
+  SimplePattern        ::= ('_'
+                         | varid
+                         | Literal
+                         | StableId
+                         | StableId '(' Patterns? ')'
+                         | StableId '(' (Patterns ',')? (id '@')? '_' '*' ')'
+                         | '(' Patterns? ')')
+  Patterns             ::= (Pattern (',' Patterns)?
+                         | '_' '*')
 
   TypeParamClause      ::= '[' VariantTypeParam (',' VariantTypeParam)* ']'
   FunTypeParamClause   ::= '[' TypeParam (',' TypeParam)* ']'
   VariantTypeParam     ::= Annotation* ('+' | '-')? TypeParam
-  TypeParam            ::= (/$id/ | '_') TypeParamClause? ('>:' Type)? ('<:' Type)?
-                         ('<%' Type)* (':' Type)*
+  TypeParam            ::= (id | '_') TypeParamClause? ('>:' Type)? ('<:' Type)?
+                             ('<%' Type)* (':' Type)*
   ParamClauses         :=  ParamClause* (nl? '(' 'implicit' Params ')')?
   ParamClause          ::= nl? '(' Params? ')'
-  Params               ::= Param (',' Param)*
-  Param                ::= Annotation* /$id/ (':' ParamType)? ('=' Expr)?
-  ParamType            ::= >10(Type | '=>' Type |  Type '*')
-  ClassParamClauses    :=  ClassParamClause*
-                         (nl? '(' 'implicit' ClassParams ')')?
-  ClassParamClause     ::= nl? '(' ClassParams? ')'
+  Params               ::= Param (',' Param)* trailingComma?
+  Param                ::= Annotation* id (':' ParamType)? ('=' Expr)?
+  ParamType            ::= (Type | '=>' Type |  Type '*')
+  ImplicitClassParams  ::= '(' 'implicit' ClassParams ')'
+  ClassParamClauses    :=  <10(ClassParamClause* (nl? ImplicitClassParams?))
+  ClassParamClause     ::= (nl? '(' ClassParams? ')')
   ClassParams          ::= ClassParam (',' ClassParam)*
   ClassParam           ::= Annotation* Modifier* (('val' | 'var'))?
-                         /$id/ ':' ParamType ('=' Expr)?
+                             id ':' ParamType ('=' Expr)?
   Bindings             ::= '(' Binding (',' Binding)* ')'
-  Binding              ::= /$id[_]/ (':' Type)?
+  Binding              ::= (id | "_") (':' Type)?
 
-  Modifier             ::= LocalModifier
-                         |  AccessModifier
-                         |  'override'
-  LocalModifier        ::= /(abstract|final|sealed|implicit|lazy)/
-  AccessModifier       ::= /(private|protected)/ AccessQualifier?
-  AccessQualifier      ::= '[' (/$id/ | 'this') ']'
+  Modifier             ::= (LocalModifier
+                         | AccessModifier
+                         | 'override')
+  LocalModifier        ::= ('abstract' | 'final' | 'sealed' | 'implicit' | 'lazy')
+  AccessModifier       ::= ('private' | 'protected') AccessQualifier?
+  AccessQualifier      ::= '[' (id | 'this') ']'
 
-  Annotation           ::= >('@' SimpleType ArgumentExprs*)
+  Annotation           ::= ('@' SimpleType ArgumentExprs*)
   ConstrAnnotation     ::= '@' SimpleType ArgumentExprs
 
-  TemplateBody         ::= nl? '{' SelfType? TemplateStat? (semi TemplateStat)* '}'
-  TemplateStat         ::= Import
-                         |  (Annotation nl?)* Modifier* Def
-                         |  (Annotation nl?)* Modifier* Dcl
-                         |  Expr
-  SelfType             ::= 2(/$id/ (':' Type)? '=>' |  'this' ':' Type '=>')
+  TemplateBody         ::= 1(nl? '{' SelfType? TemplateStat (semi TemplateStat)* '}')
+  TemplateStat         ::= 1(Import
+                         | (Annotation nl?)* Modifier* Def
+                         | (Annotation nl?)* Modifier* Dcl
+                         | Expr
+                         | empty)
+
+                         ; TODO not sure about associativity
+  SelfType             ::= (id (':' Type)? '=>' |  'this' ':' Type '=>')
 
   Import               ::= 'import' ImportExpr (',' ImportExpr)*
-  ImportExpr           ::= 1((StableId '.') (/$id/ | '_' | ImportSelectors))
-  ImportSelectors      ::= '{' (ImportSelector ',')* (ImportSelector | '_') '}'
-  ImportSelector       ::= /$id/ ('=>' /$id/ | '=>' '_')?
+  ImportExpr           ::= (StableId '.' (id | '_' | ImportSelectors))
+  ImportSelectors      ::= ('{' (ImportSelector ',')* (ImportSelector | '_') '}')
+  ImportSelector       ::= id ('=>' id | '=>' '_')?
 
-  Dcl                  ::= 'val' ValDcl
-                         |  'var' VarDcl
-                         |  'def' FunDcl
-                         |  'type' nl* TypeDcl
+  ; val var and def below are a hack because tree-sitter seems unable to
+  ; disambiguate the conflict between Dcl and Def and always errs out on dcls
+  Dcl                  ::= (val ValDcl
+                         | var VarDcl
+                         | def1 FunDcl
+                         | 'type' nl* TypeDcl)
 
   ValDcl               ::= ids ':' Type
   VarDcl               ::= ids ':' Type
-  FunDcl               ::= >(FunSig (':' Type)?)
-  FunSig               ::= >(/$id/ FunTypeParamClause? $ParamClauses)
-  TypeDcl              ::= /$id/ TypeParamClause? ('>:' Type)? ('<:' Type)?
+  FunDcl               ::= FunSig (':' Type)?
+  ; TODO not sure about right associativity
+  FunSig               ::= (id FunTypeParamClause? $ParamClauses)
+  TypeDcl              ::= id  TypeParamClause? ('>:' Type)? ('<:' Type)?
 
   PatVarDef            ::= 'val' PatDef
-                         |  'var' VarDef
-  Def                  ::= PatVarDef
-                         |  'def' FunDef
-                         |  'type' nl* TypeDef
-                         |  TmplDef
-  PatDef               ::= Pattern2 (',' Pattern2)* (':' Type)? '=' Expr
+                         | 'var' VarDef
+  Def                  ::= 1(PatVarDef
+                         | 'def' FunDef
+                         | 'type' nl* TypeDef
+                         | TmplDef)
+  PatDef               ::= Pattern2 (':' Type)? '=' Expr
   VarDef               ::= PatDef
-                         |  ids ':' Type '=' '_'
+                         | ids ':' Type '=' '_'
   FunDef               ::= FunSig (':' Type)? '=' Expr
-                         |  FunSig nl? '{' $Block '}'
-                         |  'this' ParamClause $ParamClauses ('=' ConstrExpr | nl? ConstrBlock)
-  TypeDef              ::= /$id/ TypeParamClause? '=' Type
+                         | FunSig nl? '{' Block '}'
+                         | 'this' ParamClause $ParamClauses ('=' ConstrExpr | nl? ConstrBlock)
+  TypeDef              ::= id TypeParamClause? '=' Type
 
   TmplDef              ::= 'case'? 'class' ClassDef
-                         |  'case'? 'object' ObjectDef
-                         |  'trait' TraitDef
-  ClassDef             ::= >(/$id/ TypeParamClause? ConstrAnnotation* AccessModifier?
-                         ($ClassParamClauses) ($ClassTemplateOpt))
-  TraitDef             ::= >(/$id/ TypeParamClause? ($TraitTemplateOpt))
-  ObjectDef            ::= >(/$id/ ($ClassTemplateOpt))
+                         | 'case'? 'object' ObjectDef
+                         | 'trait' TraitDef
+  ClassDef             ::= id TypeParamClause? ConstrAnnotation* AccessModifier?
+                             $ClassParamClauses ($ClassTemplateOpt)
+  TraitDef             ::= id TypeParamClause? ($TraitTemplateOpt)
+  ObjectDef            ::= id ($ClassTemplateOpt)
+  ; These have to be constants because tree-sitter does not allow rules that match the empty string
   ClassTemplateOpt     :=  'extends' ClassTemplate | ('extends'? TemplateBody)?
   TraitTemplateOpt     :=  'extends' TraitTemplate | ('extends'? TemplateBody)?
-  ClassTemplate        ::= >(EarlyDefs? ClassParents TemplateBody?)
-  TraitTemplate        ::= >(EarlyDefs? TraitParents TemplateBody?)
+  ; TODO not sure about right associativity
+  ClassTemplate        ::= -1(EarlyDefs? ClassParents TemplateBody?)
+  TraitTemplate        ::= -1(EarlyDefs? TraitParents TemplateBody?)
   ClassParents         ::= Constr ('with' AnnotType)*
   TraitParents         ::= AnnotType ('with' AnnotType)*
-  Constr               ::= >(AnnotType ArgumentExprs*)
+  Constr               ::= AnnotType ArgumentExprs*
   EarlyDefs            ::= '{' (EarlyDef (semi EarlyDef)*)? '}' 'with'
-  EarlyDef             ::= 10((Annotation nl?)* Modifier* PatVarDef)
+  EarlyDef             ::= 1((Annotation nl?)* Modifier* PatVarDef)
 
   ConstrExpr           ::= SelfInvocation
-                         |  ConstrBlock
-  ConstrBlock          ::= '{' SelfInvocation (semi BlockStat)* '}'
-  SelfInvocation       ::= >('this' ArgumentExprs ArgumentExprs*)
+                         | ConstrBlock
+  ConstrBlock          ::= '{' SelfInvocation (semi BlockStat)* empty? '}'
+  ; TODO right associativity
+  SelfInvocation       ::= 'this' ArgumentExprs ArgumentExprs*
 
   TopStatSeq           ::= TopStat (semi TopStat)*
   TopStat              ::= (Annotation nl?)* Modifier* TmplDef
-                         |  Import
-                         |  Packaging
-                         |  PackageObject
+                         | Import
+                         | Packaging
+                         | PackageObject
   Packaging            ::= 'package' QualId nl? '{' TopStatSeq '}'
   PackageObject        ::= 'package' 'object' ObjectDef

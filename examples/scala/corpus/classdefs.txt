@@ -1,0 +1,68 @@
+====================
+Kitchen sink
+====================
+class Foo[+T <: String, _, +M[K[_]], -Z[_]: OClass](val x: Int, val z: Double)(val g: String)(implicit
+		val k: Manifest[String]) extends { val x = 1 } with Foo with Bar with Baz {
+  type
+
+    X = List // todo fix necessary semi
+
+  def foo(x: List[T] forSome { type T }): Unit
+	val x = 1
+	for (x <- y) println("foo");
+	for { x <- z } yield { x }
+}
+--------------------
+(SourceFile (TemplateStat (Def (TmplDef (ClassDef (TypeParamClause
+(VariantTypeParam (TypeParam (Type (InfixType (CompoundType (AnnotType
+(SimpleType (StableId)))))))) (VariantTypeParam (TypeParam)) (VariantTypeParam
+(TypeParam (TypeParamClause (VariantTypeParam (TypeParam (TypeParamClause
+(VariantTypeParam (TypeParam)))))))) (VariantTypeParam (TypeParam
+(TypeParamClause (VariantTypeParam (TypeParam))) (Type (InfixType (CompoundType
+(AnnotType (SimpleType (StableId))))))))) (ClassParamClause (ClassParams
+(ClassParam (ParamType (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId)))))))) (ClassParam (ParamType (Type (InfixType (CompoundType
+(AnnotType (SimpleType (StableId)))))))))) (ClassParamClause (ClassParams
+(ClassParam (ParamType (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId)))))))))) (ClassParamClause (ClassParams (ClassParam (Modifier
+(LocalModifier)) (ParamType (Type (InfixType (CompoundType (AnnotType
+(SimpleType (SimpleType (StableId)) (TypeArgs (Types (Type (InfixType
+(CompoundType (AnnotType (SimpleType (StableId))))))))))))))))) (ClassTemplate
+(EarlyDefs (EarlyDef (PatVarDef (PatDef (Pattern2 (Pattern3 (SimplePattern
+(varid)))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal)))))))))))) (ClassParents (Constr (AnnotType (SimpleType
+(StableId)))) (AnnotType (SimpleType (StableId))) (AnnotType (SimpleType
+(StableId)))) (TemplateBody (TemplateStat (Def (TypeDef (Type (InfixType
+(CompoundType (AnnotType (SimpleType (StableId))))))))) (TemplateStat (Dcl
+(FunDcl (FunSig (ParamClause (Params (Param (ParamType (Type (InfixType
+(CompoundType (AnnotType (SimpleType (SimpleType (StableId)) (TypeArgs (Types
+(Type (InfixType (CompoundType (AnnotType (SimpleType (StableId))))))))))))
+(ExistentialClause (ExistentialDcl (TypeDcl))))))))) (Type (InfixType
+(CompoundType (AnnotType (SimpleType (StableId))))))))) (TemplateStat (Def
+(PatVarDef (PatDef (Pattern2 (Pattern3 (SimplePattern (varid)))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))) (TemplateStat (Expr (Expr1 (ForExpression (Enumerators
+(Generator (Pattern1 (Pattern2 (Pattern3 (SimplePattern (varid))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Path
+(StableId))))))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (SimpleExpr1 (Path (StableId))) (ArgumentExprs (Exprs
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))))))))))))))) (TemplateStat (Expr (Expr1 (ForExpression
+(Enumerators (Generator (Pattern1 (Pattern2 (Pattern3 (SimplePattern (varid)))))
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Path
+(StableId))))))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (BlockExpr (Block (BlockStat (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Path (StableId)))))))))))))))))))))
+(TemplateStat))))))))
+
+====================
+EarlyDefs
+====================
+class Foo extends { val x = 1 } with Bar
+------
+(SourceFile (TemplateStat (Def (TmplDef (ClassDef (ClassTemplate (EarlyDefs
+(EarlyDef (PatVarDef (PatDef (Pattern2 (Pattern3 (SimplePattern (varid)))) (Expr
+(Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))) (ClassParents (Constr (AnnotType (SimpleType
+(StableId)))))))))))
+

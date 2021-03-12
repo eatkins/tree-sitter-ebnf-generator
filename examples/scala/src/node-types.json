@@ -130,23 +130,38 @@
     }
   },
   {
-    "type": "BlockExpr",
+    "type": "Block",
     "named": true,
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "BlockStat",
           "named": true
         },
         {
-          "type": "CaseClauses",
+          "type": "ResultExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "BlockExpr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "Block",
           "named": true
         },
         {
-          "type": "ResultExpr",
+          "type": "CaseClauses",
           "named": true
         }
       ]
@@ -158,7 +173,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "Annotation",
@@ -196,7 +211,7 @@
       "required": true,
       "types": [
         {
-          "type": "BlockStat",
+          "type": "Block",
           "named": true
         },
         {
@@ -204,11 +219,7 @@
           "named": true
         },
         {
-          "type": "Literal",
-          "named": true
-        },
-        {
-          "type": "ResultExpr",
+          "type": "Pattern",
           "named": true
         }
       ]
@@ -265,15 +276,15 @@
           "named": true
         },
         {
-          "type": "ClassParams",
-          "named": true
-        },
-        {
           "type": "ClassTemplate",
           "named": true
         },
         {
           "type": "ConstrAnnotation",
+          "named": true
+        },
+        {
+          "type": "ImplicitClassParams",
           "named": true
         },
         {
@@ -364,6 +375,11 @@
     }
   },
   {
+    "type": "ClassQualifier",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "ClassTemplate",
     "named": true,
     "fields": {},
@@ -381,6 +397,25 @@
         },
         {
           "type": "TemplateBody",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "CompilationUnit",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "QualId",
+          "named": true
+        },
+        {
+          "type": "TopStatSeq",
           "named": true
         }
       ]
@@ -727,21 +762,6 @@
     }
   },
   {
-    "type": "Foo",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "TemplateStat",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "ForExpression",
     "named": true,
     "fields": {},
@@ -788,7 +808,7 @@
       "required": true,
       "types": [
         {
-          "type": "BlockStat",
+          "type": "Block",
           "named": true
         },
         {
@@ -813,10 +833,6 @@
         },
         {
           "type": "Params",
-          "named": true
-        },
-        {
-          "type": "ResultExpr",
           "named": true
         },
         {
@@ -937,6 +953,21 @@
     }
   },
   {
+    "type": "ImplicitClassParams",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ClassParams",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "Import",
     "named": true,
     "fields": {},
@@ -1026,6 +1057,21 @@
   },
   {
     "type": "Literal",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "interpolatedString",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "LocalModifier",
     "named": true,
     "fields": {}
   },
@@ -1340,6 +1386,11 @@
     }
   },
   {
+    "type": "QualId",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "RefineStat",
     "named": true,
     "fields": {},
@@ -1386,7 +1437,7 @@
           "named": true
         },
         {
-          "type": "BlockStat",
+          "type": "Block",
           "named": true
         },
         {
@@ -1395,10 +1446,6 @@
         },
         {
           "type": "Expr1",
-          "named": true
-        },
-        {
-          "type": "ResultExpr",
           "named": true
         }
       ]
@@ -1534,6 +1581,10 @@
         {
           "type": "StableId",
           "named": true
+        },
+        {
+          "type": "varid",
+          "named": true
         }
       ]
     }
@@ -1570,6 +1621,25 @@
     }
   },
   {
+    "type": "SourceFile",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "CompilationUnit",
+          "named": true
+        },
+        {
+          "type": "TemplateStat",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "StableId",
     "named": true,
     "fields": {},
@@ -1577,6 +1647,10 @@
       "multiple": false,
       "required": false,
       "types": [
+        {
+          "type": "ClassQualifier",
+          "named": true
+        },
         {
           "type": "Path",
           "named": true
@@ -1590,7 +1664,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "SelfType",
@@ -1609,7 +1683,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "Annotation",
@@ -2030,8 +2104,38 @@
     }
   },
   {
-    "type": "",
-    "named": false
+    "type": "escape",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "BlockExpr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interpolatedString",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "escape",
+          "named": true
+        },
+        {
+          "type": "varid",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "!",
@@ -2047,6 +2151,14 @@
   },
   {
     "type": "#",
+    "named": false
+  },
+  {
+    "type": "$",
+    "named": false
+  },
+  {
+    "type": "$$",
     "named": false
   },
   {
@@ -2079,10 +2191,6 @@
   },
   {
     "type": ".",
-    "named": false
-  },
-  {
-    "type": "/*",
     "named": false
   },
   {
@@ -2126,14 +2234,6 @@
     "named": false
   },
   {
-    "type": "LocalModifier",
-    "named": true
-  },
-  {
-    "type": "QualId",
-    "named": true
-  },
-  {
     "type": "[",
     "named": false
   },
@@ -2143,6 +2243,10 @@
   },
   {
     "type": "_",
+    "named": false
+  },
+  {
+    "type": "abstract",
     "named": false
   },
   {
@@ -2175,6 +2279,10 @@
   },
   {
     "type": "false",
+    "named": false
+  },
+  {
+    "type": "final",
     "named": false
   },
   {
@@ -2230,7 +2338,19 @@
     "named": false
   },
   {
+    "type": "private",
+    "named": false
+  },
+  {
+    "type": "protected",
+    "named": false
+  },
+  {
     "type": "return",
+    "named": false
+  },
+  {
+    "type": "sealed",
     "named": false
   },
   {
@@ -2268,6 +2388,10 @@
   {
     "type": "var",
     "named": false
+  },
+  {
+    "type": "varid",
+    "named": true
   },
   {
     "type": "while",

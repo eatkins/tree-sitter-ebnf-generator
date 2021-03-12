@@ -1,0 +1,43 @@
+[
+  {
+    "type": "Foo",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ValDcl",
+          "named": true
+        },
+        {
+          "type": "ValDef",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ValDcl",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "ValDef",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": ":",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "val",
+    "named": false
+  }
+]

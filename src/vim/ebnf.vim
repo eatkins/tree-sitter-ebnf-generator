@@ -13,7 +13,7 @@ setlocal iskeyword+=:
 setlocal iskeyword+==
 syn keyword assign ::=
 "syn match const_assign /.\+ :=.*/
-syn match dollar_expansion /[$](\?[a-zA-Z_0-9]\+)\?/
+syn match dollar_expansion /[$]\(([a-zA-Z_0-9]\+)\|[a-zA-Z_0-9]\+\)/
 syn match constant_assign / [:][=] /
 syn match any contained /[a-zA-Z]/
 syn match comment /^[ ]*;.\+\n\|; [^'"]\+\n/

@@ -10,15 +10,18 @@ Numbers: Integer
 0xABCDL
 0xDEADBEEF
 --------------------
-(SourceFile
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))))
 
 ====================
 Numbers: Float
@@ -58,41 +61,54 @@ Numbers: Float
 .12345e123F
 .12345e-123F
 --------------------
-(SourceFile
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))
 
 ====================
 Numbers: Double
@@ -118,38 +134,36 @@ Numbers: Double
 .12345e123D
 .12345e-123D
 --------------------
-(SourceFile
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal)
-  (Literal))
-
-
-====================
-Character
-====================
-'a'
-'\t'
---------------------
-(SourceFile
-	(Literal)
-	(Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))
 
 ====================
 Boolean
@@ -157,7 +171,9 @@ Boolean
 true
 false
 --------------------
-(SourceFile (Literal) (Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))
 
 ====================
 Character
@@ -165,9 +181,9 @@ Character
 'a'
 '\t'
 --------------------
-(SourceFile
-	(Literal)
-	(Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))
 
 ====================
 Normal strings
@@ -176,18 +192,22 @@ Normal strings
 "blah\n"
 "tabs\t spaces \"'"
 --------------------
-(SourceFile
-	(Literal)
-	(Literal)
-	(Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))
+(TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))))
 
 ====================
 Raw strings
 ====================
-"""foo"""
+"""foo
+a bc
+    bac
+   """
 --------------------
-(SourceFile
-	(Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))))
 
 ====================
 Symbols
@@ -195,14 +215,15 @@ Symbols
 'foo
 'foo_bar
 --------------------
-(SourceFile
-	(Literal)
-	(Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))) (TemplateStat (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))
 
 ====================
 Null
 ====================
 null
 --------------------
-(SourceFile (Literal))
+(SourceFile (TemplateStat (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal))))))))))
 

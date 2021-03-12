@@ -29,6 +29,15 @@ local function reformat_lines()
       local padded_delim = #delim == 3 and delim or (delim .. " ")
       table.insert(lines, table.concat(aligned_line) .. " " .. padded_delim .. " " .. value)
     elseif key and delim then
+      local pipe_start = delim:find("%|")
+      if pipe_start == 1 then
+        local start, end_index = delim:find("[%s]+")
+        if start == 2 and end_index > start then
+          delim = "| " .. delim:sub(end_index + 1)
+        end
+      else
+          delim = "    " .. delim
+      end
       table.insert(lines, pipe_indent .. delim)
     else
       table.insert(lines, key)

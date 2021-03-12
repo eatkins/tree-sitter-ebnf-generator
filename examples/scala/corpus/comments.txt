@@ -1,6 +1,6 @@
-=======
-comments
-=======
+=====================
+Comments
+=====================
 
 /*
  * /*
@@ -8,5 +8,24 @@ comments
    * / /*/**/*/
  */*/
  true
--------
-(SourceFile (Literal))
+---------------------
+(SourceFile
+	(TemplateStat
+		(Expr
+			(Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+			(Literal))))))))))
+
+=====================
+Doc comments
+=====================
+/**
+ * {{{ val x = 1 }}}
+ */
+ def foo(x: Int): Unit
+
+---------------------
+(SourceFile (TemplateStat (Dcl (FunDcl (FunSig (ParamClause (Params (Param
+(ParamType (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId))))))))))) (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId))))))))))
+

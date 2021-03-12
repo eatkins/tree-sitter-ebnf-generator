@@ -1,19 +1,111 @@
 ====================
 If
 ====================
-if (true) 1 else if (false) 2 else "foo"
+if (true) {
+	1
+	val z = foo"bar $baz"
+} else {
+  val x = 1
+}
+
+if (true) 1
+else 2
+
+if (true) {
+1
+}
+else 3
+
+if (true) {
+  1
+} else if (false) {
+  2
+} else {
+  3
+}
+
+if (true) 1
+else if (false) 2
+else 3
+
+{
+	if (x)
+		1 + 1
+	else 1
+}
+
+def p(m: S): Unit = if (m) m
+def foo = if (m) m else x
 --------------------
-(SourceFile
-  (IfExpression (Literal) (Literal)
-  (IfExpression (Literal) (Literal) (Literal))))
+(SourceFile (TemplateStat (Expr (Expr1 (IfExpression (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (BlockExpr (Block (BlockStat
+(Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))) (BlockStat (Def (PatVarDef (PatDef (Pattern2 (Pattern3
+(SimplePattern (varid)))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Path (StableId))))))))))))) (ResultExpr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (BlockExpr (Block (BlockStat (Def (PatVarDef (PatDef (Pattern2
+(Pattern3 (SimplePattern (varid)))) (Expr (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))))))))))))))))
+(TemplateStat (Expr (Expr1 (IfExpression (Expr (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))) (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))) (TemplateStat (Expr (Expr1 (IfExpression (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (BlockExpr (Block
+(BlockStat (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal)))))))))))) (TemplateStat (Expr (Expr1
+(IfExpression (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal)))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (BlockExpr (Block (BlockStat (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))))))))) (Expr (Expr1
+(IfExpression (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal)))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (BlockExpr (Block (BlockStat (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (BlockExpr (Block (BlockStat
+(Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))))))))))))))))) (TemplateStat (Expr (Expr1 (IfExpression (Expr
+(Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal)))))))) (Expr (Expr1 (IfExpression (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))))))))) (TemplateStat (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (BlockExpr (Block (BlockStat (Expr1
+(IfExpression (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Path (StableId))))))))) (Expr (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))) (ResultExpr (Expr1
+(PostfixExpr (InfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))) (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))))))))) (TemplateStat (Def (FunDef (FunSig (ParamClause
+(Params (Param (ParamType (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId))))))))))) (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId)))))) (Expr (Expr1 (IfExpression (Expr (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Path (StableId))))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Path
+(StableId))))))))))))))) (TemplateStat (Def (FunDef (FunSig) (Expr (Expr1
+(IfExpression (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Path (StableId))))))))) (Expr (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Path (StableId))))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Path
+(StableId))))))))))))))))
+
 
 ====================
 While
 ====================
 while(true) 1
 --------------------
-(SourceFile
-  (WhileExpression (Literal) (Literal)))
+(SourceFile (TemplateStat (Expr (Expr1 (WhileExpression (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))))
 
 ====================
 Try
@@ -21,9 +113,13 @@ Try
 try 1
 try 1 catch 2 finally 3
 --------------------
-(SourceFile
-  (TryExpression (Literal))
-  (TryExpression (Literal) (Literal) (Literal)))
+(SourceFile (TemplateStat (Expr (Expr1 (TryExpression (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))))))
+(TemplateStat (Expr (Expr1 (TryExpression (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal))))))))
+(Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))))
 
 ====================
 Do
@@ -31,67 +127,77 @@ Do
 do 1; while (true)
 do 1 while (true)
 --------------------
-(SourceFile
-  (DoExpression (Literal) (Literal))
-  (DoExpression (Literal) (Literal)))
-
+(SourceFile (TemplateStat (Expr (Expr1 (DoExpression (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))))))) (TemplateStat (Expr (Expr1
+(DoExpression (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal)))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal)))))))))))))
 ====================
 Throw
 ====================
-throw 1
+throw new Exception("die")
 --------------------
-(SourceFile
-  (ThrowExpression (Literal)))
+(SourceFile (TemplateStat (Expr (Expr1 (ThrowExpression (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (ClassTemplate (ClassParents
+(Constr (AnnotType (SimpleType (StableId))) (ArgumentExprs (Exprs (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))))))))))))))))))
 
 ====================
 For loops
 ====================
 for { x <- y } yield { Seq("foo", "bar") }
 --------------------
-(SourceFile
-  (ForExpression (Literal)))
+(SourceFile (TemplateStat (Expr (Expr1 (ForExpression (Enumerators (Generator
+(Pattern1 (Pattern2 (Pattern3 (SimplePattern (varid))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Path
+(StableId))))))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (BlockExpr (Block (BlockStat (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (SimpleExpr1 (Path
+(StableId))) (ArgumentExprs (Exprs (Expr (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))) (Expr (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))))))))))))))))))))))))
 
-====================
-Kitchen sink
-====================
-class Foo[+T <: String >: Nothing: TypeClass, _, +M[K[_], _], -Z[_]: OClass](val x: Int, val z: Double)
-(val g: String)(implicit val k: Manifest[String]) extends { val x = 1 } with Bar with Baz {
-	for (x <- y) println("foo");
-	def bar(): Unit = {}
-}
---------------------
-
-
-====================
-Class
-====================
-class Foo[+T <: String >: Nothing: TypeClass, _, +M[K[_], _], -Z[_]: OClass](val x: Int, val z: Double)
-(val g: String)(implicit val k: Manifest[String]) extends { val x = 1 } with Bar with Baz {
-  type x = Int
-  import foo._;
-  import foo.bar.x;
-  import foo.baz.{ x => y };
-	for (
-    x <- y if foo == "1"
-    z <- x
-  ) println("foo");
-	def bar(): Unit = {}
-}
---------------------
-(SourceFile)
 ====================
 Imports
 ====================
-import Foo.{ z => _, x => y };
-class Foo { self =>
-}
+import Foo.{ z => _, x => y }
+import a.b.c.d
+import a.b.c.d._
 --------------------
-(SourceFile)
+(SourceFile
+	(TemplateStat (Import (ImportExpr (StableId) (ImportSelectors (ImportSelector) (ImportSelector)))))
+	(TemplateStat (Import (ImportExpr (StableId (Path (StableId (Path (StableId))))))))
+	(TemplateStat (Import (ImportExpr (StableId (Path (StableId (Path (StableId (Path (StableId)))))))))))
 
 ====================
 Return
 ====================
 return 1
 --------------------
-(SourceFile
-  (ReturnExpression (Literal)))
+(SourceFile (TemplateStat (Expr (Expr1 (ReturnExpression (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))))))
+
+====================
+Matches
+====================
+x match {
+	case x =>
+    1
+    2
+	case y =>
+    3
+}
+--------------------
+(SourceFile (TemplateStat (Expr (Expr1 (CaseExpression (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Path (StableId))))))) (CaseClauses
+(CaseClause (Pattern (Pattern1 (Pattern2 (Pattern3 (SimplePattern (varid))))))
+(Block (BlockStat (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal)))))))) (BlockStat (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))) (CaseClause (Pattern
+(Pattern1 (Pattern2 (Pattern3 (SimplePattern (varid)))))) (Block (BlockStat
+(Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal)))))))) (BlockStat)))))))))

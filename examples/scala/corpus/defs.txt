@@ -1,0 +1,87 @@
+============================
+Odd defs
+============================
+def f(s: S = { val x = 1; x })(
+	implicit f: J[S],
+	y: Z = 3
+	): JF[T] = 1
+----------------------------
+(SourceFile (TemplateStat (Def (FunDef (FunSig (ParamClause (Params (Param
+(ParamType (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(BlockExpr (Block (BlockStat (Def (PatVarDef (PatDef (Pattern2 (Pattern3
+(SimplePattern (varid)))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr
+(SimpleExpr (SimpleExpr1 (Literal)))))))))))) (BlockStat (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Path
+(StableId)))))))))))))))))))) (Params (Param (ParamType (Type (InfixType
+(CompoundType (AnnotType (SimpleType (SimpleType (StableId)) (TypeArgs (Types
+(Type (InfixType (CompoundType (AnnotType (SimpleType (StableId)))))))))))))))
+(Param (ParamType (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId))))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(SimpleExpr1 (Literal))))))))))) (Type (InfixType (CompoundType (AnnotType
+(SimpleType (SimpleType (StableId)) (TypeArgs (Types (Type (InfixType
+(CompoundType (AnnotType (SimpleType (StableId))))))))))))) (Expr (Expr1
+(PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1
+(Literal))))))))))))
+
+
+============================
+Trailing commas
+============================
+def f(
+	s: X,
+  y: Y,
+): Unit
+----------------------------
+(SourceFile (TemplateStat (Dcl (FunDcl (FunSig (ParamClause (Params (Param
+(ParamType (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId)))))))) (Param (ParamType (Type (InfixType (CompoundType (AnnotType
+(SimpleType (StableId))))))))))) (Type (InfixType (CompoundType (AnnotType
+(SimpleType (StableId))))))))))
+
+==========================
+Deprecated def syntax
+==========================
+abstract class Foo {
+  def bar {}
+  def baz
+  def boo(i: Int, l: Long)
+  def boz(i: Int, l: Long) {}
+  def this(i: Int) { this() } // Don't complain here!
+  def foz: Unit               // Don't complain here!
+}
+--------------------------
+(SourceFile (TemplateStat (Modifier (LocalModifier)) (Def (TmplDef (ClassDef
+(TemplateBody (TemplateStat (Def (FunDef (FunSig) (Block (BlockStat)))))
+(TemplateStat (Dcl (FunDcl (FunSig)))) (TemplateStat (Dcl (FunDcl (FunSig
+(ParamClause (Params (Param (ParamType (Type (InfixType (CompoundType (AnnotType
+(SimpleType (StableId)))))))) (Param (ParamType (Type (InfixType (CompoundType
+(AnnotType (SimpleType (StableId)))))))))))))) (TemplateStat (Def (FunDef
+(FunSig (ParamClause (Params (Param (ParamType (Type (InfixType (CompoundType
+(AnnotType (SimpleType (StableId)))))))) (Param (ParamType (Type (InfixType
+(CompoundType (AnnotType (SimpleType (StableId))))))))))) (Block (BlockStat)))))
+(TemplateStat (Def (FunDef (ParamClause (Params (Param (ParamType (Type
+(InfixType (CompoundType (AnnotType (SimpleType (StableId)))))))))) (ConstrBlock
+(SelfInvocation (ArgumentExprs)))))) (TemplateStat (Dcl (FunDcl (FunSig) (Type
+(InfixType (CompoundType (AnnotType (SimpleType (StableId)))))))))
+(TemplateStat)))))))
+
+=====================
+Val def and decl
+=====================
+val x: Int
+val x, y, z: String
+def foo: Int = {}
+val x: String = { "foo" }
+--------------------
+(SourceFile (TemplateStat (Dcl (ValDcl (Type (InfixType (CompoundType (AnnotType
+(SimpleType (StableId))))))))) (TemplateStat (Dcl (ValDcl (Type (InfixType
+(CompoundType (AnnotType (SimpleType (StableId))))))))) (TemplateStat (Def
+(FunDef (FunSig) (Type (InfixType (CompoundType (AnnotType (SimpleType
+(StableId)))))) (Expr (Expr1 (PostfixExpr (InfixExpr (PrefixExpr (SimpleExpr
+(BlockExpr (Block (BlockStat)))))))))))) (TemplateStat (Def (PatVarDef (PatDef
+(Pattern2 (Pattern3 (SimplePattern (varid)))) (Type (InfixType (CompoundType
+(AnnotType (SimpleType (StableId)))))) (Expr (Expr1 (PostfixExpr (InfixExpr
+(PrefixExpr (SimpleExpr (BlockExpr (Block (BlockStat (Expr1 (PostfixExpr
+(InfixExpr (PrefixExpr (SimpleExpr (SimpleExpr1 (Literal)))))))))))))))))))))
+

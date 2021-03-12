@@ -1,0 +1,104 @@
+{
+  "name": "test",
+  "rules": {
+    "Foo": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "ValDcl"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "ValDef"
+        }
+      ]
+    },
+    "_id": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "PATTERN",
+        "value": "[a-zA-Z0-9]"
+      }
+    },
+    "_type": {
+      "type": "SYMBOL",
+      "name": "_id"
+    },
+    "ValDcl": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "val"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_id"
+        },
+        {
+          "type": "STRING",
+          "value": ":"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_id"
+        }
+      ]
+    },
+    "ValDef": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "val"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_id"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ":"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_id"
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_id"
+        }
+      ]
+    }
+  },
+  "extras": [
+    {
+      "type": "PATTERN",
+      "value": "\\s"
+    }
+  ],
+  "conflicts": [],
+  "precedences": [],
+  "externals": [],
+  "inline": [],
+  "supertypes": []
+}
+

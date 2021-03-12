@@ -2,11 +2,7 @@
 
 /*
  * inline constants: 
- * Block               := (BlockStat? (semi BlockStat)*) ResultExpr?
- * ClassParamClauses   := ClassParamClause* (nl? '(' 'implicit' ClassParams ')')?
-
- * ClassQualifier      := [\[]$id[\]]
- *     ([\[]([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`][\]])
+ * ClassParamClauses   := <10(ClassParamClause* (nl? ImplicitClassParams?))
  * ClassTemplateOpt    := 'extends' ClassTemplate | ('extends'? TemplateBody)?
  * ParamClauses        := ParamClause* (nl? '(' 'implicit' Params ')')?
  * TraitTemplateOpt    := 'extends' TraitTemplate | ('extends'? TemplateBody)?
@@ -29,10 +25,10 @@
  * hexDigit            := [0-9a-fA-F]
  * hexNumeral          := 0[xX]$hexDigit+
  *     (0[xX][0-9a-fA-F]+)
- * id                  := $plainid|[`]($charNoBQOrNL|$escapeSeq)*[`]
- *     (([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`])
+ * idRegex             := $plainid|[`]($charNoBQOrNL|$escapeSeq)*[`]
+ *     (([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`])
  * idrest              := [$(letter)0-9]*(_$opchar+)?
- *     ([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?)
+ *     ([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?)
  * letter              := $upperChars$lowerChars
  *     (\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F)
  * lowerChars          := $lowerChars1$lowerChars2$lowerChars3
@@ -40,16 +36,16 @@
  * lowerChars1         := \p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4
  * lowerChars2         := \u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C
  * lowerChars3         := \u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F
- * opchar              := [!#%&*+\u002d/\\:<=>?@\u005e\u007c~]
+ * opchar              := [\-!#%&*+/\\:<=>?@\u005e\u007c~]
  * plainid             := ($upper$idrest|$varidRegex|$opchar+)
- *     (([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+))
+ *     (([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+))
  * unicodeEscape       := \\u+$hexDigit$hexDigit$hexDigit$hexDigit
  *     (\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])
  * upper               := [$upperChars]
  *     ([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$])
  * upperChars          := \p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$
  * varidRegex          := [$lowerChars_]$idrest
- *     ([\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?)
+ *     ([\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?)
  */
 
 module.exports = grammar({
@@ -57,9 +53,19 @@ module.exports = grammar({
 
   /*
    * scala.ebnf:1 
-   * externals ::= { multi_comment }
+   * externals ::= { multiComment automaticNewline val var def1 interpStart openMultiComment empty trailingComma }
    */
-  externals: $ => [$._multi_comment],
+  externals: $ => [
+                    $._multiComment,
+                    $._automaticNewline,
+                    $._val,
+                    $._var,
+                    $._def1,
+                    $._interpStart,
+                    $._openMultiComment,
+                    $._empty,
+                    $._trailingComma
+                  ],
   /*
    * scala.ebnf:3 
    * extras    ::= { whiteSpace comment }
@@ -71,122 +77,200 @@ module.exports = grammar({
    */
   word: $ => $._identifier,
   /*
-   * scala.ebnf:7 
-   * conflicts ::= { { Literal } { Refinement } }
+   * scala.ebnf:7-43 
+   * conflicts ::= { { SimpleExpr }
+   *               { Def EarlyDef }
+   *               { Path SimpleType }
+   *               { Path ImportExpr }
+   *               { Path SelfType }
+   *               { IfExpression }
+   *               { SimpleExpr1 Binding }
+   *               { SimpleExpr1 SimpleExpr }
+   *               { AnnotType SimpleType }
+   *               { ClassDef }
+   *               { ObjectDef }
+   *               { TraitDef }
+   *               { Exprs }
+   *               { InfixType }
+   *               { CompoundType }
+   *               { Block }
+   *               { Constr }
+   *               { ClassTemplate }
+   *               { TraitTemplate }
+   *               { Generator }
+   *               { TemplateBody }
+   *               { BlockStat LocalModifier }
+   *               { ImplicitClassParams LocalModifier }
+   *               { InfixExpr }
+   *               { Annotation }
+   *               { Patterns }
+   *               { SimpleType Annotation }
+   *               { SimplePattern Patterns }
+   *               { ReturnExpression }
+   *               { FunSig }
+   *               { TryExpression }
+   *               { Expr SelfType }
+   *               { SelfInvocation }
+   *               { Enumerators }
+   *               { SimpleExpr1 ResultExpr }
+   *               { TopStatSeq }
+   *               { Refinement } }
    */
-  conflicts: $ => [[$.Literal], [$.Refinement]],
+  conflicts: $ => [
+                    [$.SimpleExpr],
+                    [$.Def, $.EarlyDef],
+                    [$.Path, $.SimpleType],
+                    [$.Path, $.ImportExpr],
+                    [$.Path, $.SelfType],
+                    [$.IfExpression],
+                    [$.SimpleExpr1, $.Binding],
+                    [$.SimpleExpr1, $.SimpleExpr],
+                    [$.AnnotType, $.SimpleType],
+                    [$.ClassDef],
+                    [$.ObjectDef],
+                    [$.TraitDef],
+                    [$.Exprs],
+                    [$.InfixType],
+                    [$.CompoundType],
+                    [$.Block],
+                    [$.Constr],
+                    [$.ClassTemplate],
+                    [$.TraitTemplate],
+                    [$.Generator],
+                    [$.TemplateBody],
+                    [$.BlockStat, $.LocalModifier],
+                    [$.ImplicitClassParams, $.LocalModifier],
+                    [$.InfixExpr],
+                    [$.Annotation],
+                    [$.Patterns],
+                    [$.SimpleType, $.Annotation],
+                    [$.SimplePattern, $.Patterns],
+                    [$.ReturnExpression],
+                    [$.FunSig],
+                    [$.TryExpression],
+                    [$.Expr, $.SelfType],
+                    [$.SelfInvocation],
+                    [$.Enumerators],
+                    [$.SimpleExpr1, $.ResultExpr],
+                    [$.TopStatSeq],
+                    [$.Refinement]
+                  ],
   rules: {
     /*
-     * scala.ebnf:10-11 
-     * Foo ::= TemplateStat (semi ("" | TemplateStat))*
-     * ;SourceFile           ::= CompilationUnit | TopStatSeq | Expr*
+     * scala.ebnf:46 
+     * SourceFile           ::= (CompilationUnit | TemplateStat (semi TemplateStat)*) semi?
      */
-    Foo: $ => seq($.TemplateStat, repeat(seq($._semi, choice("", $.TemplateStat)))),
+    SourceFile: $ => seq(
+                       choice($.CompilationUnit, seq($.TemplateStat, repeat(seq($._semi, $.TemplateStat)))),
+                       optional($._semi)
+                     ),
     /*
-     * scala.ebnf:12 
-     * CompilationUnit      ::= ('package' QualId semi)+ TopStatSeq
+     * scala.ebnf:47 
+     * CompilationUnit      ::= ('package' QualId semi)* TopStatSeq
      */
-    CompilationUnit: $ => seq(repeat1(seq('package', $.QualId, $._semi)), $.TopStatSeq),
+    CompilationUnit: $ => seq(repeat(seq('package', $.QualId, $._semi)), $.TopStatSeq),
     /*
-     * scala.ebnf:13 
+     * scala.ebnf:48 
      * whiteSpace           ::= /[\u0020\u0009\u000D\u000A]/
      */
     _whiteSpace: $ => /[\u0020\u0009\u000D\u000A]/,
     /*
-     * scala.ebnf:20 
+     * scala.ebnf:57 
      * lower                ::= [$lowerChars]
      */
     _lower: $ => /[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F]/,
     /*
-     * scala.ebnf:22 
+     * scala.ebnf:59 
      * paren                ::= [(){}\[\]]
      */
     _paren: $ => /[(){}\[\]]/,
     /*
-     * scala.ebnf:29 
-     * varid                ::= /$varidRegex/
+     * scala.ebnf:66 
+     * [v]arid              ::= /$varidRegex/
      */
-    _varid: $ => /[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?/,
+    varid: $ => /[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?/,
     /*
-     * scala.ebnf:30 
+     * scala.ebnf:67 
      * boundvarid           ::= /($varidRegex|[`]$varidRegex[`])/
      */
-    _boundvarid: $ => /([\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[`][\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?[`])/,
+    _boundvarid: $ => /([\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[`][\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?[`])/,
     /*
-     * scala.ebnf:34 
-     * identifier           ::= /($opchar+|$id|$varidRegex|[`]$varidRegex[`])/
+     * scala.ebnf:71 
+     * identifier           ::= /($opchar+|$idRegex|$varidRegex|[`]$varidRegex[`])/
      */
-    _identifier: $ => /([!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+|([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[`][\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?[`])/,
+    _identifier: $ => /([\-!#%&*+/\\:<=>?@\u005e\u007c~]+|([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[`][\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?[`])/,
     /*
-     * scala.ebnf:37 
-     * integerLiteral       ::= /($decimalNumeral|$hexNumeral)[Ll]?/
+     * scala.ebnf:74 
+     * integerLiteral       ::= /-?($decimalNumeral|$hexNumeral)[Ll]?/
      */
-    _integerLiteral: $ => /([0-9]+|0[xX][0-9a-fA-F]+)[Ll]?/,
+    _integerLiteral: $ => /-?([0-9]+|0[xX][0-9a-fA-F]+)[Ll]?/,
     /*
-     * scala.ebnf:38 
+     * scala.ebnf:75 
      * decimalNumeral       ::= /[0-9]+/
      */
     _decimalNumeral: $ => /[0-9]+/,
     /*
-     * scala.ebnf:44 
-     * floatingPointLiteral ::= /($fpLit1|$fpLit2|$fpLit3|$fpLit4)/
+     * scala.ebnf:81 
+     * floatingPointLiteral ::= /-?($fpLit1|$fpLit2|$fpLit3|$fpLit4)/
      */
-    _floatingPointLiteral: $ => /([0-9]+[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[0-9]+([Ee][+-]?[0-9]+)?[FfDd]|[0-9]+([Ee][+-]?[0-9]+)[FfDd]?)/,
+    _floatingPointLiteral: $ => /-?([0-9]+[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[0-9]+([Ee][+-]?[0-9]+)?[FfDd]|[0-9]+([Ee][+-]?[0-9]+)[FfDd]?)/,
     /*
-     * scala.ebnf:47 
+     * scala.ebnf:84 
      * booleanLiteral       ::= "true" | "false"
      */
     _booleanLiteral: $ => choice("true", "false"),
     /*
-     * scala.ebnf:48 
+     * scala.ebnf:85 
      * characterLiteral     ::= /'([\u0020-\u0026\u0028-\u007f]|\\[btnfr"'\\])'/
      */
     _characterLiteral: $ => /'([\u0020-\u0026\u0028-\u007f]|\\[btnfr"'\\])'/,
     /*
-     * scala.ebnf:49 
+     * scala.ebnf:86 
      * rawString            ::= /"""("?"?[^"])*"*"""/
      */
     _rawString: $ => /"""("?"?[^"])*"*"""/,
     /*
-     * scala.ebnf:50 
+     * scala.ebnf:87 
      * stringLiteral        ::= string | rawString
      */
     _stringLiteral: $ => choice($._string, $._rawString),
     /*
-     * scala.ebnf:51 
+     * scala.ebnf:88 
      * string               ::= /"([^"\u000A]|$escapeSeq)*"/
      */
     _string: $ => /"([^"\u000A]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*"/,
     /*
-     * scala.ebnf:52 
-     * charMinusQuoteDollar ::= [ !#\u0025-\u007f]
+     * scala.ebnf:90 
+     * charMinusQuoteDollar ::= [^"\$]
      */
     _charMinusQuoteDollar: $ => /[ !#\u0025-\u007f]/,
     /*
-     * scala.ebnf:53-54 
-     * interpolatedString   ::= alphaid '"' (charMinusQuoteDollar | escape)+ '"'
+     * scala.ebnf:90 
+     * charMinusQuoteDollar ::= [^"\$]
+     */
+    _charMinusQuoteDollar: $ => /[^"\$]/,
+    /*
+     * scala.ebnf:91-92 
+     * [i]nterpolatedString ::= alphaid '"' (charMinusQuoteDollar | escape)* '"'
      *                        | alphaid '"""' ('"'? '"'? charMinusQuoteDollar | escape)* '"'? '"""'
      */
-    _interpolatedString: $ => choice(
-                                seq($._alphaid, '"', repeat1(choice($._charMinusQuoteDollar, $._escape)), '"'),
-                                seq(
-                                  $._alphaid,
-                                  '"""',
-                                  repeat(choice(seq(optional('"'), optional('"'), $._charMinusQuoteDollar), $._escape)),
-                                  optional('"'),
-                                  '"""'
-                                )
-                              ),
+    interpolatedString: $ => choice(
+                               seq($._alphaid, '"', repeat(choice($._charMinusQuoteDollar, $.escape)), '"'),
+                               seq(
+                                 $._alphaid,
+                                 '"""',
+                                 repeat(choice(seq(optional('"'), optional('"'), $._charMinusQuoteDollar), $.escape)),
+                                 optional('"'),
+                                 '"""'
+                               )
+                             ),
     /*
-     * scala.ebnf:55 
-     * escape               ::= /(\$\$|\$$id)/ | BlockExpr
+     * scala.ebnf:93 
+     * [e]scape             ::= "$$" | "$" id | "$" BlockExpr
      */
-    _escape: $ => choice(
-                    /(\$\$|\$([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`])/,
-                    $.BlockExpr
-                  ),
+    escape: $ => choice("$$", seq("$", $._id), seq("$", $.BlockExpr)),
     /*
-     * scala.ebnf:56 
+     * scala.ebnf:94 
      * alphaid              ::= $upper $idrest | varid
      */
     _alphaid: $ => choice(
@@ -195,211 +279,170 @@ module.exports = grammar({
                        repeat(
                          /[\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]/
                        ),
-                       optional(repeat1(/[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]/))
+                       optional(repeat1(/[\-!#%&*+/\\:<=>?@\u005e\u007c~]/))
                      ),
-                     $._varid
+                     $.varid
                    ),
     /*
-     * scala.ebnf:57 
+     * scala.ebnf:95 
      * symbolLiteral        ::= /[']$plainid/
      */
-    _symbolLiteral: $ => /[']([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)/,
+    _symbolLiteral: $ => /[']([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)/,
     /*
-     * scala.ebnf:58 
-     * comment              ::= "/*" multi_comment "*∕" | "//" /.*∕
+     * scala.ebnf:96 
+     * comment              ::= openMultiComment multiComment "*∕" | "//" /.*∕
      */
-    _comment: $ => choice(seq("/*", $._multi_comment, "*/"), seq("//", /.*/)),
+    _comment: $ => choice(seq($._openMultiComment, $._multiComment, "*/"), seq("//", /.*/)),
     /*
-     * scala.ebnf:59 
-     * nl                   ::= '\\n'
+     * scala.ebnf:97 
+     * nl                   ::= "\\n"
      */
-    _nl: $ => '\\n',
+    _nl: $ => "\\n",
     /*
-     * scala.ebnf:60 
-     * semi                 ::= ';' | nl+
+     * scala.ebnf:98 
+     * semi                 ::= (';' | automaticNewline)
      */
-    _semi: $ => choice(';', repeat1($._nl)),
+    _semi: $ => choice(';', $._automaticNewline),
     /*
-     * scala.ebnf:63-70 
-     * Literal              ::= '-'? integerLiteral
-     *                        |  '-'? floatingPointLiteral
-     *                        |  booleanLiteral
-     *                        |  characterLiteral
-     *                        |  stringLiteral
-     *                    ; |  interpolatedString
-     *                        |  symbolLiteral
-     *                        |  "null"
+     * scala.ebnf:99 
+     * id                   ::= /$idRegex/
+     */
+    _id: $ => /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
+    /*
+     * scala.ebnf:102-109 
+     * Literal              ::= integerLiteral
+     *                        | floatingPointLiteral
+     *                        | booleanLiteral
+     *                        | characterLiteral
+     *                        | stringLiteral
+     *                        | interpStart interpolatedString
+     *                        | symbolLiteral
+     *                        | "null"
      */
     Literal: $ => choice(
-                    seq(optional('-'), $._integerLiteral),
-                    seq(optional('-'), $._floatingPointLiteral),
+                    $._integerLiteral,
+                    $._floatingPointLiteral,
                     $._booleanLiteral,
                     $._characterLiteral,
                     $._stringLiteral,
+                    seq($._interpStart, $.interpolatedString),
                     $._symbolLiteral,
                     "null"
                   ),
     /*
-     * scala.ebnf:72 
-     * QualId               ::= /$id([.]$id)*∕
+     * scala.ebnf:111 
+     * QualId               ::= id ("." id)*
      */
-    QualId: $ => /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]([.]([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`])*/,
+    QualId: $ => seq($._id, repeat(seq(".", $._id))),
     /*
-     * scala.ebnf:73 
-     * ids                  ::= /$id(,$id)*∕
+     * scala.ebnf:112 
+     * ids                  ::= id ("," id)*
      */
-    _ids: $ => /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`](,([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`])*/,
+    _ids: $ => seq($._id, repeat(seq(",", $._id))),
     /*
-     * scala.ebnf:75-76 
-     * Path                 ::= StableId
-     *                        |  (/$id/ '.')? 'this'
+     * scala.ebnf:114-115 
+     * Path                 ::= (StableId
+     *                        | (id '.')? 'this')
      */
-    Path: $ => choice(
-                 $.StableId,
-                 seq(
-                   optional(
-                     seq(
-                       /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                       '.'
-                     )
-                   ),
-                   'this'
-                 )
-               ),
+    Path: $ => choice($.StableId, seq(optional(seq($._id, '.')), 'this')),
     /*
-     * scala.ebnf:77-79 
-     * StableId             ::= 10(/$id/
-     *                        |  Path '.' /$id/
-     *                        |  (/$id/ '.')? 'super' /$ClassQualifier/? '.' /$id/)
+     * scala.ebnf:116-118 
+     * StableId             ::= 5(id
+     *                        | Path '.' id
+     *                        | (id '.')? 'super' ClassQualifier? '.' id)
      */
     StableId: $ => prec(
-                     10,
+                     5,
                      choice(
-                       /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                       seq(
-                         $.Path,
-                         '.',
-                         /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/
-                       ),
-                       seq(
-                         optional(
-                           seq(
-                             /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                             '.'
-                           )
-                         ),
-                         'super',
-                         optional(
-                           /[\[]([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`][\]]/
-                         ),
-                         '.',
-                         /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/
-                       )
+                       $._id,
+                       seq($.Path, '.', $._id),
+                       seq(optional(seq($._id, '.')), 'super', optional($.ClassQualifier), '.', $._id)
                      )
                    ),
     /*
-     * scala.ebnf:81 
-     * ValDef               ::= "val" /$id/ "=" Literal
+     * scala.ebnf:119 
+     * ClassQualifier       ::= "[" id "]"
      */
-    ValDef: $ => seq(
-                   "val",
-                   /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                   "=",
-                   $.Literal
-                 ),
+    ClassQualifier: $ => seq("[", $._id, "]"),
     /*
-     * scala.ebnf:83 
-     * Type                 ::= 10(FunctionArgTypes '=>' Type | InfixType ExistentialClause?)
+     * scala.ebnf:120 
+     * ValDef               ::= "val" id "=" Literal
+     */
+    ValDef: $ => seq("val", $._id, "=", $.Literal),
+    /*
+     * scala.ebnf:122-123 
+     * Type                 ::= 1(FunctionArgTypes '=>' Type | InfixType
+     *                            ExistentialClause?)
      */
     Type: $ => prec(
-                 10,
+                 1,
                  choice(
                    seq($.FunctionArgTypes, '=>', $.Type),
                    seq($.InfixType, optional($.ExistentialClause))
                  )
                ),
     /*
-     * scala.ebnf:84-85 
+     * scala.ebnf:124-125 
      * FunctionArgTypes     ::= InfixType
      *                        | '(' ParamType (',' ParamType )*? ')'
      */
     FunctionArgTypes: $ => choice($.InfixType, seq('(', $.ParamType, optional(repeat(seq(',', $.ParamType))), ')')),
     /*
-     * scala.ebnf:86 
+     * scala.ebnf:126 
      * ExistentialClause    ::= 'forSome' '{' ExistentialDcl (semi ExistentialDcl)* '}'
      */
     ExistentialClause: $ => seq('forSome', '{', $.ExistentialDcl, repeat(seq($._semi, $.ExistentialDcl)), '}'),
     /*
-     * scala.ebnf:87-88 
+     * scala.ebnf:127-128 
      * ExistentialDcl       ::= 'type' TypeDcl
-     *                        |  'val' ValDcl
+     *                        | 'val' ValDcl
      */
     ExistentialDcl: $ => choice(seq('type', $.TypeDcl), seq('val', $.ValDcl)),
     /*
-     * scala.ebnf:89 
-     * InfixType            ::= >(CompoundType (/$id/ nl? CompoundType)*)
+     * scala.ebnf:129 
+     * InfixType            ::= CompoundType (id nl? CompoundType)*
      */
-    InfixType: $ => prec.right(
-                      seq(
-                        $.CompoundType,
-                        repeat(
-                          seq(
-                            /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                            optional($._nl),
-                            $.CompoundType
-                          )
-                        )
-                      )
-                    ),
+    InfixType: $ => seq($.CompoundType, repeat(seq($._id, optional($._nl), $.CompoundType))),
     /*
-     * scala.ebnf:90 
-     * CompoundType         ::= >(AnnotType ('with' AnnotType)* Refinement? | Refinement)
+     * scala.ebnf:130 
+     * CompoundType         ::= AnnotType ('with' AnnotType)* Refinement? | Refinement
      */
-    CompoundType: $ => prec.right(
-                         choice(
-                           seq($.AnnotType, repeat(seq('with', $.AnnotType)), optional($.Refinement)),
-                           $.Refinement
-                         )
+    CompoundType: $ => choice(
+                         seq($.AnnotType, repeat(seq('with', $.AnnotType)), optional($.Refinement)),
+                         $.Refinement
                        ),
     /*
-     * scala.ebnf:91 
-     * AnnotType            ::= >(SimpleType Annotation*)
+     * scala.ebnf:131 
+     * AnnotType            ::= SimpleType Annotation*
      */
-    AnnotType: $ => prec.right(seq($.SimpleType, repeat($.Annotation))),
+    AnnotType: $ => seq($.SimpleType, repeat($.Annotation)),
     /*
-     * scala.ebnf:92-96 
-     * SimpleType           ::= 3(SimpleType TypeArgs
-     *                        |  SimpleType '#' /$id/
-     *                        |  StableId
-     *                        |  Path '.' 'type'
-     *                        |  '(' Types ')')
+     * scala.ebnf:132-136 
+     * SimpleType           ::= SimpleType TypeArgs
+     *                        | SimpleType '#' id
+     *                        | StableId
+     *                        | Path '.' 'type'
+     *                        | '(' Types ')'
      */
-    SimpleType: $ => prec(
-                       3,
-                       choice(
-                         seq($.SimpleType, $.TypeArgs),
-                         seq(
-                           $.SimpleType,
-                           '#',
-                           /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/
-                         ),
-                         $.StableId,
-                         seq($.Path, '.', 'type'),
-                         seq('(', $.Types, ')')
-                       )
+    SimpleType: $ => choice(
+                       seq($.SimpleType, $.TypeArgs),
+                       seq($.SimpleType, '#', $._id),
+                       $.StableId,
+                       seq($.Path, '.', 'type'),
+                       seq('(', $.Types, ')')
                      ),
     /*
-     * scala.ebnf:97 
+     * scala.ebnf:137 
      * TypeArgs             ::= '[' Types ']'
      */
     TypeArgs: $ => seq('[', $.Types, ']'),
     /*
-     * scala.ebnf:98 
-     * Types                ::= Type (',' Type)*
+     * scala.ebnf:138 
+     * Types                ::= 1(Type (',' Type)*)
      */
-    Types: $ => seq($.Type, repeat(seq(',', $.Type))),
+    Types: $ => prec(1, seq($.Type, repeat(seq(',', $.Type)))),
     /*
-     * scala.ebnf:99 
+     * scala.ebnf:139 
      * Refinement           ::= nl? '{' RefineStat? (semi RefineStat)* '}'
      */
     Refinement: $ => seq(
@@ -410,23 +453,24 @@ module.exports = grammar({
                        '}'
                      ),
     /*
-     * scala.ebnf:100-101 
+     * scala.ebnf:140-141 
      * RefineStat           ::= Dcl
-     *                        |  'type' TypeDef
+     *                        | 'type' TypeDef
      */
     RefineStat: $ => choice($.Dcl, seq('type', $.TypeDef)),
     /*
-     * scala.ebnf:102 
+     * scala.ebnf:142 
      * TypePat              ::= Type
      */
     TypePat: $ => $.Type,
     /*
-     * scala.ebnf:104-106 
-     * Ascription           ::= >(':' InfixType
-     *                        |  ':' Annotation Annotation*
-     *                        |  ':' '_' '*')
+     * scala.ebnf:144-146 
+     * Ascription           ::= 1(':' InfixType
+     *                        | ':' Annotation Annotation*
+     *                        | ':' '_' '*')
      */
-    Ascription: $ => prec.right(
+    Ascription: $ => prec(
+                       1,
                        choice(
                          seq(':', $.InfixType),
                          seq(':', $.Annotation, repeat($.Annotation)),
@@ -434,85 +478,73 @@ module.exports = grammar({
                        )
                      ),
     /*
-     * scala.ebnf:108 
-     * IfExpression         ::= >('if' '(' Expr ')' nl* Expr (semi? 'else' Expr)?)
+     * scala.ebnf:148 
+     * IfExpression         ::= ('if' '(' Expr ')' nl* Expr (semi? 'else' Expr)?)
      */
-    IfExpression: $ => prec.right(
-                         seq(
-                           'if',
-                           '(',
-                           $.Expr,
-                           ')',
-                           repeat($._nl),
-                           $.Expr,
-                           optional(seq(optional($._semi), 'else', $.Expr))
-                         )
+    IfExpression: $ => seq(
+                         'if',
+                         '(',
+                         $.Expr,
+                         ')',
+                         repeat($._nl),
+                         $.Expr,
+                         optional(seq(optional($._semi), 'else', $.Expr))
                        ),
     /*
-     * scala.ebnf:109 
+     * scala.ebnf:149 
      * WhileExpression      ::= 'while' '(' Expr ')' nl* Expr
      */
     WhileExpression: $ => seq('while', '(', $.Expr, ')', repeat($._nl), $.Expr),
     /*
-     * scala.ebnf:110 
-     * TryExpression        ::= >('try' Expr ('catch' Expr)? ('finally' Expr)?)
+     * scala.ebnf:150 
+     * TryExpression        ::= ('try' Expr ('catch' Expr)? ('finally' Expr)?)
      */
-    TryExpression: $ => prec.right(
-                          seq('try', $.Expr, optional(seq('catch', $.Expr)), optional(seq('finally', $.Expr)))
-                        ),
+    TryExpression: $ => seq('try', $.Expr, optional(seq('catch', $.Expr)), optional(seq('finally', $.Expr))),
     /*
-     * scala.ebnf:111 
-     * DoExpression         ::= >('do' Expr semi? 'while' '(' Expr ')')
+     * scala.ebnf:151 
+     * DoExpression         ::= ('do' Expr semi? 'while' '(' Expr ')')
      */
-    DoExpression: $ => prec.right(seq('do', $.Expr, optional($._semi), 'while', '(', $.Expr, ')')),
+    DoExpression: $ => seq('do', $.Expr, optional($._semi), 'while', '(', $.Expr, ')'),
     /*
-     * scala.ebnf:112 
+     * scala.ebnf:152 
      * ThrowExpression      ::= 'throw' Expr
      */
     ThrowExpression: $ => seq('throw', $.Expr),
     /*
-     * scala.ebnf:113 
-     * ReturnExpression     ::= >('return' Expr?)
+     * scala.ebnf:153 
+     * ReturnExpression     ::= ('return' Expr?)
      */
-    ReturnExpression: $ => prec.right(seq('return', optional($.Expr))),
+    ReturnExpression: $ => seq('return', optional($.Expr)),
     /*
-     * scala.ebnf:114 
-     * ForExpression        ::= 'for' ('(' Enumerators ')' | '{' Enumerators '}') nl* 'yield'? Expr
+     * scala.ebnf:154 
+     * ForExpression        ::= 'for' ('(' Enumerators ')' | '{' Enumerators semi? '}') nl* 'yield'? Expr
      */
     ForExpression: $ => seq(
                           'for',
-                          choice(seq('(', $.Enumerators, ')'), seq('{', $.Enumerators, '}')),
+                          choice(seq('(', $.Enumerators, ')'), seq('{', $.Enumerators, optional($._semi), '}')),
                           repeat($._nl),
                           optional('yield'),
                           $.Expr
                         ),
     /*
-     * scala.ebnf:115 
-     * CaseExpression       ::= <(PostfixExpr 'match' '{' CaseClauses '}')
+     * scala.ebnf:155 
+     * CaseExpression       ::= PostfixExpr 'match' '{' CaseClauses '}'
      */
-    CaseExpression: $ => prec.left(seq($.PostfixExpr, 'match', '{', $.CaseClauses, '}')),
+    CaseExpression: $ => seq($.PostfixExpr, 'match', '{', $.CaseClauses, '}'),
     /*
-     * scala.ebnf:116 
-     * Expr                 ::= (Bindings | 'implicit'? /$id/ | '_') '=>' Expr | Expr1
+     * scala.ebnf:156 
+     * Expr                 ::= 1((Bindings | 'implicit'? id | '_') '=>' Expr | Expr1)
      */
-    Expr: $ => choice(
-                 seq(
-                   choice(
-                     $.Bindings,
-                     seq(
-                       optional('implicit'),
-                       /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/
-                     ),
-                     '_'
-                   ),
-                   '=>',
-                   $.Expr
-                 ),
-                 $.Expr1
+    Expr: $ => prec(
+                 1,
+                 choice(
+                   seq(choice($.Bindings, seq(optional('implicit'), $._id), '_'), '=>', $.Expr),
+                   $.Expr1
+                 )
                ),
     /*
-     * scala.ebnf:117-126 
-     * Expr1                ::= IfExpression
+     * scala.ebnf:157-166 
+     * Expr1                ::= 1(IfExpression
      *                        | WhileExpression
      *                        | TryExpression
      *                        | DoExpression
@@ -521,100 +553,81 @@ module.exports = grammar({
      *                        | ForExpression
      *                        | PostfixExpr
      *                        | PostfixExpr Ascription
-     *                        | CaseExpression
+     *                        | CaseExpression)
      */
-    Expr1: $ => choice(
-                  $.IfExpression,
-                  $.WhileExpression,
-                  $.TryExpression,
-                  $.DoExpression,
-                  $.ThrowExpression,
-                  $.ReturnExpression,
-                  $.ForExpression,
-                  $.PostfixExpr,
-                  seq($.PostfixExpr, $.Ascription),
-                  $.CaseExpression
+    Expr1: $ => prec(
+                  1,
+                  choice(
+                    $.IfExpression,
+                    $.WhileExpression,
+                    $.TryExpression,
+                    $.DoExpression,
+                    $.ThrowExpression,
+                    $.ReturnExpression,
+                    $.ForExpression,
+                    $.PostfixExpr,
+                    seq($.PostfixExpr, $.Ascription),
+                    $.CaseExpression
+                  )
                 ),
     /*
-     * scala.ebnf:127 
-     * PostfixExpr          ::= InfixExpr /$id\\n?/?
+     * scala.ebnf:167 
+     * PostfixExpr          ::= -1(InfixExpr (id nl?)?)
      */
-    PostfixExpr: $ => seq(
-                        $.InfixExpr,
-                        optional(
-                          /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]\\n?/
-                        )
-                      ),
+    PostfixExpr: $ => prec(1, seq($.InfixExpr, optional(seq($._id, optional($._nl))))),
     /*
-     * scala.ebnf:128 
-     * InfixExpr            ::= <2((PrefixExpr | InfixExpr /$id\\n?/? InfixExpr))
+     * scala.ebnf:168 
+     * InfixExpr            ::= <((PrefixExpr | InfixExpr id nl? InfixExpr))
      */
-    InfixExpr: $ => prec.left(
-                      2,
-                      choice(
-                        $.PrefixExpr,
-                        seq(
-                          $.InfixExpr,
-                          optional(
-                            /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]\\n?/
-                          ),
-                          $.InfixExpr
-                        )
-                      )
-                    ),
+    InfixExpr: $ => prec.left(choice($.PrefixExpr, seq($.InfixExpr, $._id, optional($._nl), $.InfixExpr))),
     /*
-     * scala.ebnf:129 
+     * scala.ebnf:169 
      * PrefixExpr           ::= ('-' | '+' | '~' | '!')? SimpleExpr
      */
     PrefixExpr: $ => seq(optional(choice('-', '+', '~', '!')), $.SimpleExpr),
     /*
-     * scala.ebnf:130-132 
-     * SimpleExpr           ::= >('new' (ClassTemplate | TemplateBody)
-     *                        |  BlockExpr
-     *                        |  SimpleExpr1 '_'?)
+     * scala.ebnf:170-172 
+     * SimpleExpr           ::= 'new' (ClassTemplate | TemplateBody)
+     *                        | BlockExpr
+     *                        | SimpleExpr1 '_'?
      */
-    SimpleExpr: $ => prec.right(
-                       choice(
-                         seq('new', choice($.ClassTemplate, $.TemplateBody)),
-                         $.BlockExpr,
-                         seq($.SimpleExpr1, optional('_'))
-                       )
+    SimpleExpr: $ => choice(
+                       seq('new', choice($.ClassTemplate, $.TemplateBody)),
+                       $.BlockExpr,
+                       seq($.SimpleExpr1, optional('_'))
                      ),
     /*
-     * scala.ebnf:133-139 
-     * SimpleExpr1          ::= >(Literal
-     *                        |  Path
-     *                        |  '_'
-     *                        |  '(' Exprs? ')'
-     *                        |  SimpleExpr '.' /$id/
-     *                        |  SimpleExpr TypeArgs
-     *                        |  SimpleExpr1 ArgumentExprs)
+     * scala.ebnf:173-179 
+     * SimpleExpr1          ::= 10(Literal
+     *                        | Path
+     *                        | '_'
+     *                        | '(' Exprs? ')'
+     *                        | SimpleExpr '.' id
+     *                        | SimpleExpr TypeArgs
+     *                        | SimpleExpr1 ArgumentExprs)
      */
-    SimpleExpr1: $ => prec.right(
+    SimpleExpr1: $ => prec(
+                        10,
                         choice(
                           $.Literal,
                           $.Path,
                           '_',
                           seq('(', optional($.Exprs), ')'),
-                          seq(
-                            $.SimpleExpr,
-                            '.',
-                            /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/
-                          ),
+                          seq($.SimpleExpr, '.', $._id),
                           seq($.SimpleExpr, $.TypeArgs),
                           seq($.SimpleExpr1, $.ArgumentExprs)
                         )
                       ),
     /*
-     * scala.ebnf:140 
-     * Exprs                ::= >(Expr (',' Expr)*)
+     * scala.ebnf:180 
+     * Exprs                ::= Expr (',' Expr)*
      */
-    Exprs: $ => prec.right(seq($.Expr, repeat(seq(',', $.Expr)))),
+    Exprs: $ => seq($.Expr, repeat(seq(',', $.Expr))),
     /*
-     * scala.ebnf:141-143 
+     * scala.ebnf:181-183 
      * ArgumentExprs        ::= '(' Exprs? ')'
-     *                        |  '(' (Exprs ',')? PostfixExpr ':' '_' '*' ')'
-     *                        |  nl? BlockExpr
+     *                        | '(' (Exprs ',')? PostfixExpr ':' '_' '*' ')'
+     *                        | nl? BlockExpr
      */
     ArgumentExprs: $ => choice(
                           seq('(', optional($.Exprs), ')'),
@@ -622,206 +635,163 @@ module.exports = grammar({
                           seq(optional($._nl), $.BlockExpr)
                         ),
     /*
-     * scala.ebnf:144-145 
+     * scala.ebnf:184-185 
      * BlockExpr            ::= '{' CaseClauses '}'
-     *                        |  '{' $Block '}'
+     *                        | '{' nl* Block '}'
      */
-    BlockExpr: $ => choice(
-                      seq('{', $.CaseClauses, '}'),
-                      seq(
-                        '{',
-                        seq(optional($.BlockStat), repeat(seq($._semi, $.BlockStat))),
-                        optional($.ResultExpr),
-                        '}'
-                      )
+    BlockExpr: $ => choice(seq('{', $.CaseClauses, '}'), seq('{', repeat($._nl), $.Block, '}')),
+    /*
+     * scala.ebnf:186 
+     * Block                ::= BlockStat (semi BlockStat)* ResultExpr?
+     */
+    Block: $ => seq($.BlockStat, repeat(seq($._semi, $.BlockStat)), optional($.ResultExpr)),
+    /*
+     * scala.ebnf:187-191 
+     * BlockStat            ::= Import
+     *                        | Annotation* 'implicit'? 'lazy'? Def
+     *                        | Annotation* LocalModifier* TmplDef
+     *                        | Expr1
+     *                        | empty
+     */
+    BlockStat: $ => choice(
+                      $.Import,
+                      seq(repeat($.Annotation), optional('implicit'), optional('lazy'), $.Def),
+                      seq(repeat($.Annotation), repeat($.LocalModifier), $.TmplDef),
+                      $.Expr1,
+                      $._empty
                     ),
     /*
-     * scala.ebnf:147-150 
-     * BlockStat            ::= 2(Import
-     *                        |  Annotation* 'implicit'? 'lazy'? Def
-     *                        |  Annotation* LocalModifier* TmplDef
-     *                        |  Expr1)
+     * scala.ebnf:192-194 
+     * ResultExpr           ::= -10(Expr1
+     *                        | (Bindings | ('implicit'? id | '_') ':'
+     *                            CompoundType) '=>' Block)
      */
-    BlockStat: $ => prec(
-                      2,
-                      choice(
-                        $.Import,
-                        seq(repeat($.Annotation), optional('implicit'), optional('lazy'), $.Def),
-                        seq(repeat($.Annotation), repeat($.LocalModifier), $.TmplDef),
-                        $.Expr1
-                      )
-                    ),
-    /*
-     * scala.ebnf:151-152 
-     * ResultExpr           ::= Expr1
-     *                        |  (Bindings | ('implicit'? /$id/ | '_') ':' CompoundType) '=>' $Block
-     */
-    ResultExpr: $ => choice(
-                       $.Expr1,
-                       seq(
-                         choice(
-                           $.Bindings,
-                           seq(
-                             choice(
-                               seq(
-                                 optional('implicit'),
-                                 /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/
-                               ),
-                               '_'
-                             ),
-                             ':',
-                             $.CompoundType
-                           )
-                         ),
-                         '=>',
-                         seq(optional($.BlockStat), repeat(seq($._semi, $.BlockStat))),
-                         optional($.ResultExpr)
+    ResultExpr: $ => prec(
+                       10,
+                       choice(
+                         $.Expr1,
+                         seq(
+                           choice(
+                             $.Bindings,
+                             seq(choice(seq(optional('implicit'), $._id), '_'), ':', $.CompoundType)
+                           ),
+                           '=>',
+                           $.Block
+                         )
                        )
                      ),
     /*
-     * scala.ebnf:154 
+     * scala.ebnf:196 
      * Enumerators          ::= Generator (semi Generator)*
      */
     Enumerators: $ => seq($.Generator, repeat(seq($._semi, $.Generator))),
     /*
-     * scala.ebnf:155 
-     * Generator            ::= >(Pattern1 '<-' Expr (semi? Guard | semi Pattern1 '=' Expr)*)
+     * scala.ebnf:197 
+     * Generator            ::= Pattern1 '<-' Expr (semi? Guard | semi Pattern1 '=' Expr)*
      */
-    Generator: $ => prec.right(
-                      seq(
-                        $.Pattern1,
-                        '<-',
-                        $.Expr,
-                        repeat(choice(seq(optional($._semi), $.Guard), seq($._semi, $.Pattern1, '=', $.Expr)))
-                      )
+    Generator: $ => seq(
+                      $.Pattern1,
+                      '<-',
+                      $.Expr,
+                      repeat(choice(seq(optional($._semi), $.Guard), seq($._semi, $.Pattern1, '=', $.Expr)))
                     ),
     /*
-     * scala.ebnf:157 
-     * CaseClauses          ::= CaseClause+
+     * scala.ebnf:199 
+     * CaseClauses          ::= CaseClause (semi? CaseClause)*
      */
-    CaseClauses: $ => repeat1($.CaseClause),
+    CaseClauses: $ => seq($.CaseClause, repeat(seq(optional($._semi), $.CaseClause))),
     /*
-     * scala.ebnf:158 
-     * CaseClause           ::= <(/case/ Literal Guard? /=>/ $Block)
+     * scala.ebnf:200 
+     * CaseClause           ::= "case" Pattern Guard? "=>" Block
      */
-    CaseClause: $ => prec.left(
-                       seq(
-                         /case/,
-                         $.Literal,
-                         optional($.Guard),
-                         /=>/,
-                         seq(optional($.BlockStat), repeat(seq($._semi, $.BlockStat))),
-                         optional($.ResultExpr)
-                       )
-                     ),
+    CaseClause: $ => seq("case", $.Pattern, optional($.Guard), "=>", $.Block),
     /*
-     * scala.ebnf:159 
+     * scala.ebnf:201 
      * Guard                ::= 'if' PostfixExpr
      */
     Guard: $ => seq('if', $.PostfixExpr),
     /*
-     * scala.ebnf:161 
+     * scala.ebnf:203 
      * Pattern              ::= Pattern1 ('|' Pattern1)*
      */
     Pattern: $ => seq($.Pattern1, repeat(seq('|', $.Pattern1))),
     /*
-     * scala.ebnf:162-164 
+     * scala.ebnf:204-206 
      * Pattern1             ::= boundvarid ':' TypePat
-     *                        |  '_' ':' TypePat
-     *                        |  Pattern2
+     *                        | '_' ':' TypePat
+     *                        | Pattern2
      */
     Pattern1: $ => choice(seq($._boundvarid, ':', $.TypePat), seq('_', ':', $.TypePat), $.Pattern2),
     /*
-     * scala.ebnf:165-166 
-     * Pattern2             ::= /$id/ ('@' Pattern3)?
-     *                        |  Pattern3
+     * scala.ebnf:207-208 
+     * Pattern2             ::= 10(id ('@' Pattern3)?
+     *                        | Pattern3)
      */
-    Pattern2: $ => choice(
-                     seq(
-                       /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                       optional(seq('@', $.Pattern3))
-                     ),
-                     $.Pattern3
+    Pattern2: $ => prec(10, choice(seq($._id, optional(seq('@', $.Pattern3))), $.Pattern3)),
+    /*
+     * scala.ebnf:209-210 
+     * Pattern3             ::= SimplePattern
+     *                        | SimplePattern (id nl? SimplePattern)*
+     */
+    Pattern3: $ => choice(
+                     $.SimplePattern,
+                     seq($.SimplePattern, repeat(seq($._id, optional($._nl), $.SimplePattern)))
                    ),
     /*
-     * scala.ebnf:167 
-     * Pattern3             ::= >(SimplePattern | SimplePattern /$id/ nl?  SimplePattern*)
+     * scala.ebnf:211-217 
+     * SimplePattern        ::= ('_'
+     *                        | varid
+     *                        | Literal
+     *                        | StableId
+     *                        | StableId '(' Patterns? ')'
+     *                        | StableId '(' (Patterns ',')? (id '@')? '_' '*' ')'
+     *                        | '(' Patterns? ')')
      */
-    Pattern3: $ => prec.right(
-                     choice(
-                       $.SimplePattern,
-                       seq(
-                         $.SimplePattern,
-                         /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                         optional($._nl),
-                         repeat($.SimplePattern)
-                       )
-                     )
-                   ),
-    /*
-     * scala.ebnf:168-174 
-     * SimplePattern        ::= >('_'
-     *                        |  varid
-     *                        |  Literal
-     *                        |  StableId
-     *                        |  StableId '(' Patterns? ')'
-     *                        |  StableId '(' (Patterns ',')? (/$id/ '@')? '_' '*' ')'
-     *                        |  '(' Patterns? ')')
-     */
-    SimplePattern: $ => prec.right(
-                          choice(
-                            '_',
-                            $._varid,
-                            $.Literal,
+    SimplePattern: $ => choice(
+                          '_',
+                          $.varid,
+                          $.Literal,
+                          $.StableId,
+                          seq($.StableId, '(', optional($.Patterns), ')'),
+                          seq(
                             $.StableId,
-                            seq($.StableId, '(', optional($.Patterns), ')'),
-                            seq(
-                              $.StableId,
-                              '(',
-                              optional(seq($.Patterns, ',')),
-                              optional(
-                                seq(
-                                  /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                                  '@'
-                                )
-                              ),
-                              '_',
-                              '*',
-                              ')'
-                            ),
-                            seq('(', optional($.Patterns), ')')
-                          )
+                            '(',
+                            optional(seq($.Patterns, ',')),
+                            optional(seq($._id, '@')),
+                            '_',
+                            '*',
+                            ')'
+                          ),
+                          seq('(', optional($.Patterns), ')')
                         ),
     /*
-     * scala.ebnf:175 
-     * Patterns             ::= >(Pattern (',' Patterns)?  |  '_' '*')
+     * scala.ebnf:218-219 
+     * Patterns             ::= (Pattern (',' Patterns)?
+     *                        | '_' '*')
      */
-    Patterns: $ => prec.right(choice(seq($.Pattern, optional(seq(',', $.Patterns))), seq('_', '*'))),
+    Patterns: $ => choice(seq($.Pattern, optional(seq(',', $.Patterns))), seq('_', '*')),
     /*
-     * scala.ebnf:177 
+     * scala.ebnf:221 
      * TypeParamClause      ::= '[' VariantTypeParam (',' VariantTypeParam)* ']'
      */
     TypeParamClause: $ => seq('[', $.VariantTypeParam, repeat(seq(',', $.VariantTypeParam)), ']'),
     /*
-     * scala.ebnf:178 
+     * scala.ebnf:222 
      * FunTypeParamClause   ::= '[' TypeParam (',' TypeParam)* ']'
      */
     FunTypeParamClause: $ => seq('[', $.TypeParam, repeat(seq(',', $.TypeParam)), ']'),
     /*
-     * scala.ebnf:179 
+     * scala.ebnf:223 
      * VariantTypeParam     ::= Annotation* ('+' | '-')? TypeParam
      */
     VariantTypeParam: $ => seq(repeat($.Annotation), optional(choice('+', '-')), $.TypeParam),
     /*
-     * scala.ebnf:180-181 
-     * TypeParam            ::= (/$id/ | '_') TypeParamClause? ('>:' Type)? ('<:' Type)?
-     *                        ('<%' Type)* (':' Type)*
+     * scala.ebnf:224-225 
+     * TypeParam            ::= (id | '_') TypeParamClause? ('>:' Type)? ('<:' Type)?
+     *                            ('<%' Type)* (':' Type)*
      */
     TypeParam: $ => seq(
-                      choice(
-                        /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                        '_'
-                      ),
+                      choice($._id, '_'),
                       optional($.TypeParamClause),
                       optional(seq('>:', $.Type)),
                       optional(seq('<:', $.Type)),
@@ -829,289 +799,250 @@ module.exports = grammar({
                       repeat(seq(':', $.Type))
                     ),
     /*
-     * scala.ebnf:183 
+     * scala.ebnf:227 
      * ParamClause          ::= nl? '(' Params? ')'
      */
     ParamClause: $ => seq(optional($._nl), '(', optional($.Params), ')'),
     /*
-     * scala.ebnf:184 
-     * Params               ::= Param (',' Param)*
+     * scala.ebnf:228 
+     * Params               ::= Param (',' Param)* trailingComma?
      */
-    Params: $ => seq($.Param, repeat(seq(',', $.Param))),
+    Params: $ => seq($.Param, repeat(seq(',', $.Param)), optional($._trailingComma)),
     /*
-     * scala.ebnf:185 
-     * Param                ::= Annotation* /$id/ (':' ParamType)? ('=' Expr)?
+     * scala.ebnf:229 
+     * Param                ::= Annotation* id (':' ParamType)? ('=' Expr)?
      */
     Param: $ => seq(
                   repeat($.Annotation),
-                  /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
+                  $._id,
                   optional(seq(':', $.ParamType)),
                   optional(seq('=', $.Expr))
                 ),
     /*
-     * scala.ebnf:186 
-     * ParamType            ::= >10(Type | '=>' Type |  Type '*')
+     * scala.ebnf:230 
+     * ParamType            ::= (Type | '=>' Type |  Type '*')
      */
-    ParamType: $ => prec.right(10, choice($.Type, seq('=>', $.Type), seq($.Type, '*'))),
+    ParamType: $ => choice($.Type, seq('=>', $.Type), seq($.Type, '*')),
     /*
-     * scala.ebnf:189 
-     * ClassParamClause     ::= nl? '(' ClassParams? ')'
+     * scala.ebnf:231 
+     * ImplicitClassParams  ::= '(' 'implicit' ClassParams ')'
+     */
+    ImplicitClassParams: $ => seq('(', 'implicit', $.ClassParams, ')'),
+    /*
+     * scala.ebnf:233 
+     * ClassParamClause     ::= (nl? '(' ClassParams? ')')
      */
     ClassParamClause: $ => seq(optional($._nl), '(', optional($.ClassParams), ')'),
     /*
-     * scala.ebnf:190 
+     * scala.ebnf:234 
      * ClassParams          ::= ClassParam (',' ClassParam)*
      */
     ClassParams: $ => seq($.ClassParam, repeat(seq(',', $.ClassParam))),
     /*
-     * scala.ebnf:191-192 
+     * scala.ebnf:235-236 
      * ClassParam           ::= Annotation* Modifier* (('val' | 'var'))?
-     *                        /$id/ ':' ParamType ('=' Expr)?
+     *                            id ':' ParamType ('=' Expr)?
      */
     ClassParam: $ => seq(
                        repeat($.Annotation),
                        repeat($.Modifier),
                        optional(choice('val', 'var')),
-                       /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
+                       $._id,
                        ':',
                        $.ParamType,
                        optional(seq('=', $.Expr))
                      ),
     /*
-     * scala.ebnf:193 
+     * scala.ebnf:237 
      * Bindings             ::= '(' Binding (',' Binding)* ')'
      */
     Bindings: $ => seq('(', $.Binding, repeat(seq(',', $.Binding)), ')'),
     /*
-     * scala.ebnf:194 
-     * Binding              ::= /$id[_]/ (':' Type)?
+     * scala.ebnf:238 
+     * Binding              ::= (id | "_") (':' Type)?
      */
-    Binding: $ => seq(
-                    /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`][_]/,
-                    optional(seq(':', $.Type))
-                  ),
+    Binding: $ => seq(choice($._id, "_"), optional(seq(':', $.Type))),
     /*
-     * scala.ebnf:196-198 
-     * Modifier             ::= LocalModifier
-     *                        |  AccessModifier
-     *                        |  'override'
+     * scala.ebnf:240-242 
+     * Modifier             ::= (LocalModifier
+     *                        | AccessModifier
+     *                        | 'override')
      */
     Modifier: $ => choice($.LocalModifier, $.AccessModifier, 'override'),
     /*
-     * scala.ebnf:199 
-     * LocalModifier        ::= /(abstract|final|sealed|implicit|lazy)/
+     * scala.ebnf:243 
+     * LocalModifier        ::= ('abstract' | 'final' | 'sealed' | 'implicit' | 'lazy')
      */
-    LocalModifier: $ => /(abstract|final|sealed|implicit|lazy)/,
+    LocalModifier: $ => choice('abstract', 'final', 'sealed', 'implicit', 'lazy'),
     /*
-     * scala.ebnf:200 
-     * AccessModifier       ::= /(private|protected)/ AccessQualifier?
+     * scala.ebnf:244 
+     * AccessModifier       ::= ('private' | 'protected') AccessQualifier?
      */
-    AccessModifier: $ => seq(/(private|protected)/, optional($.AccessQualifier)),
+    AccessModifier: $ => seq(choice('private', 'protected'), optional($.AccessQualifier)),
     /*
-     * scala.ebnf:201 
-     * AccessQualifier      ::= '[' (/$id/ | 'this') ']'
+     * scala.ebnf:245 
+     * AccessQualifier      ::= '[' (id | 'this') ']'
      */
-    AccessQualifier: $ => seq(
-                            '[',
-                            choice(
-                              /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                              'this'
-                            ),
-                            ']'
-                          ),
+    AccessQualifier: $ => seq('[', choice($._id, 'this'), ']'),
     /*
-     * scala.ebnf:203 
-     * Annotation           ::= >('@' SimpleType ArgumentExprs*)
+     * scala.ebnf:247 
+     * Annotation           ::= ('@' SimpleType ArgumentExprs*)
      */
-    Annotation: $ => prec.right(seq('@', $.SimpleType, repeat($.ArgumentExprs))),
+    Annotation: $ => seq('@', $.SimpleType, repeat($.ArgumentExprs)),
     /*
-     * scala.ebnf:204 
+     * scala.ebnf:248 
      * ConstrAnnotation     ::= '@' SimpleType ArgumentExprs
      */
     ConstrAnnotation: $ => seq('@', $.SimpleType, $.ArgumentExprs),
     /*
-     * scala.ebnf:206 
-     * TemplateBody         ::= nl? '{' SelfType? TemplateStat? (semi TemplateStat)* '}'
+     * scala.ebnf:250 
+     * TemplateBody         ::= 1(nl? '{' SelfType? TemplateStat (semi TemplateStat)* '}')
      */
-    TemplateBody: $ => seq(
-                         optional($._nl),
-                         '{',
-                         optional($.SelfType),
-                         optional($.TemplateStat),
-                         repeat(seq($._semi, $.TemplateStat)),
-                         '}'
+    TemplateBody: $ => prec(
+                         1,
+                         seq(
+                           optional($._nl),
+                           '{',
+                           optional($.SelfType),
+                           $.TemplateStat,
+                           repeat(seq($._semi, $.TemplateStat)),
+                           '}'
+                         )
                        ),
     /*
-     * scala.ebnf:207-210 
-     * TemplateStat         ::= Import
-     *                        |  (Annotation nl?)* Modifier* Def
-     *                        |  (Annotation nl?)* Modifier* Dcl
-     *                        |  Expr
+     * scala.ebnf:251-255 
+     * TemplateStat         ::= 1(Import
+     *                        | (Annotation nl?)* Modifier* Def
+     *                        | (Annotation nl?)* Modifier* Dcl
+     *                        | Expr
+     *                        | empty)
      */
-    TemplateStat: $ => choice(
-                         $.Import,
-                         seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.Def),
-                         seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.Dcl),
-                         $.Expr
+    TemplateStat: $ => prec(
+                         1,
+                         choice(
+                           $.Import,
+                           seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.Def),
+                           seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.Dcl),
+                           $.Expr,
+                           $._empty
+                         )
                        ),
     /*
-     * scala.ebnf:211 
-     * SelfType             ::= 2(/$id/ (':' Type)? '=>' |  'this' ':' Type '=>')
+     * scala.ebnf:258 
+     * SelfType             ::= (id (':' Type)? '=>' |  'this' ':' Type '=>')
      */
-    SelfType: $ => prec(
-                     2,
-                     choice(
-                       seq(
-                         /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                         optional(seq(':', $.Type)),
-                         '=>'
-                       ),
-                       seq('this', ':', $.Type, '=>')
-                     )
-                   ),
+    SelfType: $ => choice(seq($._id, optional(seq(':', $.Type)), '=>'), seq('this', ':', $.Type, '=>')),
     /*
-     * scala.ebnf:213 
+     * scala.ebnf:260 
      * Import               ::= 'import' ImportExpr (',' ImportExpr)*
      */
     Import: $ => seq('import', $.ImportExpr, repeat(seq(',', $.ImportExpr))),
     /*
-     * scala.ebnf:214 
-     * ImportExpr           ::= 1((StableId '.') (/$id/ | '_' | ImportSelectors))
+     * scala.ebnf:261 
+     * ImportExpr           ::= (StableId '.' (id | '_' | ImportSelectors))
      */
-    ImportExpr: $ => prec(
-                       1,
-                       seq(
-                         seq($.StableId, '.'),
-                         choice(
-                           /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                           '_',
-                           $.ImportSelectors
-                         )
-                       )
-                     ),
+    ImportExpr: $ => seq($.StableId, '.', choice($._id, '_', $.ImportSelectors)),
     /*
-     * scala.ebnf:215 
-     * ImportSelectors      ::= '{' (ImportSelector ',')* (ImportSelector | '_') '}'
+     * scala.ebnf:262 
+     * ImportSelectors      ::= ('{' (ImportSelector ',')* (ImportSelector | '_') '}')
      */
     ImportSelectors: $ => seq('{', repeat(seq($.ImportSelector, ',')), choice($.ImportSelector, '_'), '}'),
     /*
-     * scala.ebnf:216 
-     * ImportSelector       ::= /$id/ ('=>' /$id/ | '=>' '_')?
+     * scala.ebnf:263 
+     * ImportSelector       ::= id ('=>' id | '=>' '_')?
      */
-    ImportSelector: $ => seq(
-                           /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                           optional(
-                             choice(
-                               seq(
-                                 '=>',
-                                 /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/
-                               ),
-                               seq('=>', '_')
-                             )
-                           )
-                         ),
+    ImportSelector: $ => seq($._id, optional(choice(seq('=>', $._id), seq('=>', '_')))),
     /*
-     * scala.ebnf:218-221 
-     * Dcl                  ::= 'val' ValDcl
-     *                        |  'var' VarDcl
-     *                        |  'def' FunDcl
-     *                        |  'type' nl* TypeDcl
+     * scala.ebnf:267-270 
+     * Dcl                  ::= (val ValDcl
+     *                        | var VarDcl
+     *                        | def1 FunDcl
+     *                        | 'type' nl* TypeDcl)
      */
     Dcl: $ => choice(
-                seq('val', $.ValDcl),
-                seq('var', $.VarDcl),
-                seq('def', $.FunDcl),
+                seq($._val, $.ValDcl),
+                seq($._var, $.VarDcl),
+                seq($._def1, $.FunDcl),
                 seq('type', repeat($._nl), $.TypeDcl)
               ),
     /*
-     * scala.ebnf:223 
+     * scala.ebnf:272 
      * ValDcl               ::= ids ':' Type
      */
     ValDcl: $ => seq($._ids, ':', $.Type),
     /*
-     * scala.ebnf:224 
+     * scala.ebnf:273 
      * VarDcl               ::= ids ':' Type
      */
     VarDcl: $ => seq($._ids, ':', $.Type),
     /*
-     * scala.ebnf:225 
-     * FunDcl               ::= >(FunSig (':' Type)?)
+     * scala.ebnf:274-275 
+     * FunDcl               ::= FunSig (':' Type)?
+     * ; TODO not sure about right associativity
      */
-    FunDcl: $ => prec.right(seq($.FunSig, optional(seq(':', $.Type)))),
+    FunDcl: $ => seq($.FunSig, optional(seq(':', $.Type))),
     /*
-     * scala.ebnf:226 
-     * FunSig               ::= >(/$id/ FunTypeParamClause? $ParamClauses)
+     * scala.ebnf:276 
+     * FunSig               ::= (id FunTypeParamClause? $ParamClauses)
      */
-    FunSig: $ => prec.right(
-                   seq(
-                     /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                     optional($.FunTypeParamClause),
-                     repeat($.ParamClause),
-                     optional(seq(optional($._nl), '(', 'implicit', $.Params, ')'))
-                   )
+    FunSig: $ => seq(
+                   $._id,
+                   optional($.FunTypeParamClause),
+                   repeat($.ParamClause),
+                   optional(seq(optional($._nl), '(', 'implicit', $.Params, ')'))
                  ),
     /*
-     * scala.ebnf:227 
-     * TypeDcl              ::= /$id/ TypeParamClause? ('>:' Type)? ('<:' Type)?
+     * scala.ebnf:277 
+     * TypeDcl              ::= id  TypeParamClause? ('>:' Type)? ('<:' Type)?
      */
     TypeDcl: $ => seq(
-                    /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
+                    $._id,
                     optional($.TypeParamClause),
                     optional(seq('>:', $.Type)),
                     optional(seq('<:', $.Type))
                   ),
     /*
-     * scala.ebnf:229-230 
+     * scala.ebnf:279-280 
      * PatVarDef            ::= 'val' PatDef
-     *                        |  'var' VarDef
+     *                        | 'var' VarDef
      */
     PatVarDef: $ => choice(seq('val', $.PatDef), seq('var', $.VarDef)),
     /*
-     * scala.ebnf:231-234 
-     * Def                  ::= PatVarDef
-     *                        |  'def' FunDef
-     *                        |  'type' nl* TypeDef
-     *                        |  TmplDef
+     * scala.ebnf:281-284 
+     * Def                  ::= 1(PatVarDef
+     *                        | 'def' FunDef
+     *                        | 'type' nl* TypeDef
+     *                        | TmplDef)
      */
-    Def: $ => choice(
-                $.PatVarDef,
-                seq('def', $.FunDef),
-                seq('type', repeat($._nl), $.TypeDef),
-                $.TmplDef
+    Def: $ => prec(
+                1,
+                choice(
+                  $.PatVarDef,
+                  seq('def', $.FunDef),
+                  seq('type', repeat($._nl), $.TypeDef),
+                  $.TmplDef
+                )
               ),
     /*
-     * scala.ebnf:235 
-     * PatDef               ::= Pattern2 (',' Pattern2)* (':' Type)? '=' Expr
+     * scala.ebnf:285 
+     * PatDef               ::= Pattern2 (':' Type)? '=' Expr
      */
-    PatDef: $ => seq(
-                   $.Pattern2,
-                   repeat(seq(',', $.Pattern2)),
-                   optional(seq(':', $.Type)),
-                   '=',
-                   $.Expr
-                 ),
+    PatDef: $ => seq($.Pattern2, optional(seq(':', $.Type)), '=', $.Expr),
     /*
-     * scala.ebnf:236-237 
+     * scala.ebnf:286-287 
      * VarDef               ::= PatDef
-     *                        |  ids ':' Type '=' '_'
+     *                        | ids ':' Type '=' '_'
      */
     VarDef: $ => choice($.PatDef, seq($._ids, ':', $.Type, '=', '_')),
     /*
-     * scala.ebnf:238-240 
+     * scala.ebnf:288-290 
      * FunDef               ::= FunSig (':' Type)? '=' Expr
-     *                        |  FunSig nl? '{' $Block '}'
-     *                        |  'this' ParamClause $ParamClauses ('=' ConstrExpr | nl? ConstrBlock)
+     *                        | FunSig nl? '{' Block '}'
+     *                        | 'this' ParamClause $ParamClauses ('=' ConstrExpr | nl? ConstrBlock)
      */
     FunDef: $ => choice(
                    seq($.FunSig, optional(seq(':', $.Type)), '=', $.Expr),
-                   seq(
-                     $.FunSig,
-                     optional($._nl),
-                     '{',
-                     seq(optional($.BlockStat), repeat(seq($._semi, $.BlockStat))),
-                     optional($.ResultExpr),
-                     '}'
-                   ),
+                   seq($.FunSig, optional($._nl), '{', $.Block, '}'),
                    seq(
                      'this',
                      $.ParamClause,
@@ -1121,20 +1052,15 @@ module.exports = grammar({
                    )
                  ),
     /*
-     * scala.ebnf:241 
-     * TypeDef              ::= /$id/ TypeParamClause? '=' Type
+     * scala.ebnf:291 
+     * TypeDef              ::= id TypeParamClause? '=' Type
      */
-    TypeDef: $ => seq(
-                    /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                    optional($.TypeParamClause),
-                    '=',
-                    $.Type
-                  ),
+    TypeDef: $ => seq($._id, optional($.TypeParamClause), '=', $.Type),
     /*
-     * scala.ebnf:243-245 
+     * scala.ebnf:293-295 
      * TmplDef              ::= 'case'? 'class' ClassDef
-     *                        |  'case'? 'object' ObjectDef
-     *                        |  'trait' TraitDef
+     *                        | 'case'? 'object' ObjectDef
+     *                        | 'trait' TraitDef
      */
     TmplDef: $ => choice(
                     seq(optional('case'), 'class', $.ClassDef),
@@ -1142,118 +1068,123 @@ module.exports = grammar({
                     seq('trait', $.TraitDef)
                   ),
     /*
-     * scala.ebnf:246-247 
-     * ClassDef             ::= >(/$id/ TypeParamClause? ConstrAnnotation* AccessModifier?
-     *                        ($ClassParamClauses) ($ClassTemplateOpt))
+     * scala.ebnf:296-297 
+     * ClassDef             ::= id TypeParamClause? ConstrAnnotation* AccessModifier?
+     *                            $ClassParamClauses ($ClassTemplateOpt)
      */
-    ClassDef: $ => prec.right(
-                     seq(
-                       /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                       optional($.TypeParamClause),
-                       repeat($.ConstrAnnotation),
-                       optional($.AccessModifier),
+    ClassDef: $ => seq(
+                     $._id,
+                     optional($.TypeParamClause),
+                     repeat($.ConstrAnnotation),
+                     optional($.AccessModifier),
+                     prec.left(
+                       10,
                        seq(
                          repeat($.ClassParamClause),
-                         optional(seq(optional($._nl), '(', 'implicit', $.ClassParams, ')'))
-                       ),
-                       choice(
-                         seq('extends', $.ClassTemplate),
-                         optional(seq(optional('extends'), $.TemplateBody))
+                         seq(optional($._nl), optional($.ImplicitClassParams))
                        )
+                     ),
+                     choice(
+                       seq('extends', $.ClassTemplate),
+                       optional(seq(optional('extends'), $.TemplateBody))
                      )
                    ),
     /*
-     * scala.ebnf:248 
-     * TraitDef             ::= >(/$id/ TypeParamClause? ($TraitTemplateOpt))
+     * scala.ebnf:298 
+     * TraitDef             ::= id TypeParamClause? ($TraitTemplateOpt)
      */
-    TraitDef: $ => prec.right(
-                     seq(
-                       /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                       optional($.TypeParamClause),
-                       choice(
-                         seq('extends', $.TraitTemplate),
-                         optional(seq(optional('extends'), $.TemplateBody))
-                       )
+    TraitDef: $ => seq(
+                     $._id,
+                     optional($.TypeParamClause),
+                     choice(
+                       seq('extends', $.TraitTemplate),
+                       optional(seq(optional('extends'), $.TemplateBody))
                      )
                    ),
     /*
-     * scala.ebnf:249 
-     * ObjectDef            ::= >(/$id/ ($ClassTemplateOpt))
+     * scala.ebnf:299-300 
+     * ObjectDef            ::= id ($ClassTemplateOpt)
+     * ; These have to be constants because tree-sitter does not allow rules that match the empty string
      */
-    ObjectDef: $ => prec.right(
-                      seq(
-                        /([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)?|[!#%&*+\u002d/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]/,
-                        choice(
-                          seq('extends', $.ClassTemplate),
-                          optional(seq(optional('extends'), $.TemplateBody))
-                        )
+    ObjectDef: $ => seq(
+                      $._id,
+                      choice(
+                        seq('extends', $.ClassTemplate),
+                        optional(seq(optional('extends'), $.TemplateBody))
                       )
                     ),
     /*
-     * scala.ebnf:252 
-     * ClassTemplate        ::= >(EarlyDefs? ClassParents TemplateBody?)
+     * scala.ebnf:304 
+     * ClassTemplate        ::= -1(EarlyDefs? ClassParents TemplateBody?)
      */
-    ClassTemplate: $ => prec.right(seq(optional($.EarlyDefs), $.ClassParents, optional($.TemplateBody))),
+    ClassTemplate: $ => prec(1, seq(optional($.EarlyDefs), $.ClassParents, optional($.TemplateBody))),
     /*
-     * scala.ebnf:253 
-     * TraitTemplate        ::= >(EarlyDefs? TraitParents TemplateBody?)
+     * scala.ebnf:305 
+     * TraitTemplate        ::= -1(EarlyDefs? TraitParents TemplateBody?)
      */
-    TraitTemplate: $ => prec.right(seq(optional($.EarlyDefs), $.TraitParents, optional($.TemplateBody))),
+    TraitTemplate: $ => prec(1, seq(optional($.EarlyDefs), $.TraitParents, optional($.TemplateBody))),
     /*
-     * scala.ebnf:254 
+     * scala.ebnf:306 
      * ClassParents         ::= Constr ('with' AnnotType)*
      */
     ClassParents: $ => seq($.Constr, repeat(seq('with', $.AnnotType))),
     /*
-     * scala.ebnf:255 
+     * scala.ebnf:307 
      * TraitParents         ::= AnnotType ('with' AnnotType)*
      */
     TraitParents: $ => seq($.AnnotType, repeat(seq('with', $.AnnotType))),
     /*
-     * scala.ebnf:256 
-     * Constr               ::= >(AnnotType ArgumentExprs*)
+     * scala.ebnf:308 
+     * Constr               ::= AnnotType ArgumentExprs*
      */
-    Constr: $ => prec.right(seq($.AnnotType, repeat($.ArgumentExprs))),
+    Constr: $ => seq($.AnnotType, repeat($.ArgumentExprs)),
     /*
-     * scala.ebnf:257 
+     * scala.ebnf:309 
      * EarlyDefs            ::= '{' (EarlyDef (semi EarlyDef)*)? '}' 'with'
      */
     EarlyDefs: $ => seq('{', optional(seq($.EarlyDef, repeat(seq($._semi, $.EarlyDef)))), '}', 'with'),
     /*
-     * scala.ebnf:258 
-     * EarlyDef             ::= 10((Annotation nl?)* Modifier* PatVarDef)
+     * scala.ebnf:310 
+     * EarlyDef             ::= 1((Annotation nl?)* Modifier* PatVarDef)
      */
     EarlyDef: $ => prec(
-                     10,
+                     1,
                      seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.PatVarDef)
                    ),
     /*
-     * scala.ebnf:260-261 
+     * scala.ebnf:312-313 
      * ConstrExpr           ::= SelfInvocation
-     *                        |  ConstrBlock
+     *                        | ConstrBlock
      */
     ConstrExpr: $ => choice($.SelfInvocation, $.ConstrBlock),
     /*
-     * scala.ebnf:262 
-     * ConstrBlock          ::= '{' SelfInvocation (semi BlockStat)* '}'
+     * scala.ebnf:314-315 
+     * ConstrBlock          ::= '{' SelfInvocation (semi BlockStat)* empty? '}'
+     * ; TODO right associativity
      */
-    ConstrBlock: $ => seq('{', $.SelfInvocation, repeat(seq($._semi, $.BlockStat)), '}'),
+    ConstrBlock: $ => seq(
+                        '{',
+                        $.SelfInvocation,
+                        repeat(seq($._semi, $.BlockStat)),
+                        optional($._empty),
+                        '}'
+                      ),
     /*
-     * scala.ebnf:263 
-     * SelfInvocation       ::= >('this' ArgumentExprs ArgumentExprs*)
+     * scala.ebnf:316 
+     * SelfInvocation       ::= 'this' ArgumentExprs ArgumentExprs*
      */
-    SelfInvocation: $ => prec.right(seq('this', $.ArgumentExprs, repeat($.ArgumentExprs))),
+    SelfInvocation: $ => seq('this', $.ArgumentExprs, repeat($.ArgumentExprs)),
     /*
-     * scala.ebnf:265 
+     * scala.ebnf:318 
      * TopStatSeq           ::= TopStat (semi TopStat)*
      */
     TopStatSeq: $ => seq($.TopStat, repeat(seq($._semi, $.TopStat))),
     /*
-     * scala.ebnf:266-269 
+     * scala.ebnf:319-322 
      * TopStat              ::= (Annotation nl?)* Modifier* TmplDef
-     *                        |  Import
-     *                        |  Packaging
-     *                        |  PackageObject
+     *                        | Import
+     *                        | Packaging
+     *                        | PackageObject
      */
     TopStat: $ => choice(
                     seq(repeat(seq($.Annotation, optional($._nl))), repeat($.Modifier), $.TmplDef),
@@ -1262,12 +1193,12 @@ module.exports = grammar({
                     $.PackageObject
                   ),
     /*
-     * scala.ebnf:270 
+     * scala.ebnf:323 
      * Packaging            ::= 'package' QualId nl? '{' TopStatSeq '}'
      */
     Packaging: $ => seq('package', $.QualId, optional($._nl), '{', $.TopStatSeq, '}'),
     /*
-     * scala.ebnf:271 
+     * scala.ebnf:324 
      * PackageObject        ::= 'package' 'object' ObjectDef
      */
     PackageObject: $ => seq('package', 'object', $.ObjectDef)
