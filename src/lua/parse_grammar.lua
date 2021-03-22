@@ -208,7 +208,7 @@ end
 
 local function replace_dollars(token, debug)
   if token:find("%$") then
-    return token:gsub("%$([(]?)(%w+)([)]?)", function(lp, w, rp)
+    return token:gsub("%$([(]?)([%w.]+)([)]?)", function(lp, w, rp)
       local value = values[w] or values[format_reference(w)]
       if not value then
         error("no constant defined for " .. w .. " in " .. token)
@@ -260,7 +260,7 @@ for line in io.lines(file) do
   else
     local leading = "[%w_%[%]]"
     local prefix = leading .. leading .. "?" .. leading .. "?"
-    local s, _, i, a, b = line:find("(" .. prefix .. "[%w_]*)%s*(:?:=)%s*(.*)")
+    local s, _, i, a, b = line:find("(" .. prefix .. "[%w_.]*)%s*(:?:=)%s*(.*)")
     local is_beginning = not rules and s == 1
     if not is_beginning then
       local ss, e = line:find("  " .. leading)
@@ -316,12 +316,15 @@ local NEWLINE = 0x0a
 local SEMI = 0x3b
 local LEFT_CURLY_BRACKET = 0x7b
 local RIGHT_CURLY_BRACKET = 0x7d
+local COLON = 0x3a
 
 local NONE = 0
 local IN_GROUP = NONE + 1
 local IN_CHOICE = IN_GROUP + 1
 local IN_ARRAY = IN_CHOICE + 1
-local _IN_CHAR_GROUPING = IN_ARRAY + 1
+local IN_ALIAS = IN_ARRAY + 1
+local IN_FIELD = IN_ALIAS + 1
+local _IN_CHAR_GROUPING = IN_FIELD + 1
 local IN_DOUBLE_QUOTE = _IN_CHAR_GROUPING +  1
 local IN_SINGLE_QUOTE = IN_DOUBLE_QUOTE + 1
 local IN_COMMENT = IN_SINGLE_QUOTE + 1
@@ -333,6 +336,8 @@ local function stateToString(state)
     (state == IN_GROUP and "IN_GROUP") or
     (state == IN_CHOICE and "IN_CHOICE") or
     (state == IN_ARRAY and "IN_ARRAY") or
+    (state == IN_ALIAS and "IN_ALIAS") or
+    (state == IN_FIELD and "IN_FIELD") or
     (state == IN_DOUBLE_QUOTE and "IN_DOUBLE_QUOTE") or
     (state == IN_SINGLE_QUOTE and "IN_SINGLE_QUOTE") or
     (state == IN_COMMENT and "IN_COMMENT") or
@@ -348,6 +353,7 @@ local DYNAMIC = "~"
 
 local ROOT = "root"
 local CHOICE = "choice"
+local ALIAS = "alias"
 local SEQUENCE = "sequence"
 local ARRAY = "array"
 local LITERAL = "literal"
@@ -358,6 +364,8 @@ local OPTIONAL = "optional"
 local MULTI_CHOICE = "multi_choice"
 local PRECEDENCE = "precedence"
 local IMMEDIATE = "immediate"
+local TOKEN = "token"
+local FIELD = "field"
 
 local function new_sequence(precedence)
   return { sequence = {}, precedence = precedence or 0, kind = SEQUENCE }
@@ -415,7 +423,8 @@ local function print_node(n, offset, max_width)
     end
     local function handle_children(node)
       return function(outer, new_offset)
-        if outer == "seq(" or outer == "choice(" or outer == "[" or outer == "token.immediate(" then
+        if outer == "seq(" or outer == "choice(" or outer == "["
+            or outer:find("token") or outer == "alias(" or outer == "field(" then
           local parts = {}
           local multi_line = false
           for _, n in ipairs(node.children) do
@@ -473,9 +482,11 @@ local function print_node(n, offset, max_width)
       return write_function_with_args(CHOICE, { kind = SEQUENCE, children = n.children })
     elseif n.kind == IMMEDIATE then
       return write_function_with_args("token.immediate", { kind = SEQUENCE, children = n.children })
+    elseif n.kind == TOKEN then
+      return write_function_with_args("token", { kind = SEQUENCE, children = n.children })
     elseif n.kind == PRECEDENCE then
       local modifier, next_node = unpack(n.children)
-      local prec = tonumber(modifier:match("([0-9]+)"))
+      local prec = tonumber(modifier:match("([-0-9]+)"))
       local assoc = modifier:match("([<>~])")
       local immediate = modifier:match("([%!])")
       local func =
@@ -486,6 +497,10 @@ local function print_node(n, offset, max_width)
       write_precedence(func, prec, next_node)
     elseif n.kind == ARRAY then
       write_function_with_delims("[", "]", handle_children(n.children[1]))
+    elseif n.kind == ALIAS then
+      return write_function_with_args("alias", { kind = ALIAS, children = n.children })
+    elseif n.kind == FIELD then
+      return write_function_with_args("field", { kind = FIELD, children = n.children })
     else
       error("unknown kind: " .. (n.kind or "nil"))
     end
@@ -553,6 +568,20 @@ local function flatten(n, string)
         table.insert(immediate.children, flatten(c))
       end
       table.insert(result.children, immediate)
+    elseif n.kind == TOKEN then
+      local token = new_node(TOKEN)
+      for _, c in ipairs(n.children) do
+        table.insert(token.children, flatten(c))
+      end
+      table.insert(result.children, token)
+    elseif n.kind == ALIAS then
+      local alias = new_node(ALIAS)
+      for _, c in ipairs(n.children) do table.insert(alias.children, flatten(c)) end
+      table.insert(result.children, alias)
+    elseif n.kind == FIELD then
+      local field = new_node(FIELD)
+      for _, c in ipairs(n.children) do table.insert(field.children, flatten(c)) end
+      table.insert(result.children, field)
     else
       error("unknown kind: " .. (n.kind or "nil"))
     end
@@ -570,14 +599,16 @@ local function source_error(comment, source_info)
   print(msg)
   error("")
 end
-local function maybe_add_reference_impl(node, current_word, externals, source_info)
+local function maybe_add_reference_impl(node, current_word, externals, source_info, alias)
   local id = format_reference(table.concat(current_word))
   local init_id = id
   id = tokenmap[id] and id or (tokenmap["_" .. id] and "_" .. id)
-  if id then
+  if alias then
+    add_reference(node, init_id)
+  elseif id then
     add_reference(node, id)
   elseif externals then
-    local id = "_" .. format_reference(table.concat(current_word))
+    local id = format_reference(table.concat(current_word))
     tokenmap[id] = true
     add_reference(node, id)
   else
@@ -598,22 +629,68 @@ local function parse_body(id, string)
     rhs = string,
     start_line = start_line
   }
+  local function maybe_add_alias_or_field(state)
+    state = state or state_stack[#state_stack]
+    if state == IN_ALIAS or state == IN_FIELD then
+      local alias_node = table.remove(node_stack)
+      local top_node = node_stack[#node_stack]
+      local children = top_node.children
+      local index = (state == IN_FIELD and 1) or 2
+      table.insert(top_node.children[#top_node.children].children, index, alias_node)
+      table.remove(state_stack)
+    end
+  end
   for _, b in ipairs(bytes) do
     local state = state_stack[#state_stack]
     local node = node_stack[#node_stack]
-    local function maybe_add_reference()
-      if current_word then maybe_add_reference_impl(node, current_word, externals, source_info) end
+    local function handle_alias_or_field()
+      if current_word then
+        local state = state_stack[#state_stack]
+        local alias = state == IN_ALIAS
+        if current_word and alias then
+          maybe_add_reference_impl(node_stack[#node_stack], current_word, externals, source_info, alias)
+        elseif current_word and state == IN_FIELD then
+          table.insert(current_word, 1, "'")
+          table.insert(current_word, "'")
+          add_literal(node_stack[#node_stack], current_word)
+        end
+        maybe_add_alias_or_field(state)
+        current_word = nil
+      end
+    end
+    local function maybe_add_reference(state)
+      local alias = state == IN_ALIAS
+      if current_word then
+        maybe_add_reference_impl(node, current_word, externals, source_info, alias)
+      elseif state == IN_FIELD then
+        add_literal(node, current_word)
+      end
       current_word = nil
     end
     if (b == SPACE or b == NEWLINE) and state < _IN_CHAR_GROUPING then
-      maybe_add_reference()
-      current_word = nil
+      local word = current_word and table.concat(current_word)
+      local kind = (word == "->" and ALIAS) or (word == ":" and FIELD)
+      if kind then
+        local to_alias = table.remove(node.children)
+        table.insert(node.children, { children = { to_alias }, kind = kind })
+        table.insert(state_stack, kind == ALIAS and IN_ALIAS or IN_FIELD)
+        table.insert(node_stack, new_node(SEQUENCE))
+        current_word = nil
+      else
+        if state == IN_FIELD or state == IN_ALIAS then
+          handle_alias_or_field()
+        elseif word then
+          maybe_add_reference(state)
+          maybe_add_alias_or_field(state)
+        end
+      end
     elseif b == DOUBLE_QUOTE and state ~= IN_SINGLE_QUOTE and state < _ANY_REGEX then
       if state == IN_DOUBLE_QUOTE then
         table.insert(current_word, '"')
         add_literal(node, current_word)
         current_word = nil
         table.remove(state_stack)
+        maybe_add_alias_or_field()
       else
         table.insert(state_stack, IN_DOUBLE_QUOTE)
         current_word = { '"' }
@@ -624,6 +701,7 @@ local function parse_body(id, string)
         add_literal(node, current_word)
         current_word = nil
         table.remove(state_stack)
+        maybe_add_alias_or_field()
       else
         table.insert(state_stack, IN_SINGLE_QUOTE)
         current_word = { "'" }
@@ -679,7 +757,10 @@ local function parse_body(id, string)
       local prec = nil
       local is_immediate = false
       local immediate = nil
+      local token = nil
+      local is_token = false
       modifier = modifier:gsub("!", function(i) is_immediate = true; return "" end)
+      modifier = modifier:gsub("[%@]", function(i) is_token = true; return "" end)
       if #modifier > 0 then
         prec = new_node(PRECEDENCE)
         table.insert(prec.children, modifier)
@@ -689,14 +770,26 @@ local function parse_body(id, string)
         immediate = new_node(IMMEDIATE)
         table.insert(immediate.children, prec or next_node)
       end
-      local nn = prec or immediate or next_node
-      table.insert(node.children, prec or immediate or next_node)
+      if is_token then
+        token = new_node(TOKEN)
+        table.insert(token.children, immediate or prec or next_node)
+      end
+      local nn = prec or immediate or token or next_node
+      table.insert(node.children, prec or immediate or token or next_node)
       table.insert(node_stack, next_node)
       table.insert(state_stack, IN_GROUP)
     elseif b == RIGHT_PARENS and state == NONE then
       source_error("unmatched right parens", source_info)
     elseif b == RIGHT_PARENS and (state == IN_GROUP or state == IN_CHOICE) then
       maybe_add_reference()
+      table.remove(node_stack)
+      local prev_state = table.remove(state_stack)
+      while prev_state == IN_CHOICE do
+        prev_state = table.remove(state_stack)
+        table.remove(node_stack)
+      end
+    elseif b == RIGHT_PARENS and (state == IN_ALIAS or state == IN_FIELD) then
+      handle_alias_or_field()
       table.remove(node_stack)
       local prev_state = table.remove(state_stack)
       while prev_state == IN_CHOICE do
@@ -724,6 +817,13 @@ local function parse_body(id, string)
         or (b == TIMES and REPEAT)
         or (b == QUESTION_MARK and OPTIONAL)
       repeat_last(node, kind)
+    elseif b == COLON and state < _IN_CHAR_GROUPING then
+      maybe_add_reference()
+      local field = table.remove(node.children)
+      table.insert(node.children, { children = { field }, kind = FIELD })
+      table.insert(state_stack, IN_FIELD)
+      table.insert(node_stack, new_node(SEQUENCE))
+      current_word = nil
     elseif b == SEMI and state < _IN_CHAR_GROUPING then
       table.insert(state_stack, IN_COMMENT)
     elseif b == NEWLINE and state == IN_COMMENT then
@@ -739,7 +839,16 @@ local function parse_body(id, string)
     last_byte = b
   end
   if current_word then
-    maybe_add_reference_impl(node_stack[#node_stack], current_word, externals, source_info)
+    local state = state_stack[#state_stack]
+    local alias = state == IN_ALIAS
+    if current_word and state ~= IN_FIELD then
+      maybe_add_reference_impl(node_stack[#node_stack], current_word, externals, source_info, alias)
+    elseif current_word and state == IN_FIELD then
+      table.insert(current_word, 1, "'")
+      table.insert(current_word, "'")
+      add_literal(node_stack[#node_stack], current_word)
+    end
+    maybe_add_alias_or_field(state)
     current_word = nil
   end
   while #state_stack > 1 do

@@ -1,0 +1,148 @@
+[
+  {
+    "type": "bar",
+    "named": true,
+    "fields": {
+      "blah": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "foo",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "blah",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "foo",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "buzz",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "car",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "top1",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "bar",
+          "named": true
+        },
+        {
+          "type": "blah",
+          "named": true
+        },
+        {
+          "type": "buzz",
+          "named": true
+        },
+        {
+          "type": "foo",
+          "named": true
+        },
+        {
+          "type": "low",
+          "named": true
+        },
+        {
+          "type": "ok",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "zz",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": ",",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "@",
+    "named": false
+  },
+  {
+    "type": "bar",
+    "named": false
+  },
+  {
+    "type": "barz",
+    "named": false
+  },
+  {
+    "type": "blah",
+    "named": false
+  },
+  {
+    "type": "car",
+    "named": true
+  },
+  {
+    "type": "car",
+    "named": false
+  },
+  {
+    "type": "foo",
+    "named": true
+  },
+  {
+    "type": "foo",
+    "named": false
+  },
+  {
+    "type": "kk",
+    "named": false
+  },
+  {
+    "type": "low",
+    "named": true
+  },
+  {
+    "type": "ok",
+    "named": true
+  },
+  {
+    "type": "x",
+    "named": false
+  },
+  {
+    "type": "zzz",
+    "named": false
+  }
+]

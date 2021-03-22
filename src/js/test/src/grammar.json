@@ -1,0 +1,311 @@
+{
+  "name": "test",
+  "rules": {
+    "top1": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "foo"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "blah"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "bar"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "buzz"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "ok"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "low"
+        }
+      ]
+    },
+    "foo": {
+      "type": "STRING",
+      "value": "hello"
+    },
+    "blah": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "blah"
+          },
+          {
+            "type": "STRING",
+            "value": "barz"
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "foo"
+              },
+              {
+                "type": "STRING",
+                "value": "x"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "bar": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "bar"
+        },
+        {
+          "type": "FIELD",
+          "name": "blah",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "foo"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "foo"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "buzz": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "car"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "foo"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "foo"
+              }
+            ]
+          },
+          "named": true,
+          "value": "car"
+        }
+      ]
+    },
+    "ok": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "ok"
+          },
+          {
+            "type": "STRING",
+            "value": "go"
+          }
+        ]
+      }
+    },
+    "low": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "PATTERN",
+            "value": "[a-z]+"
+          },
+          {
+            "type": "STRING",
+            "value": "ok"
+          }
+        ]
+      }
+    },
+    "zz": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "PATTERN",
+          "value": "[a-z]+"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "PATTERN",
+                "value": "[a-z]+"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_zz": {
+      "type": "STRING",
+      "value": "zzzzzaaa"
+    },
+    "ww": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "zzz"
+        },
+        {
+          "type": "FIELD",
+          "name": "top",
+          "content": {
+            "type": "SYMBOL",
+            "name": "zz"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "kk"
+        }
+      ]
+    },
+    "anno": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "@"
+          },
+          {
+            "type": "FIELD",
+            "name": "name",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_zz"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "arguments",
+            "content": {
+              "type": "REPEAT",
+              "content": {
+                "type": "SYMBOL",
+                "name": "ok"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "function_definition": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "foo"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "="
+                },
+                {
+                  "type": "FIELD",
+                  "name": "body",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_zz"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "FIELD",
+              "name": "body",
+              "content": {
+                "type": "SYMBOL",
+                "name": "zz"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pc": {
+      "type": "PREC",
+      "value": -1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "kk"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_zz"
+          }
+        ]
+      }
+    }
+  },
+  "extras": [
+    {
+      "type": "PATTERN",
+      "value": "\\s"
+    }
+  ],
+  "conflicts": [],
+  "precedences": [],
+  "externals": [
+    {
+      "type": "SYMBOL",
+      "name": "_automatic_semicolon"
+    },
+    {
+      "type": "STRING",
+      "value": "else"
+    }
+  ],
+  "inline": [],
+  "supertypes": []
+}
+
