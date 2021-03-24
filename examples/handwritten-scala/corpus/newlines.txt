@@ -1,0 +1,24 @@
+=========================
+Newline in classdef
+==========================
+object Foo {
+	class Foo
+		extends Bar
+}
+--------------------------
+(compilation_unit
+	(object_definition (identifier) (template_body
+		(class_definition (identifier) (extends_clause (type_identifier))))))
+
+==========================
+No newline before method
+==========================
+object Foo {
+	foo
+		.bar
+}
+--------------------------
+(compilation_unit
+	(object_definition (identifier) (template_body
+		(field_expression (identifier) (identifier)))))
+
