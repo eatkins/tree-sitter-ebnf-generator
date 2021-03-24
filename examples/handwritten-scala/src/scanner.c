@@ -1,5 +1,6 @@
 #include <tree_sitter/parser.h>
 #include <wctype.h>
+#include <stdio.h>
 
 enum TokenType {
   AUTOMATIC_SEMICOLON,
@@ -9,9 +10,62 @@ enum TokenType {
   INTERPOLATED_STRING_END,
   INTERPOLATED_MULTILINE_STRING_MIDDLE,
   INTERPOLATED_MULTILINE_STRING_END,
-  ELSE,
-  CATCH,
-  FINALLY
+};
+
+typedef struct keyword {
+  int len;
+  const char *word;
+} keyword;
+#define MAKE_KEYWORD(a, b) static keyword a = { sizeof(b) - 1, b }
+
+MAKE_KEYWORD(ELSE, "else");
+MAKE_KEYWORD(CATCH, "catch");
+MAKE_KEYWORD(EXTENDS, "extends");
+MAKE_KEYWORD(FINALLY, "finally");
+MAKE_KEYWORD(FORSOME, "forSome");
+MAKE_KEYWORD(MATCH, "match");
+MAKE_KEYWORD(WITH, "with");
+MAKE_KEYWORD(YIELD, "yield");
+MAKE_KEYWORD(COMMA, ";");
+MAKE_KEYWORD(PERIOD, ".");
+MAKE_KEYWORD(SEMICOLON, ";");
+MAKE_KEYWORD(COLON, ":");
+MAKE_KEYWORD(EQUALS, "=");
+MAKE_KEYWORD(RIGHT_ARROW, "=>");
+MAKE_KEYWORD(LEFT_ARROW, "<-");
+MAKE_KEYWORD(COVARIANT_TYPE_BOUND, "<:");
+MAKE_KEYWORD(VIEW_BOUND, "<%");
+MAKE_KEYWORD(CONTRAVARIANT_TYPE_BOUND, ">:");
+MAKE_KEYWORD(POUND, "#");
+MAKE_KEYWORD(LEFT_BRACKET, "[");
+MAKE_KEYWORD(RIGHT_PARENS, ")");
+MAKE_KEYWORD(RIGHT_BRACKET, "]");
+MAKE_KEYWORD(RIGHT_CURLY, "}");
+
+static keyword* invalid_begin_strings[] = {
+  &ELSE,
+  &CATCH,
+  &EXTENDS,
+  &FINALLY,
+  &FORSOME,
+  &MATCH,
+  &WITH,
+  &YIELD,
+  &COMMA,
+  &PERIOD,
+  &SEMICOLON,
+  &COLON,
+  &EQUALS,
+  &RIGHT_ARROW,
+  &LEFT_ARROW,
+  &COVARIANT_TYPE_BOUND,
+  &VIEW_BOUND,
+  &CONTRAVARIANT_TYPE_BOUND,
+  &POUND,
+  &LEFT_BRACKET,
+  &RIGHT_PARENS,
+  &RIGHT_BRACKET,
+  &RIGHT_CURLY
 };
 
 void *tree_sitter_scala_external_scanner_create() { return NULL; }
@@ -80,70 +134,44 @@ bool tree_sitter_scala_external_scanner_scan(void *payload, TSLexer *lexer,
 
     if (newline_count > 1) return true;
 
-    if (valid_symbols[ELSE]) {
-      if (lexer->lookahead != 'e') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'l') return true;
-      advance(lexer);
-      if (lexer->lookahead != 's') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'e') return true;
-      advance(lexer);
-      if (iswalpha(lexer->lookahead)) return true;
-      return false;
-    }
-
-    if (valid_symbols[CATCH]) {
-      if (lexer->lookahead != 'c' && lexer->lookahead != 'f') return true;
-      advance(lexer);
-      if (lexer->lookahead == 'a') {
-        advance(lexer);
-        if (lexer->lookahead != 't') return true;
-        advance(lexer);
-        if (lexer->lookahead != 'c') return true;
-        advance(lexer);
-        if (lexer->lookahead != 'h') return true;
-        advance(lexer);
-        if (iswalpha(lexer->lookahead)) return true;
-        return false;
-      } else if (lexer->lookahead == 'i') {
-        advance(lexer);
-        if (lexer->lookahead != 'n') return true;
-        advance(lexer);
-        if (lexer->lookahead != 'a') return true;
-        advance(lexer);
-        if (lexer->lookahead != 'l') return true;
-        advance(lexer);
-        if (lexer->lookahead != 'l') return true;
-        advance(lexer);
-        if (lexer->lookahead != 'y') return true;
-        advance(lexer);
-        if (iswalpha(lexer->lookahead)) return true;
-        return false;
-      } else {
-        return true;
+    int active_count = sizeof(invalid_begin_strings) / sizeof(keyword*);
+    int active_automata[active_count];
+    for (int i = 0; i < active_count; ++i) active_automata[i] = i;
+    int chars_read = 0;
+    int next_char = lexer->lookahead;
+    while (chars_read < 8 && next_char) {
+      int current_char = next_char;
+      int char_index = chars_read++;
+      next_char = 0;
+      int active_index = 0;
+      int new_active_count = 0;
+      for (int i = 0; i < active_count; ++i) {
+        int invalid_index = active_automata[i];
+        keyword *word = invalid_begin_strings[invalid_index];
+        if (word->word[char_index] == current_char) {
+          if (chars_read == word->len) {
+            if (next_char == 0) {
+              lexer->advance(lexer, false);
+              next_char = lexer->lookahead;
+            }
+            if (iswspace(next_char)) return false; // a word that cannot start a statement was found
+            else if (chars_read == 1 && current_char == '.') {
+              // could be a floating point literal
+              lexer->advance(lexer, false);
+              return lexer->lookahead >= '0' && lexer->lookahead <= '9';
+            }
+          } else {
+            active_automata[active_index++] = active_automata[invalid_index];
+            new_active_count++;
+          }
+        }
+      }
+      active_count = new_active_count;
+      if (next_char == 0) {
+        lexer->advance(lexer, false);
+        if (!iswspace(lexer->lookahead)) { next_char = lexer->lookahead; }
       }
     }
-
-    if (valid_symbols[FINALLY]) {
-      if (lexer->lookahead != 'f') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'i') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'n') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'a') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'l') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'l') return true;
-      advance(lexer);
-      if (lexer->lookahead != 'y') return true;
-      advance(lexer);
-      if (iswalpha(lexer->lookahead)) return true;
-      return false;
-    }
-
     return true;
   }
 

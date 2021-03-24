@@ -303,7 +303,7 @@ static bool maybe_add_automatic_newline(TSLexer *lexer, int nl_disabled, int new
             else if (chars_read == 1 && current_char == '.') {
               // could be a floating point literal
               lexer->advance(lexer, false);
-              return lexer->lookahead >= '0' || lexer->lookahead <= '9';
+              return lexer->lookahead >= '0' && lexer->lookahead <= '9';
             }
           } else {
             active_automata[active_index++] = active_automata[invalid_index];

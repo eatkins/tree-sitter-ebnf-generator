@@ -10,3 +10,4 @@ src/grammar.json: grammar.js
 
 test: src/grammar.json $(wildcard *.ebnf)
 	tree-sitter test $(DEBUG) $(TEST_FLAG) $(TEST_FILTER)
+	if [ -z "$(TEST_FLAG)" ]; then tree-sitter parse examples/**.scala --quiet --time; fi
