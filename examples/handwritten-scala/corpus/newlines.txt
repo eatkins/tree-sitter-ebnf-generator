@@ -22,3 +22,15 @@ object Foo {
 	(object_definition (identifier) (template_body
 		(field_expression (identifier) (identifier)))))
 
+==========================
+Newline before floating point number
+==========================
+object Foo {
+	val x = 1
+	.1234
+}
+--------------------------
+(compilation_unit
+	(object_definition (identifier) (template_body
+		(val_definition (identifier) (number))
+		(number))))

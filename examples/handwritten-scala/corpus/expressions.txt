@@ -324,3 +324,13 @@ class C {
             (prefix_expression (identifier))
             (operator_identifier)
             (identifier)))))))
+
+
+===============================
+Function argument application
+===============================
+m.map { case f => f }
+// TODO fix errors
+-----
+(compilation_unit (ERROR (identifier) (identifier)) (ERROR (identifier)
+(identifier)) (comment))

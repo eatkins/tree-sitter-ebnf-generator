@@ -165,9 +165,34 @@ class Point(val x: Int, val y: Int)(implicit coord: Coord)
       (class_parameter (identifier) (type_identifier)))))
 
 =======================================
-Modifiers
+Class definitions with access modifiers
 =======================================
 
+class Foo private (val x: Int)
+class Foo protected ()
+// TODO fix the errors
+---
+(compilation_unit (class_definition (identifier)) (val_declaration (modifiers)
+(ERROR) (identifier) (type_identifier)) (ERROR) (class_definition (identifier))
+(ERROR) (ERROR) (comment))
+
+=======================================
+Class definitions with constructor annotations
+=======================================
+
+class Foo @foo() (val x: Int)
+class Foo @foo(x = 1) protected ()
+// TODO fix errors
+---
+(compilation_unit (class_definition (identifier)) (class_definition (annotation
+(type_identifier) (arguments) (arguments (infix_expression (identifier)
+(identifier) (ERROR) (identifier)))) (identifier)) (ERROR (annotation
+(type_identifier) (arguments (assignment_expression (identifier) (number)))))
+(ERROR) (comment))
+
+=======================================
+Modifiers
+=======================================
 implicit final sealed class Point {
   private override def getX() = 1
 }
@@ -184,6 +209,17 @@ implicit final sealed class Point {
         (identifier)
         (parameters)
         (number)))))
+
+=======================================
+Multiple variable declarations
+=======================================
+var x, y, z: Int = _
+// TODO fix parsed syntax, which is not correct
+---
+(compilation_unit (var_declaration (identifier) (identifier) (identifier)
+(infix_type (type_identifier) (operator_identifier) (type_identifier)))
+(comment))
+
 
 =======================================
 Trait definitions

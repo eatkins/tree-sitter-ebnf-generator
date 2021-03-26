@@ -1,0 +1,25 @@
+=====================================
+Self parameters
+=====================================
+class Foo { x => }
+class Bar { x: Foo => }
+class Baz { this: Bar => }
+class Buzz { this => } // this is an intentional error based on the spec
+// TODO fix unintentional errors
+---
+(compilation_unit (class_definition (identifier) (template_body (identifier)
+(ERROR (operator_identifier)))) (class_definition (identifier) (template_body
+(infix_expression (identifier) (operator_identifier) (identifier)) (ERROR
+(operator_identifier)))) (class_definition (identifier) (template_body
+(infix_expression (identifier) (operator_identifier) (identifier)) (ERROR
+(operator_identifier)))) (class_definition (identifier) (template_body
+(identifier) (ERROR (operator_identifier)))) (comment) (comment))
+
+===============================
+Early definition
+===============================
+class A extends { val x = 1 } with B
+// TODO fix errors
+---
+(compilation_unit (class_definition (identifier) (ERROR) (template_body
+(val_definition (identifier) (number)))) (ERROR (identifier)) (comment))
