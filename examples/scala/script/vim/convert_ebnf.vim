@@ -11,4 +11,4 @@ function! ConvertEbnf()
   endfor
 endfunction
 
-command -range SE <line1>,<line2>call ConvertEbnf()
+command -range CE <line1>,<line2>call ConvertEbnf()
