@@ -208,7 +208,7 @@ end
 
 local function replace_dollars(token, debug)
   if token:find("%$") then
-    return token:gsub("%$([(]?)([%w.]+)([)]?)", function(lp, w, rp)
+    return token:gsub("%$([(]?)([%w._]+)([)]?)", function(lp, w, rp)
       local value = values[w] or values[format_reference(w)]
       if not value then
         error("no constant defined for " .. w .. " in " .. token)
@@ -884,8 +884,8 @@ for _, v in ipairs(tokens) do
   end
   local full_body, start_line, end_line = unpack(tokenmap[id])
   local line_num = start_line .. ((start_line == end_line and "") or ("-" .. end_line))
-  local index_prefix = file .. ":" .. line_num .. " "
-  local prefix = { base_indent .. "/*", base_indent .. " * " .. index_prefix }
+  local index = file .. ":" .. line_num
+  local prefix = { base_indent .. "/*", base_indent .. " * " .. index }
   for i, v in ipairs(full_body) do
     local start, space_end = v:find("%s+")
     if start == 1 then v = v:sub(start + 2) end
