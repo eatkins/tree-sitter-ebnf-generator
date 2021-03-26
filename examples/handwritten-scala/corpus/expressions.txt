@@ -1,0 +1,326 @@
+===============================
+Call expressions
+===============================
+
+class C {
+  def main() {
+    a()
+    a(b, c)
+  }
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (call_expression (identifier) (arguments))
+          (call_expression (identifier) (arguments (identifier) (identifier))))))))
+
+===============================
+Generic functions
+===============================
+
+class C {
+  def main() {
+    a[T]()
+    List[Traversable[ClassPath]]()
+  }
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (call_expression
+            (generic_function
+              (identifier)
+              (type_arguments (type_identifier)))
+            (arguments))
+          (call_expression
+            (generic_function
+              (identifier)
+              (type_arguments
+                (generic_type (type_identifier) (type_arguments (type_identifier)))))
+            (arguments)))))))
+
+===============================
+Assignments
+===============================
+
+class C {
+  def main() {
+    a = b
+    a(1) = c
+  }
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (assignment_expression (identifier) (identifier))
+          (assignment_expression (call_expression (identifier) (arguments (number))) (identifier)))))))
+
+===============================
+If expressions
+===============================
+
+class C {
+  def main() {
+    if (a) b()
+    if (c) {
+      d()
+      e()
+    } else if (f) {
+      g()
+    } else {
+      h()
+    }
+  }
+}
+
+def other() {
+  if (a) {
+    b
+  }
+  else c()
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (if_expression
+            (parenthesized_expression (identifier))
+            (call_expression (identifier) (arguments)))
+          (if_expression
+            (parenthesized_expression (identifier))
+            (block (call_expression (identifier) (arguments)) (call_expression (identifier) (arguments)))
+            (if_expression
+              (parenthesized_expression (identifier))
+              (block (call_expression (identifier) (arguments)))
+              (block (call_expression (identifier) (arguments)))))))))
+  (function_definition
+    (identifier)
+    (parameters)
+    (block
+      (if_expression
+        (parenthesized_expression (identifier))
+        (block (identifier))
+        (call_expression (identifier) (arguments))))))
+
+===============================
+Try expressions
+===============================
+
+def main() {
+  try a() finally depth -= 1
+  try {
+    doThing()
+  } catch {
+    case e: SomeException => prinlnt(e.message)
+  } finally {
+    tryAnotherThing()
+  }
+  try b()
+  catch { case e => println(e) }
+  finally doFinalThing()
+  try a()
+  finally b()
+}
+
+---
+
+(compilation_unit
+  (function_definition
+    (identifier)
+    (parameters)
+    (block
+      (try_expression
+        (call_expression (identifier) (arguments))
+        (finally_clause (infix_expression (identifier) (operator_identifier) (number))))
+      (try_expression
+        (block (call_expression (identifier) (arguments)))
+        (catch_clause (case_block (case_clause
+          (typed_pattern
+            (identifier)
+            (type_identifier))
+          (call_expression
+            (identifier)
+            (arguments (field_expression
+              (identifier)
+              (identifier)))))))
+        (finally_clause (block (call_expression (identifier) (arguments)))))
+      (try_expression (call_expression (identifier) (arguments))
+        (catch_clause (case_block (case_clause
+          (identifier)
+          (call_expression
+            (identifier)
+            (arguments (identifier))))))
+        (finally_clause (call_expression (identifier) (arguments))))
+      (try_expression (call_expression (identifier) (arguments))
+        (finally_clause (call_expression (identifier) (arguments)))))))
+
+===============================
+Match expressions
+===============================
+
+def matchTest(x: Int): String = x match {
+  case 0 =>
+  case 1 => "one"; "uno"
+  case 2 => "two"
+  case 3 => {
+    "3"
+  }
+  case _ =>
+    val x = "many"
+    "more"
+}
+
+---
+
+(compilation_unit
+  (function_definition
+    (identifier)
+    (parameters (parameter (identifier) (type_identifier)))
+    (type_identifier)
+    (match_expression (identifier) (case_block
+      (case_clause (number))
+      (case_clause (number) (string) (string))
+      (case_clause (number) (string))
+      (case_clause (number) (block (string)))
+      (case_clause (wildcard) (val_definition (identifier) (string)) (string))))))
+
+===============================
+Field expressions
+===============================
+
+class C {
+  def main() {
+    a.b = c
+    a.b.d
+  }
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (assignment_expression
+            (field_expression (identifier) (identifier))
+            (identifier))
+          (field_expression
+            (field_expression (identifier) (identifier))
+            (identifier)))))))
+
+===============================
+Instance expressions
+===============================
+
+class C {
+  def main() {
+    a = new B
+    c = new D(e, f)
+  }
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (assignment_expression (identifier) (instance_expression (identifier)))
+          (assignment_expression (identifier) (instance_expression (call_expression (identifier) (arguments (identifier) (identifier))))))))))
+
+===============================
+Infix expressions
+===============================
+
+class C {
+  def main() {
+    a = b max c
+    d + e + f
+  }
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (assignment_expression
+            (identifier)
+            (infix_expression (identifier) (identifier) (identifier)))
+          (infix_expression
+            (infix_expression (identifier) (operator_identifier) (identifier))
+            (operator_identifier)
+            (identifier)))))))
+
+===============================
+Prefix expressions
+===============================
+
+class C {
+  def main() {
+    !a
+    !!a
+    +a + b
+  }
+}
+
+---
+
+(compilation_unit
+  (class_definition
+    (identifier)
+    (template_body
+      (function_definition
+        (identifier)
+        (parameters)
+        (block
+          (prefix_expression (identifier))
+          (prefix_expression (prefix_expression (identifier)))
+          (infix_expression
+            (prefix_expression (identifier))
+            (operator_identifier)
+            (identifier)))))))

@@ -1,0 +1,8 @@
+==========================
+Scratch
+==========================
+m.map { case f => f }
+-----
+(compilation_unit (ERROR (field_expression (identifier) (identifier)))
+(case_block (case_clause (identifier) (identifier))))
+
