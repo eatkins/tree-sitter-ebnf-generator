@@ -360,7 +360,6 @@ local SINGLE_QUOTE = 0x27
 local LEFT_ANGLE = 0x3c
 local RIGHT_ANGLE = 0x3e
 local LEFT_PARENS = 0x28
-local LEFT_PARENS = 0x28
 local RIGHT_PARENS = 0x29
 local LEFT_BRACKET = 0x5b
 local RIGHT_BRACKET= 0x5d
@@ -463,9 +462,9 @@ local function print_node(n, offset, max_width)
         if multi_line then
           local lines = {}
           for line in part:gmatch("([^\n]+)") do table.insert(lines, line) end
-          for i, line in ipairs(lines) do
+          for j, line in ipairs(lines) do
             write("  " .. line)
-            if i < #lines then write("\n") end
+            if j < #lines then write("\n") end
           end
         else
           write(part)
@@ -606,7 +605,7 @@ local function flatten(n, string)
       for _, v in ipairs(n.children) do table.insert(children, flatten(v, string)) end
       for _, v in ipairs(children) do
         if v.kind == CHOICE then
-          for _, n in ipairs(v.children) do table.insert(node.children, n) end
+          for _, cn in ipairs(v.children) do table.insert(node.children, cn) end
         else
           table.insert(node.children, v)
         end
@@ -666,9 +665,9 @@ local function maybe_add_reference_impl(node, current_word, externals, source_in
   elseif id then
     add_reference(node, id)
   elseif externals then
-    local id = format_reference(table.concat(current_word))
-    tokenmap[id] = true
-    add_reference(node, id)
+    local ref_id = format_reference(table.concat(current_word))
+    tokenmap[ref_id] = true
+    add_reference(node, ref_id)
   else
     source_error("no reference exists for " .. table.concat(current_word), source_info)
   end
@@ -944,10 +943,10 @@ for _, v in ipairs(tokens) do
   local line_num = start_line .. ((start_line == end_line and "") or ("-" .. end_line))
   local index = file .. ":" .. line_num
   local prefix = { base_indent .. "/*", base_indent .. " * " .. index }
-  for i, v in ipairs(full_body) do
-    local start, space_end = v:find("%s+")
-    if start == 1 then v = v:sub(start + 2) end
-    table.insert(prefix, base_indent .. " * " .. v:gsub("*/", "*∕")) -- this adds a unicode division sign
+  for i, b in ipairs(full_body) do
+    local start, space_end = b:find("%s+")
+    if start == 1 then b = b:sub(start + 2) end
+    table.insert(prefix, base_indent .. " * " .. b:gsub("*/", "*∕")) -- this adds a unicode division sign
   end
   prefix = table.concat(prefix, "\n") .. "\n" .. base_indent .. " */\n"
   table.insert(def, 1, prefix)
