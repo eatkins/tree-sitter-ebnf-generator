@@ -1,12 +1,30 @@
 #!/usr/bin/env node
 
 console.assert(process.argv.length > 1, 'Usage: specify filename')
+const grammar_js_fname = process.argv[2];
 const acorn = require('acorn')
 const walk = require('acorn-walk')
 const fs = require('fs');
 function print() { console.log.apply(this, arguments) }
+function checkSingleCharEscaped(str) {
+	switch(str) {
+		case "\0": return "'\\0'";
+		case "\b": return "'\\b'";
+		case "\f": return "'\\f'";
+		case "\n": return "'\\n'";
+		case "\r": return "'\\r'";
+		case "\t": return "'\\t'";
+		case "\v": return "'\\v'";
+		case "\\": return "'\\\\'";
+		case "'": return "\"'\"";
+		case "\"": return "'\"'";
+		default:
+			if(str.indexOf("'") >= 0) return '"' + str + '"';
+			else return '\'' + str + '\'';
+	}
+}
 function maybe_add_quotes(v) {
-  return (typeof v !== 'object' && typeof v === 'string') ? "'" + v + "'" : (v.value ? v.value : v.toString())
+  return (typeof v !== 'object' && typeof v === 'string') ? checkSingleCharEscaped(v) : (v.value ? v.value : v.toString())
 }
 function _prec_impl(prefix, num, value) {
   prefix = prefix + (num ? num : '')
@@ -83,7 +101,8 @@ function seq() {
     var arg = arguments[i]
     result = result + maybe_add_quotes(arg)
   }
-  result = arguments.length > 1 || arguments[1].content(" ") ? '(' + result + ')' : result
+  //if(arguments.length > 1) console.log("***** " + arguments[1].content);
+  result = arguments.length > 1 && (arguments[1].content && arguments[1].content(" ")) ? '(' + result + ')' : result
   return { value: result }
 }
 function expandRhs(rhs, debug) {
@@ -123,9 +142,9 @@ function grammar(parts) {
     print(" ", key, " ::= ", cleanup(expandRhs(rules[key]($))))
   }
 }
-fs.readFile(process.argv[2], 'utf-8', function (err, data) {
+fs.readFile(grammar_js_fname, 'utf-8', function (err, data) {
   if (err) throw err
-  var parsed = acorn.parse(data, {ecmaVersion: 2020})
+  var parsed = acorn.parse(data, {ecmaVersion: 2020, locations: true})
   var constants = []
   var grammarImpl
   var functions = ""
@@ -144,9 +163,16 @@ fs.readFile(process.argv[2], 'utf-8', function (err, data) {
           }
           constString = constString + data.substring(node.start, node.end) + "\n"
         } else if (node.type === 'ExpressionStatement') {
-          var left = node.expression.left
-          var name = left.object.name
-          var prop = left.property.name
+          var left, name, prop;
+          try {
+            left = node.expression.left
+            name = left.object.name
+            prop = left.property.name
+          } catch (error) {
+            console.log(node);
+            console.log("\nerror: " + grammar_js_fname + ":" + node.loc.start.line + ":" + node.loc.start.column);
+            throw(error);
+          }
           if (name != 'module' || prop != 'exports') {
             print('Only module.exports is allowed (got ' + name + '.' + prop + ')')
             throw ""
@@ -181,5 +207,11 @@ fs.readFile(process.argv[2], 'utf-8', function (err, data) {
    *  print(constants[i].name, ":=", constants[i].value)
    *}
    */
-  eval(constString + functions + grammarImpl)
+  const all_transformed = constString + functions + grammarImpl;
+  try {
+    eval(all_transformed)
+  } catch(error) {
+     console.log("\n**==>>**\n", all_transformed, "\n**==<<**\n");
+     throw(error);
+  }
 });
