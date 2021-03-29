@@ -84,7 +84,8 @@ function seq() {
     var arg = arguments[i]
     result = result + maybe_add_quotes(arg)
   }
-  result = arguments.length > 1 || arguments[1].content(" ") ? '(' + result + ')' : result
+  //if(arguments.length > 1) console.log("***** " + arguments[1].content);
+  result = arguments.length > 1 && (arguments[1].content && arguments[1].content(" ")) ? '(' + result + ')' : result
   return { value: result }
 }
 function expandRhs(rhs, debug) {
@@ -152,7 +153,7 @@ fs.readFile(grammar_js_fname, 'utf-8', function (err, data) {
             prop = left.property.name
           } catch (error) {
             console.log(node);
-            console.log(grammar_js_fname + ":" + node.loc.start.line + ":" + node.loc.start.column);
+            console.log("\nerror: " + grammar_js_fname + ":" + node.loc.start.line + ":" + node.loc.start.column);
             throw(error);
           }
           if (name != 'module' || prop != 'exports') {
@@ -189,5 +190,11 @@ fs.readFile(grammar_js_fname, 'utf-8', function (err, data) {
    *  print(constants[i].name, ":=", constants[i].value)
    *}
    */
-  eval(constString + functions + grammarImpl)
+  const all_transformed = constString + functions + grammarImpl;
+  try {
+    eval(all_transformed)
+  } catch(error) {
+     console.log("\n**==>>**\n", all_transformed, "\n**==<<**\n");
+     throw(error);
+  }
 });
