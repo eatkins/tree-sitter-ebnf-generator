@@ -174,7 +174,7 @@ class Foo protected ()
 ---
 (compilation_unit (class_definition (identifier)) (val_declaration (modifiers)
 (ERROR) (identifier) (type_identifier)) (ERROR) (class_definition (identifier))
-(ERROR) (ERROR) (comment))
+(ERROR) (comment))
 
 =======================================
 Class definitions with constructor annotations
@@ -188,7 +188,7 @@ class Foo @foo(x = 1) protected ()
 (type_identifier) (arguments) (arguments (infix_expression (identifier)
 (identifier) (ERROR) (identifier)))) (identifier)) (ERROR (annotation
 (type_identifier) (arguments (assignment_expression (identifier) (number)))))
-(ERROR) (comment))
+(comment))
 
 =======================================
 Modifiers

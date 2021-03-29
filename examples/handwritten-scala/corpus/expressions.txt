@@ -332,5 +332,5 @@ Function argument application
 m.map { case f => f }
 // TODO fix errors
 -----
-(compilation_unit (ERROR (identifier) (identifier)) (ERROR (identifier)
-(identifier)) (comment))
+(compilation_unit (ERROR (identifier) (identifier) (identifier) (identifier))
+(comment))
