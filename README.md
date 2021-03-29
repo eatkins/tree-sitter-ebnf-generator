@@ -206,10 +206,10 @@ Expressions:
 
 ### tree-sitter to EBNF
 
-There is also a node.js script that converts a tree-sitter grammar.js file into
+There is also a node.js (using the nodejs version 15.*) script that converts a tree-sitter grammar.js file into
 the EBNF format. It is found at
 [tree-sitter-to-ebnf.js](src/js/tree-sitter-to-ebnf.js). To run the script, it
 may be necessary to run `npm install` in the src/js directory. The input to the
 script is just the name of a tree-sitter grammar.js file, e.g
-`./src/js/tree-sitter-to-ebnf.js examples/handwritten-scala/scala.ebnf`. The
+`./src/js/tree-sitter-to-ebnf.js examples/handwritten-scala/grammar.js`. The
 output can be redirected to a file.
