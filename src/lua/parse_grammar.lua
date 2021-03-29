@@ -360,7 +360,6 @@ local SINGLE_QUOTE = 0x27
 local LEFT_ANGLE = 0x3c
 local RIGHT_ANGLE = 0x3e
 local LEFT_PARENS = 0x28
-local LEFT_PARENS = 0x28
 local RIGHT_PARENS = 0x29
 local LEFT_BRACKET = 0x5b
 local RIGHT_BRACKET= 0x5d
@@ -463,9 +462,9 @@ local function print_node(n, offset, max_width)
         if multi_line then
           local lines = {}
           for line in part:gmatch("([^\n]+)") do table.insert(lines, line) end
-          for i, line in ipairs(lines) do
+          for i2, line in ipairs(lines) do
             write("  " .. line)
-            if i < #lines then write("\n") end
+            if i2 < #lines then write("\n") end
           end
         else
           write(part)
@@ -606,7 +605,7 @@ local function flatten(n, string)
       for _, v in ipairs(n.children) do table.insert(children, flatten(v, string)) end
       for _, v in ipairs(children) do
         if v.kind == CHOICE then
-          for _, n in ipairs(v.children) do table.insert(node.children, n) end
+          for _, n2 in ipairs(v.children) do table.insert(node.children, n2) end
         else
           table.insert(node.children, v)
         end
@@ -666,9 +665,9 @@ local function maybe_add_reference_impl(node, current_word, externals, source_in
   elseif id then
     add_reference(node, id)
   elseif externals then
-    local id = format_reference(table.concat(current_word))
-    tokenmap[id] = true
-    add_reference(node, id)
+    local id2 = format_reference(table.concat(current_word))
+    tokenmap[id2] = true
+    add_reference(node, id2)
   else
     source_error("no reference exists for " .. table.concat(current_word), source_info)
   end
@@ -923,36 +922,36 @@ end
 local rule_defs = {}
 
 for _, v in ipairs(tokens) do
-  local id, body, in_rules = unpack(v)
-  local replaced = replace_dollars(body)
+  local id2, body2, in_rules = unpack(v)
+  local replaced = replace_dollars(body2)
   local tree_sitter_body = {}
-  local parsed = parse_body(id, replaced)
+  local parsed = parse_body(id2, replaced)
   local base_indent = in_rules and "    " or "  "
-  local def = { base_indent .. id .. ": $ => " }
+  local def2 = { base_indent .. id2 .. ": $ => " }
   for line in parsed:gmatch("([^\n]*)") do table.insert(tree_sitter_body, line) end
   if #tree_sitter_body == 1 then
-    table.insert(def, table.remove(tree_sitter_body))
+    table.insert(def2, table.remove(tree_sitter_body))
   else
-    local indent = def[1]:gsub(".", " ")
-    for i, v in ipairs(tree_sitter_body) do
-      local indent = i > 1 and indent or ""
-      table.insert(def, indent .. v)
-      if i < #tree_sitter_body then table.insert(def, "\n") end
+    local indent = def2[1]:gsub(".", " ")
+    for i, v2 in ipairs(tree_sitter_body) do
+      local indent2 = i > 1 and indent or ""
+      table.insert(def2, indent2 .. v2)
+      if i < #tree_sitter_body then table.insert(def2, "\n") end
     end
   end
-  local full_body, start_line, end_line = unpack(tokenmap[id])
-  local line_num = start_line .. ((start_line == end_line and "") or ("-" .. end_line))
-  local index = file .. ":" .. line_num
+  local full_body, start_line, end_line = unpack(tokenmap[id2])
+  local line_num2 = start_line .. ((start_line == end_line and "") or ("-" .. end_line))
+  local index = file .. ":" .. line_num2
   local prefix = { base_indent .. "/*", base_indent .. " * " .. index }
-  for i, v in ipairs(full_body) do
-    local start, space_end = v:find("%s+")
-    if start == 1 then v = v:sub(start + 2) end
-    table.insert(prefix, base_indent .. " * " .. v:gsub("*/", "*∕")) -- this adds a unicode division sign
+  for i, v2 in ipairs(full_body) do
+    local start, space_end = v2:find("%s+")
+    if start == 1 then v2 = v2:sub(start + 2) end
+    table.insert(prefix, base_indent .. " * " .. v2:gsub("*/", "*∕")) -- this adds a unicode division sign
   end
   prefix = table.concat(prefix, "\n") .. "\n" .. base_indent .. " */\n"
-  table.insert(def, 1, prefix)
+  table.insert(def2, 1, prefix)
 
-  table.insert(in_rules and rule_defs or contextFree, table.concat(def))
+  table.insert(in_rules and rule_defs or contextFree, table.concat(def2))
 end
 
 table.insert(contextFree, "  rules: {\n" .. table.concat(rule_defs, ",\n") .. "\n  }\n")
