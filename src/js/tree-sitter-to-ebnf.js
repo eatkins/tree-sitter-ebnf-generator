@@ -125,7 +125,7 @@ function grammar(parts) {
 }
 fs.readFile(process.argv[2], 'utf-8', function (err, data) {
   if (err) throw err
-  var parsed = acorn.parse(data, {ecmaVersion: 2020})
+  var parsed = acorn.parse(data, {ecmaVersion: 2020, locations: true})
   var constants = []
   var grammarImpl
   var functions = ""
@@ -144,9 +144,15 @@ fs.readFile(process.argv[2], 'utf-8', function (err, data) {
           }
           constString = constString + data.substring(node.start, node.end) + "\n"
         } else if (node.type === 'ExpressionStatement') {
-          var left = node.expression.left
-          var name = left.object.name
-          var prop = left.property.name
+          var left, name, prop;
+          try {
+            left = node.expression.left
+            name = left.object.name
+            prop = left.property.name
+          } catch (error) {
+            console.log(node);
+            throw(error);
+          }
           if (name != 'module' || prop != 'exports') {
             print('Only module.exports is allowed (got ' + name + '.' + prop + ')')
             throw ""
