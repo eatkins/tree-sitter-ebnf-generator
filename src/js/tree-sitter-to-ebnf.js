@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 console.assert(process.argv.length > 1, 'Usage: specify filename')
+const grammar_js_fname = process.argv[2];
 const acorn = require('acorn')
 const walk = require('acorn-walk')
 const fs = require('fs');
@@ -123,7 +124,7 @@ function grammar(parts) {
     print(" ", key, " ::= ", cleanup(expandRhs(rules[key]($))))
   }
 }
-fs.readFile(process.argv[2], 'utf-8', function (err, data) {
+fs.readFile(grammar_js_fname, 'utf-8', function (err, data) {
   if (err) throw err
   var parsed = acorn.parse(data, {ecmaVersion: 2020, locations: true})
   var constants = []
@@ -151,6 +152,7 @@ fs.readFile(process.argv[2], 'utf-8', function (err, data) {
             prop = left.property.name
           } catch (error) {
             console.log(node);
+            console.log(grammar_js_fname + ":" + node.loc.start.line + ":" + node.loc.start.column);
             throw(error);
           }
           if (name != 'module' || prop != 'exports') {
