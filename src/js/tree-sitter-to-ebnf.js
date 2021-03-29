@@ -6,8 +6,16 @@ const acorn = require('acorn')
 const walk = require('acorn-walk')
 const fs = require('fs');
 function print() { console.log.apply(this, arguments) }
+function checkSingleCharEscaped(str) {
+	switch(str) {
+		case "\n": return "\\n";
+		case "\t": return "\\t";
+		case "\v": return "\\v";
+		default: return str;
+	}
+}
 function maybe_add_quotes(v) {
-  return (typeof v !== 'object' && typeof v === 'string') ? "'" + v + "'" : (v.value ? v.value : v.toString())
+  return (typeof v !== 'object' && typeof v === 'string') ? "'" + checkSingleCharEscaped(v) + "'" : (v.value ? v.value : v.toString())
 }
 function _prec_impl(prefix, num, value) {
   prefix = prefix + (num ? num : '')
