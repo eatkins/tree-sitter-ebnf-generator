@@ -193,14 +193,7 @@ local file = nil
 local unpack = unpack or table.unpack
 local tokens = {}
 local tokenmap = {}
-local id = nil
-local body = nil
-local def = nil
-local line_num = nil
-local count = 0
-local is_value = nil
 local values = {}
-local rules = nil
 local hidden = nil
 local camel_to_snake = nil
 
@@ -282,74 +275,84 @@ local function is_lower_byte(s, i)
   local b = s:byte(i, i)
   return b > 96 and b < 123
 end
-local function savetoken(clear)
-  if id and body and is_value then
-    values[id] = { raw = table.concat(body, " ") }
-  elseif id and body and def then
-    local full_body = table.concat(body, " ")
-    local start, _, literal = id:find("%[([a-z])]")
-    if literal then
-      id = format_reference(literal .. id:sub(4))
-    else
-      if is_lower_byte(id, 1) and rules and (not hidden or id == "whiteSpace") then
-        id = "_" .. format_reference(id)
+local function scan_file()
+  local id = nil
+  local body = nil
+  local def = nil
+  local line_num = nil
+  local count = 0
+  local is_value = nil
+  local rules = nil
+  local function savetoken(clear)
+    if id and body and is_value then
+      values[id] = { raw = table.concat(body, " ") }
+    elseif id and body and def then
+      local full_body = table.concat(body, " ")
+      local start, _, literal = id:find("%[([a-z])]")
+      if literal then
+        id = format_reference(literal .. id:sub(4))
       else
-        id = format_reference(id)
-      end
-    end
-    table.insert(tokens, { id, full_body , rules })
-    tokenmap[id] = { def, line_num, math.max(count - 1, line_num) }
-  end
-  id = nil
-  body = nil
-  def = nil
-  line_num = nil
-  is_value = nil
-end
-for line in io.lines(file) do
-  count = count + 1
-  local is_comment = line:find("%s*;") == 1
-  if line == "rules:" then
-    rules = true
-  elseif #line == 0 then
-    savetoken(true)
-  elseif is_comment then
-    if def then table.insert(def, line) end
-  else
-    local leading = "[%w_%[%]]"
-    local prefix = leading .. leading .. "?" .. leading .. "?"
-    local s, _, i, a, b = line:find("(" .. prefix .. "[%w_.]*)%s*(:?:=)%s*(.*)")
-    local is_beginning = not rules and s == 1
-    if not is_beginning then
-      local ss, e = line:find("  " .. leading)
-      is_beginning = ss == 1 and e == s
-    end
-    if is_beginning then
-      savetoken()
-      is_value = a == ":="
-      line_num = count
-      id = i
-      body = { b }
-      def = { line }
-    else
-      assert(def, line .. tostring(is_beginning))
-      table.insert(def, line)
-      local rest = line:match("%s+(.*)")
-      if rest then
-        if body then
-          if #rest > 0 then
-            table.insert(body, rest .. "\n")
-          else
-            savetoken()
-          end
+        if is_lower_byte(id, 1) and rules and (not hidden or id == "whiteSpace") then
+          id = "_" .. format_reference(id)
         else
-          error("Error: declarations must be aligned in the left-most column")
+          id = format_reference(id)
+        end
+      end
+      table.insert(tokens, { id, full_body , rules })
+      tokenmap[id] = { def, line_num, math.max(count - 1, line_num) }
+    end
+    id = nil
+    body = nil
+    def = nil
+    line_num = nil
+    is_value = nil
+  end
+  for line in io.lines(file) do
+    count = count + 1
+    local is_comment = line:find("%s*;") == 1
+    if line == "rules:" then
+      rules = true
+    elseif #line == 0 then
+      savetoken(true)
+    elseif is_comment then
+      if def then table.insert(def, line) end
+    else
+      local leading = "[%w_%[%]]"
+      local prefix = leading .. leading .. "?" .. leading .. "?"
+      local s, _, i, a, b = line:find("(" .. prefix .. "[%w_.]*)%s*(:?:=)%s*(.*)")
+      local is_beginning = not rules and s == 1
+      if not is_beginning then
+        local ss, e = line:find("  " .. leading)
+        is_beginning = ss == 1 and e == s
+      end
+      if is_beginning then
+        savetoken()
+        is_value = a == ":="
+        line_num = count
+        id = i
+        body = { b }
+        def = { line }
+      else
+        assert(def, line .. tostring(is_beginning))
+        table.insert(def, line)
+        local rest = line:match("%s+(.*)")
+        if rest then
+          if body then
+            if #rest > 0 then
+              table.insert(body, rest .. "\n")
+            else
+              savetoken()
+            end
+          else
+            error("Error: declarations must be aligned in the left-most column")
+          end
         end
       end
     end
   end
+  savetoken()
 end
-savetoken()
+scan_file()
 
 local contextFree = {}
 
