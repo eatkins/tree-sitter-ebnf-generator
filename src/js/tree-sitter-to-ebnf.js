@@ -8,14 +8,23 @@ const fs = require('fs');
 function print() { console.log.apply(this, arguments) }
 function checkSingleCharEscaped(str) {
 	switch(str) {
-		case "\n": return "\\n";
-		case "\t": return "\\t";
-		case "\v": return "\\v";
-		default: return str;
+		case "\0": return "'\\0'";
+		case "\b": return "'\\b'";
+		case "\f": return "'\\f'";
+		case "\n": return "'\\n'";
+		case "\r": return "'\\r'";
+		case "\t": return "'\\t'";
+		case "\v": return "'\\v'";
+		case "\\": return "'\\\\'";
+		case "'": return "\"'\"";
+		case "\"": return "'\"'";
+		default:
+			if(str.indexOf("'") >= 0) return '"' + str + '"';
+			else return '\'' + str + '\'';
 	}
 }
 function maybe_add_quotes(v) {
-  return (typeof v !== 'object' && typeof v === 'string') ? "'" + checkSingleCharEscaped(v) + "'" : (v.value ? v.value : v.toString())
+  return (typeof v !== 'object' && typeof v === 'string') ? checkSingleCharEscaped(v) : (v.value ? v.value : v.toString())
 }
 function _prec_impl(prefix, num, value) {
   prefix = prefix + (num ? num : '')
