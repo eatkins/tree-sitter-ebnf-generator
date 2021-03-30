@@ -937,9 +937,9 @@ for _, v in ipairs(tokens) do
     table.insert(def, table.remove(tree_sitter_body))
   else
     local indent = def[1]:gsub(".", " ")
-    for i, v in ipairs(tree_sitter_body) do
-      local indent = i > 1 and indent or ""
-      table.insert(def, indent .. v)
+    for i, line in ipairs(tree_sitter_body) do
+      local new_indent = i > 1 and indent or ""
+      table.insert(def, new_indent .. line)
       if i < #tree_sitter_body then table.insert(def, "\n") end
     end
   end
