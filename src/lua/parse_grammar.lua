@@ -16,7 +16,8 @@ Options:
                       default: true if output_file == nil, otherwise false
   -q|--quiet        disables printing the parsed tree to stdout
                       default: false
-  -s|--show-hidden  shows hidden nodes
+  --hide-lower-case hides nodes that begin with a lower case letter unless
+                    first character is bracketed, e.g. [f]oo ::= "foo"
   --camel-to-snake  converts camel case references to snake case
   -h|--help         prints this message
 ]]
@@ -205,7 +206,7 @@ local function parse_args()
       verbose = true
     elseif arg == "-q" or arg == "--quiet" then
       quiet = true
-    elseif arg == "-s" or arg == "--show-hidden" then
+    elseif arg == "--hide-lower-case" then
       hidden = true
     elseif arg == "--camel-to-snake" then
       camel_to_snake = true
@@ -292,7 +293,7 @@ local function scan_file()
       if literal then
         id = format_reference(literal .. id:sub(4))
       else
-        if is_lower_byte(id, 1) and rules and (not hidden or id == "whiteSpace") then
+        if hidden and rules and is_lower_byte(id, 1) then
           id = "_" .. format_reference(id)
         else
           id = format_reference(id)
@@ -936,9 +937,9 @@ for _, v in ipairs(tokens) do
     table.insert(def, table.remove(tree_sitter_body))
   else
     local indent = def[1]:gsub(".", " ")
-    for i, v in ipairs(tree_sitter_body) do
-      local indent = i > 1 and indent or ""
-      table.insert(def, indent .. v)
+    for i, line in ipairs(tree_sitter_body) do
+      local new_indent = i > 1 and indent or ""
+      table.insert(def, new_indent .. line)
       if i < #tree_sitter_body then table.insert(def, "\n") end
     end
   end
@@ -977,11 +978,11 @@ for _, c in ipairs(constants) do
   local key, value = unpack(c)
   local padding = ""
   for i = #key, key_padding do padding = padding .. " " end
-  local base = key .. padding .. ":= " .. value.raw
+  local base = key .. padding .. ":= " .. value.raw:gsub("*/", "*∕")
   table.insert(constants_comment, " * " .. base)
   if not value.replaced then error(key .. " is unused") end
   if value.replaced ~= value.raw then
-    table.insert(constants_comment, " *     (" .. value.replaced .. ")")
+    table.insert(constants_comment, " *     (" .. value.replaced:gsub("*/", "*∕") .. ")")
   end
 end
 table.insert(constants_comment, " */")
