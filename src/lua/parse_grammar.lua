@@ -978,11 +978,11 @@ for _, c in ipairs(constants) do
   local key, value = unpack(c)
   local padding = ""
   for i = #key, key_padding do padding = padding .. " " end
-  local base = key .. padding .. ":= " .. value.raw
+  local base = key .. padding .. ":= " .. value.raw:gsub("*/", "*∕")
   table.insert(constants_comment, " * " .. base)
   if not value.replaced then error(key .. " is unused") end
   if value.replaced ~= value.raw then
-    table.insert(constants_comment, " *     (" .. value.replaced .. ")")
+    table.insert(constants_comment, " *     (" .. value.replaced:gsub("*/", "*∕") .. ")")
   end
 end
 table.insert(constants_comment, " */")
