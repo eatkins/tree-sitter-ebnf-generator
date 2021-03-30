@@ -16,7 +16,8 @@ Options:
                       default: true if output_file == nil, otherwise false
   -q|--quiet        disables printing the parsed tree to stdout
                       default: false
-  -s|--show-hidden  shows hidden nodes
+  --hide-lower-case hides nodes that begin with a lower case letter unless
+                    first character is bracketed, e.g. [f]oo ::= "foo"
   --camel-to-snake  converts camel case references to snake case
   -h|--help         prints this message
 ]]
@@ -205,7 +206,7 @@ local function parse_args()
       verbose = true
     elseif arg == "-q" or arg == "--quiet" then
       quiet = true
-    elseif arg == "-s" or arg == "--show-hidden" then
+    elseif arg == "--hide-lower-case" then
       hidden = true
     elseif arg == "--camel-to-snake" then
       camel_to_snake = true
@@ -292,7 +293,7 @@ local function scan_file()
       if literal then
         id = format_reference(literal .. id:sub(4))
       else
-        if is_lower_byte(id, 1) and rules and (not hidden or id == "whiteSpace") then
+        if hidden and rules and is_lower_byte(id, 1) then
           id = "_" .. format_reference(id)
         else
           id = format_reference(id)
