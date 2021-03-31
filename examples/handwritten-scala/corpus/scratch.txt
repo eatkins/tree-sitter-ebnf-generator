@@ -1,6 +1,7 @@
 ==========================
 Scratch
 ==========================
-m.map { case f => f }
+object Foo {
+  foo map { x => x + 1}
+}
 -----
-(compilation_unit (ERROR (identifier) (identifier) (identifier) (identifier)))

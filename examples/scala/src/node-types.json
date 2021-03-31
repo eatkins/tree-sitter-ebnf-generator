@@ -173,7 +173,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "Annotation",
@@ -197,6 +197,10 @@
         },
         {
           "type": "TmplDef",
+          "named": true
+        },
+        {
+          "type": "empty",
           "named": true
         }
       ]
@@ -493,6 +497,10 @@
         {
           "type": "SelfInvocation",
           "named": true
+        },
+        {
+          "type": "empty",
+          "named": true
         }
       ]
     }
@@ -521,7 +529,7 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
@@ -538,6 +546,18 @@
         },
         {
           "type": "VarDcl",
+          "named": true
+        },
+        {
+          "type": "def1",
+          "named": true
+        },
+        {
+          "type": "val",
+          "named": true
+        },
+        {
+          "type": "var",
           "named": true
         }
       ]
@@ -1060,9 +1080,13 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "interpStart",
+          "named": true
+        },
         {
           "type": "interpolatedString",
           "named": true
@@ -1210,6 +1234,10 @@
       "types": [
         {
           "type": "Param",
+          "named": true
+        },
+        {
+          "type": "trailingComma",
           "named": true
         }
       ]
@@ -1683,7 +1711,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "Annotation",
@@ -1707,6 +1735,10 @@
         },
         {
           "type": "Modifier",
+          "named": true
+        },
+        {
+          "type": "empty",
           "named": true
         }
       ]
@@ -2266,12 +2298,20 @@
     "named": false
   },
   {
+    "type": "def1",
+    "named": true
+  },
+  {
     "type": "do",
     "named": false
   },
   {
     "type": "else",
     "named": false
+  },
+  {
+    "type": "empty",
+    "named": true
   },
   {
     "type": "extends",
@@ -2310,12 +2350,20 @@
     "named": false
   },
   {
+    "type": "interpStart",
+    "named": true
+  },
+  {
     "type": "lazy",
     "named": false
   },
   {
     "type": "match",
     "named": false
+  },
+  {
+    "type": "multiComment",
+    "named": true
   },
   {
     "type": "new",
@@ -2328,6 +2376,10 @@
   {
     "type": "object",
     "named": false
+  },
+  {
+    "type": "openMultiComment",
+    "named": true
   },
   {
     "type": "override",
@@ -2366,6 +2418,10 @@
     "named": false
   },
   {
+    "type": "trailingComma",
+    "named": true
+  },
+  {
     "type": "trait",
     "named": false
   },
@@ -2386,8 +2442,16 @@
     "named": false
   },
   {
+    "type": "val",
+    "named": true
+  },
+  {
     "type": "var",
     "named": false
+  },
+  {
+    "type": "var",
+    "named": true
   },
   {
     "type": "varid",

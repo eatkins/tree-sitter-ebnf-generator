@@ -132,14 +132,14 @@ type A = (B, C) ~ D
   (type_definition
     (type_identifier)
     (infix_type
-      (infix_type (type_identifier) (operator_identifier) (type_identifier))
+      (infix_type (type_identifier) (identifier) (type_identifier))
       (identifier)
       (type_identifier)))
   (type_definition
     (type_identifier)
     (infix_type
       (tuple_type (type_identifier) (type_identifier))
-      (operator_identifier)
+      (identifier)
       (type_identifier))))
 
 
@@ -248,5 +248,5 @@ type A = B with B1 with B2 ! C with C1
   (type_definition (type_identifier)
     (infix_type
       (compound_type (type_identifier) (type_identifier) (type_identifier))
-      (operator_identifier)
+      (identifier)
       (compound_type (type_identifier) (type_identifier)))))

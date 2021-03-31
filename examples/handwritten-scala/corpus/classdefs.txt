@@ -8,12 +8,12 @@ class Buzz { this => } // this is an intentional error based on the spec
 // TODO fix unintentional errors
 ---
 (compilation_unit (class_definition (identifier) (template_body (identifier)
-(ERROR (operator_identifier)))) (class_definition (identifier) (template_body
-(infix_expression (identifier) (operator_identifier) (identifier)) (ERROR
-(operator_identifier)))) (class_definition (identifier) (template_body
-(infix_expression (identifier) (operator_identifier) (identifier)) (ERROR
-(operator_identifier)))) (class_definition (identifier) (template_body
-(identifier) (ERROR (operator_identifier)))) (comment) (comment))
+(ERROR (identifier)))) (class_definition (identifier) (template_body
+(infix_expression (identifier) (identifier) (identifier)) (ERROR
+(identifier)))) (class_definition (identifier) (template_body
+(infix_expression (identifier) (identifier) (identifier)) (ERROR
+(identifier)))) (class_definition (identifier) (template_body
+(identifier) (ERROR (identifier)))) (comment) (comment))
 
 ===============================
 Early definition
@@ -23,3 +23,40 @@ class A extends { val x = 1 } with B
 ---
 (compilation_unit (class_definition (identifier) (ERROR) (template_body
 (val_definition (identifier) (number)))) (ERROR (identifier)) (comment))
+
+=======================================
+Class definitions with access modifiers
+=======================================
+
+private[foo] class Foo
+private[foo] object Foo
+---
+(compilation_unit
+  (class_definition (modifiers (access_modifier (access_qualifier (identifier)))) (identifier))
+  (object_definition (modifiers (access_modifier (access_qualifier (identifier)))) (identifier)))
+
+
+=======================================
+Class definitions with constructor access modifiers
+=======================================
+
+class Foo private (val x: Int)
+class Foo protected ()
+// TODO fix the errors
+---
+(compilation_unit (class_definition (identifier)) (val_declaration (modifiers
+(access_modifier)) (ERROR) (identifier) (type_identifier)) (ERROR)
+(class_definition (identifier)) (ERROR) (ERROR) (comment))
+
+=======================================
+Class definitions with constructor annotations
+=======================================
+
+class Foo @foo() (val x: Int)
+class Foo @foo(x = 1) protected ()
+// TODO fix errors
+---
+(compilation_unit (class_definition (identifier)) (class_definition (annotation (type_identifier) (arguments) (arguments (infix_expression
+(identifier) (identifier) (identifier)) (ERROR (identifier)))) (identifier)) (ERROR (annotation (type_identifier) (arguments
+(assignment_expression (identifier) (number))))) (ERROR) (comment))
+
