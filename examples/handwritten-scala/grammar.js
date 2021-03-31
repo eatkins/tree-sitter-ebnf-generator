@@ -2,6 +2,50 @@
 
 /*
  * inline constants: 
+ * charEscapeSeq            := \\[btnfr"'\\]
+ * charNoBQOrNL             := [\u0020-\u005f\u0061-\u007f]
+ * decimal_numeral          := [0-9]+
+ * escapeSeq                := ($unicodeEscape|$charEscapeSeq)
+ *     ((\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))
+ * exponentPart             := ([Ee][+-]?$decimal_numeral)
+ *     (([Ee][+-]?[0-9]+))
+ * floatType                := [FfDd]
+ * floating_point_literal   := /-?($fp_lit_1|$fp_lit_2|$fp_lit_3|$fp_lit_4)/
+ *     (/-?([0-9]+[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[0-9]+([Ee][+-]?[0-9]+)?[FfDd]|[0-9]+([Ee][+-]?[0-9]+)[FfDd]?)/)
+ * fp_lit_1                 := $decimal_numeral[.]$decimal_numeral$exponentPart?$floatType?
+ *     ([0-9]+[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?)
+ * fp_lit_2                 := [.]$decimal_numeral$exponentPart?$floatType?
+ *     ([.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?)
+ * fp_lit_3                 := $decimal_numeral$exponentPart?$floatType
+ *     ([0-9]+([Ee][+-]?[0-9]+)?[FfDd])
+ * fp_lit_4                 := $decimal_numeral$exponentPart$floatType?
+ *     ([0-9]+([Ee][+-]?[0-9]+)[FfDd]?)
+ * hexDigit                 := [0-9a-fA-F]
+ * hex_numeral              := 0[xX]$hexDigit+
+ *     (0[xX][0-9a-fA-F]+)
+ * idRegex                  := $plainid|[`]($charNoBQOrNL|$escapeSeq)*[`]
+ *     (([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`])
+ * idrest                   := [$(letter)0-9]*(_$opchar+)?
+ *     ([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?)
+ * integer_literal          := /-?($decimal_numeral|$hex_numeral)[Ll]?/
+ *     (/-?([0-9]+|0[xX][0-9a-fA-F]+)[Ll]?/)
+ * letter                   := $upperChars$lowerChars
+ *     (\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F)
+ * lowerChars               := $lowerChars1$lowerChars2$lowerChars3
+ *     (\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F)
+ * lowerChars1              := \p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4
+ * lowerChars2              := \u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C
+ * lowerChars3              := \u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F
+ * opchar                   := [\-!#%&*+/\\:<=>?@\u005e\u007c~]
+ * plainid                  := ($upper$idrest|$varidRegex|$opchar+)
+ *     (([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+))
+ * unicodeEscape            := \\u+$hexDigit$hexDigit$hexDigit$hexDigit
+ *     (\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])
+ * upper                    := [$upperChars]
+ *     ([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$])
+ * upperChars               := \p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$
+ * varidRegex               := [$(lowerChars)_]$idrest
+ *     ([\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?)
  */
 
 module.exports = grammar({
@@ -145,9 +189,15 @@ module.exports = grammar({
                              ),
     /*
      * scala.ebnf:43
-     * object_definition                    ::= 'case'? 'object' _object_definition
+     * object_definition                    ::= annotation* modifiers? 'case'? 'object' _object_definition
      */
-    object_definition: $ => seq(optional('case'), 'object', $._object_definition),
+    object_definition: $ => seq(
+                              repeat($.annotation),
+                              optional($.modifiers),
+                              optional('case'),
+                              'object',
+                              $._object_definition
+                            ),
     /*
      * scala.ebnf:44
      * _object_definition                   ::= (identifier: name) (extends_clause?: extend) (template_body?: body)
@@ -351,35 +401,32 @@ module.exports = grammar({
                                  optional(seq(':', field('return_type', $._type)))
                                ),
     /*
-     * scala.ebnf:73-80
-     * modifiers                            ::= ('abstract'
-     *                                        | 'final'
-     *                                        | 'sealed'
-     *                                        | 'implicit'
-     *                                        | 'lazy'
-     *                                        | 'override'
-     *                                        | 'private'
-     *                                        | 'protected')+
+     * scala.ebnf:73
+     * local_modifier                       ::= ('abstract' | 'final' | 'sealed' | 'implicit' | 'lazy')
      */
-    modifiers: $ => repeat1(
-                      choice(
-                        'abstract',
-                        'final',
-                        'sealed',
-                        'implicit',
-                        'lazy',
-                        'override',
-                        'private',
-                        'protected'
-                      )
-                    ),
+    local_modifier: $ => choice('abstract', 'final', 'sealed', 'implicit', 'lazy'),
     /*
-     * scala.ebnf:81
+     * scala.ebnf:74
+     * access_modifier                      ::= ('private' | 'protected') access_qualifier?
+     */
+    access_modifier: $ => seq(choice('private', 'protected'), optional($.access_qualifier)),
+    /*
+     * scala.ebnf:75
+     * access_qualifier                     ::= '[' (identifier | 'this') ']'
+     */
+    access_qualifier: $ => seq('[', choice($.identifier, 'this'), ']'),
+    /*
+     * scala.ebnf:76
+     * modifiers                            ::= (local_modifier | access_modifier | 'override')+
+     */
+    modifiers: $ => repeat1(choice($.local_modifier, $.access_modifier, 'override')),
+    /*
+     * scala.ebnf:77
      * extends_clause                       ::= 'extends' (_type: type) arguments?
      */
     extends_clause: $ => seq('extends', field('type', $._type), optional($.arguments)),
     /*
-     * scala.ebnf:82
+     * scala.ebnf:78
      * class_parameters                     ::= '(' 'implicit'? (class_parameter (',' class_parameter)*)? ')'
      */
     class_parameters: $ => seq(
@@ -389,7 +436,7 @@ module.exports = grammar({
                              ')'
                            ),
     /*
-     * scala.ebnf:83
+     * scala.ebnf:79
      * parameters                           ::= '(' 'implicit'? (parameter (',' parameter)*)? ')'
      */
     parameters: $ => seq(
@@ -399,7 +446,7 @@ module.exports = grammar({
                        ')'
                      ),
     /*
-     * scala.ebnf:84-85
+     * scala.ebnf:80-81
      * class_parameter                      ::= annotation* ('val' | 'var')? (identifier: name) (':' (_type: type))?
      *                                            ('=' (_expression: default_value))?
      */
@@ -411,7 +458,7 @@ module.exports = grammar({
                             optional(seq('=', field('default_value', $._expression)))
                           ),
     /*
-     * scala.ebnf:86
+     * scala.ebnf:82
      * parameter                            ::= annotation* (identifier: name) (':' (_param_type: type))? ('=' (_expression: default_value))?
      */
     parameter: $ => seq(
@@ -421,7 +468,7 @@ module.exports = grammar({
                       optional(seq('=', field('default_value', $._expression)))
                     ),
     /*
-     * scala.ebnf:87
+     * scala.ebnf:83
      * _block                               ::= <(((_expression | _definition) (_semicolon (_expression | _definition))*) _semicolon?)
      */
     _block: $ => prec.left(
@@ -434,22 +481,22 @@ module.exports = grammar({
                    )
                  ),
     /*
-     * scala.ebnf:88
+     * scala.ebnf:84
      * block                                ::= '{' _block? '}'
      */
     block: $ => seq('{', optional($._block), '}'),
     /*
-     * scala.ebnf:89
+     * scala.ebnf:85
      * _type                                ::= function_type | compound_type | infix_type | _annotated_type
      */
     _type: $ => choice($.function_type, $.compound_type, $.infix_type, $._annotated_type),
     /*
-     * scala.ebnf:90
+     * scala.ebnf:86
      * _annotated_type                      ::= >(_simple_type annotation*)
      */
     _annotated_type: $ => prec.right(seq($._simple_type, repeat($.annotation))),
     /*
-     * scala.ebnf:91
+     * scala.ebnf:87
      * _simple_type                         ::= generic_type | projected_type | tuple_type | stable_type_identifier | _type_identifier
      */
     _simple_type: $ => choice(
@@ -460,7 +507,7 @@ module.exports = grammar({
                          $._type_identifier
                        ),
     /*
-     * scala.ebnf:92
+     * scala.ebnf:88
      * compound_type                        ::= 3((_annotated_type: base) ('with' (_annotated_type: extra))+)
      */
     compound_type: $ => prec(
@@ -471,53 +518,53 @@ module.exports = grammar({
                           )
                         ),
     /*
-     * scala.ebnf:93-95
+     * scala.ebnf:89-91
      * infix_type                           ::= <2(((compound_type | infix_type | _annotated_type): left)
-     *                                            ((identifier | operator_identifier): operator)
+     *                                            ((identifier): operator)
      *                                            ((compound_type | infix_type | _annotated_type): right))
      */
     infix_type: $ => prec.left(
                        2,
                        seq(
                          field('left', choice($.compound_type, $.infix_type, $._annotated_type)),
-                         field('operator', choice($.identifier, $.operator_identifier)),
+                         field('operator', $.identifier),
                          field('right', choice($.compound_type, $.infix_type, $._annotated_type))
                        )
                      ),
     /*
-     * scala.ebnf:96
+     * scala.ebnf:92
      * tuple_type                           ::= '(' (_type (',' _type)*) ')'
      */
     tuple_type: $ => seq('(', seq($._type, repeat(seq(',', $._type))), ')'),
     /*
-     * scala.ebnf:97
+     * scala.ebnf:93
      * stable_type_identifier               ::= (identifier | stable_identifier) '.' _type_identifier
      */
     stable_type_identifier: $ => seq(choice($.identifier, $.stable_identifier), '.', $._type_identifier),
     /*
-     * scala.ebnf:98
+     * scala.ebnf:94
      * stable_identifier                    ::= (identifier | stable_identifier) '.' identifier
      */
     stable_identifier: $ => seq(choice($.identifier, $.stable_identifier), '.', $.identifier),
     /*
-     * scala.ebnf:99
+     * scala.ebnf:95
      * generic_type                         ::= (_simple_type: type) (type_arguments: type_arguments)
      */
     generic_type: $ => seq(field('type', $._simple_type), field('type_arguments', $.type_arguments)),
     /*
-     * scala.ebnf:100
+     * scala.ebnf:96
      * projected_type                       ::= (_simple_type: type) '#' (_type_identifier: selector)
      */
     projected_type: $ => seq(field('type', $._simple_type), '#', field('selector', $._type_identifier)),
     /*
-     * scala.ebnf:101
+     * scala.ebnf:97
      * function_type                        ::= >((parameter_types: parameter_types) '=>' (_type: return_type))
      */
     function_type: $ => prec.right(
                           seq(field('parameter_types', $.parameter_types), '=>', field('return_type', $._type))
                         ),
     /*
-     * scala.ebnf:102-105
+     * scala.ebnf:98-101
      * parameter_types                      ::= -1(_annotated_type
      *                                        | ~1('(' (_param_type (',' _param_type)*)? ')')
      *                                        | compound_type
@@ -533,27 +580,27 @@ module.exports = grammar({
                             )
                           ),
     /*
-     * scala.ebnf:106
+     * scala.ebnf:102
      * _param_type                          ::= _type | lazy_parameter_type | repeated_parameter_type
      */
     _param_type: $ => choice($._type, $.lazy_parameter_type, $.repeated_parameter_type),
     /*
-     * scala.ebnf:107
+     * scala.ebnf:103
      * lazy_parameter_type                  ::= '=>' (_type: type)
      */
     lazy_parameter_type: $ => seq('=>', field('type', $._type)),
     /*
-     * scala.ebnf:108
+     * scala.ebnf:104
      * repeated_parameter_type              ::= (_type: type) '*'
      */
     repeated_parameter_type: $ => seq(field('type', $._type), '*'),
     /*
-     * scala.ebnf:109
+     * scala.ebnf:105
      * _type_identifier                     ::= identifier -> type_identifier
      */
     _type_identifier: $ => alias($.identifier, $.type_identifier),
     /*
-     * scala.ebnf:110-119
+     * scala.ebnf:106-118
      * _pattern                             ::= identifier
      *                                        | capture_pattern
      *                                        | tuple_pattern
@@ -562,6 +609,9 @@ module.exports = grammar({
      *                                        | alternative_pattern
      *                                        | typed_pattern
      *                                        | number
+     *                                        | boolean_literal
+     *                                        | character_literal
+     *                                        | symbol_literal
      *                                        | string
      *                                        | wildcard
      */
@@ -574,11 +624,14 @@ module.exports = grammar({
                      $.alternative_pattern,
                      $.typed_pattern,
                      $.number,
+                     $.boolean_literal,
+                     $.character_literal,
+                     $.symbol_literal,
                      $.string,
                      $.wildcard
                    ),
     /*
-     * scala.ebnf:120
+     * scala.ebnf:119
      * case_class_pattern                   ::= ((_type_identifier | stable_type_identifier): type) '(' ((_pattern (',' _pattern)*)?: pattern) ')'
      */
     case_class_pattern: $ => seq(
@@ -588,80 +641,95 @@ module.exports = grammar({
                                ')'
                              ),
     /*
-     * scala.ebnf:121
-     * infix_pattern                        ::= <2((_pattern: left) ((identifier | operator_identifier): operator) (_pattern: right))
+     * scala.ebnf:120
+     * infix_pattern                        ::= <2((_pattern: left) ((identifier): operator) (_pattern: right))
      */
     infix_pattern: $ => prec.left(
                           2,
                           seq(
                             field('left', $._pattern),
-                            field('operator', choice($.identifier, $.operator_identifier)),
+                            field('operator', $.identifier),
                             field('right', $._pattern)
                           )
                         ),
     /*
-     * scala.ebnf:122
+     * scala.ebnf:121
      * capture_pattern                      ::= 1((identifier: name) '@' (_pattern: pattern))
      */
     capture_pattern: $ => prec(1, seq(field('name', $.identifier), '@', field('pattern', $._pattern))),
     /*
-     * scala.ebnf:123
+     * scala.ebnf:122
      * typed_pattern                        ::= -1((_pattern: pattern) ':' (_type: type))
      */
     typed_pattern: $ => prec(-1, seq(field('pattern', $._pattern), ':', field('type', $._type))),
     /*
-     * scala.ebnf:124
+     * scala.ebnf:123
      * alternative_pattern                  ::= <-2(_pattern '|' _pattern)
      */
     alternative_pattern: $ => prec.left(-2, seq($._pattern, '|', $._pattern)),
     /*
-     * scala.ebnf:125
+     * scala.ebnf:124
      * tuple_pattern                        ::= '(' _pattern (',' _pattern)+ ')'
      */
     tuple_pattern: $ => seq('(', $._pattern, repeat1(seq(',', $._pattern)), ')'),
     /*
-     * scala.ebnf:126-143
+     * scala.ebnf:125-133
      * _expression                          ::= if_expression
      *                                        | match_expression
      *                                        | try_expression
+     *                                        | for_expression
      *                                        | call_expression
      *                                        | generic_function
      *                                        | assignment_expression
+     *                                        | infix_expression
+     *                                        | _simple_expression
+     */
+    _expression: $ => choice(
+                        $.if_expression,
+                        $.match_expression,
+                        $.try_expression,
+                        $.for_expression,
+                        $.call_expression,
+                        $.generic_function,
+                        $.assignment_expression,
+                        $.infix_expression,
+                        $._simple_expression
+                      ),
+    /*
+     * scala.ebnf:134-147
+     * _simple_expression                   ::= interpolated_string_expression
      *                                        | parenthesized_expression
-     *                                        | interpolated_string_expression
      *                                        | field_expression
      *                                        | instance_expression
-     *                                        | infix_expression
      *                                        | prefix_expression
      *                                        | tuple_expression
      *                                        | case_block
      *                                        | block
      *                                        | identifier
      *                                        | number
+     *                                        | boolean_literal
+     *                                        | character_literal
+     *                                        | symbol_literal
      *                                        | string
      */
-    _expression: $ => choice(
-                        $.if_expression,
-                        $.match_expression,
-                        $.try_expression,
-                        $.call_expression,
-                        $.generic_function,
-                        $.assignment_expression,
-                        $.parenthesized_expression,
-                        $.interpolated_string_expression,
-                        $.field_expression,
-                        $.instance_expression,
-                        $.infix_expression,
-                        $.prefix_expression,
-                        $.tuple_expression,
-                        $.case_block,
-                        $.block,
-                        $.identifier,
-                        $.number,
-                        $.string
-                      ),
+    _simple_expression: $ => choice(
+                               $.interpolated_string_expression,
+                               $.parenthesized_expression,
+                               $.field_expression,
+                               $.instance_expression,
+                               $.prefix_expression,
+                               $.tuple_expression,
+                               $.case_block,
+                               $.block,
+                               $.identifier,
+                               $.number,
+                               $.boolean_literal,
+                               $.character_literal,
+                               $.symbol_literal,
+                               $.string
+                             ),
     /*
-     * scala.ebnf:144-145
+     * scala.ebnf:148-149
      * if_expression                        ::= >('if' (parenthesized_expression: condition) (_expression: consequence)
      *                                            ('else' (_expression: alternative))?)
      */
@@ -674,12 +742,12 @@ module.exports = grammar({
                           )
                         ),
     /*
-     * scala.ebnf:146
+     * scala.ebnf:150
      * match_expression                     ::= (_expression: value) 'match' (case_block: body)
      */
     match_expression: $ => seq(field('value', $._expression), 'match', field('body', $.case_block)),
     /*
-     * scala.ebnf:147
+     * scala.ebnf:151
      * try_expression                       ::= >('try' (_expression: body) catch_clause? finally_clause?)
      */
     try_expression: $ => prec.right(
@@ -691,22 +759,22 @@ module.exports = grammar({
                            )
                          ),
     /*
-     * scala.ebnf:148
+     * scala.ebnf:152
      * catch_clause                         ::= >('catch' case_block)
      */
     catch_clause: $ => prec.right(seq('catch', $.case_block)),
     /*
-     * scala.ebnf:149
+     * scala.ebnf:153
      * finally_clause                       ::= >('finally' _expression)
      */
     finally_clause: $ => prec.right(seq('finally', $._expression)),
     /*
-     * scala.ebnf:150
+     * scala.ebnf:154
      * case_block                           ::= -1('{' '}') | ('{' case_clause+ '}')
      */
     case_block: $ => choice(prec(-1, seq('{', '}')), seq('{', repeat1($.case_clause), '}')),
     /*
-     * scala.ebnf:151
+     * scala.ebnf:155
      * case_clause                          ::= <('case' (_pattern: pattern) guard? '=>' (_block?: body))
      */
     case_clause: $ => prec.left(
@@ -719,17 +787,56 @@ module.exports = grammar({
                         )
                       ),
     /*
-     * scala.ebnf:152
+     * scala.ebnf:156
      * guard                                ::= 'if' (_expression: condition)
      */
     guard: $ => seq('if', field('condition', $._expression)),
     /*
-     * scala.ebnf:153
+     * scala.ebnf:158
+     * enumerators          ::= <(generator (_semicolon generator)*)
+     */
+    enumerators: $ => prec.left(seq($.generator, repeat(seq($._semicolon, $.generator)))),
+    /*
+     * scala.ebnf:159
+     * generator            ::= <(_pattern '<-' _expression (_semicolon? guard | _semicolon _pattern '=' _expression)*)
+     */
+    generator: $ => prec.left(
+                      seq(
+                        $._pattern,
+                        '<-',
+                        $._expression,
+                        repeat(
+                          choice(
+                            seq(optional($._semicolon), $.guard),
+                            seq($._semicolon, $._pattern, '=', $._expression)
+                          )
+                        )
+                      )
+                    ),
+    /*
+     * scala.ebnf:160
+     * for_expression        ::= 3<('for' ('(' enumerators ')' | '{' enumerators _semicolon?  '}') '\n'* 'yield'? _expression)
+     */
+    for_expression: $ => prec.left(
+                           3,
+                           seq(
+                             'for',
+                             choice(
+                               seq('(', $.enumerators, ')'),
+                               seq('{', $.enumerators, optional($._semicolon), '}')
+                             ),
+                             repeat('\n'),
+                             optional('yield'),
+                             $._expression
+                           )
+                         ),
+    /*
+     * scala.ebnf:162
      * assignment_expression                ::= >1((_expression: left) '=' (_expression: right))
      */
     assignment_expression: $ => prec.right(1, seq(field('left', $._expression), '=', field('right', $._expression))),
     /*
-     * scala.ebnf:154
+     * scala.ebnf:163
      * generic_function                     ::= 4((_expression: function) (type_arguments: type_arguments))
      */
     generic_function: $ => prec(
@@ -737,7 +844,7 @@ module.exports = grammar({
                              seq(field('function', $._expression), field('type_arguments', $.type_arguments))
                            ),
     /*
-     * scala.ebnf:155
+     * scala.ebnf:164
      * call_expression                      ::= 4((_expression: function) (arguments: arguments) ((block | case_block)?: body))
      */
     call_expression: $ => prec(
@@ -749,94 +856,107 @@ module.exports = grammar({
                             )
                           ),
     /*
-     * scala.ebnf:156
+     * scala.ebnf:165
      * field_expression                     ::= 4((_expression: value) '.' (identifier: field))
      */
     field_expression: $ => prec(4, seq(field('value', $._expression), '.', field('field', $.identifier))),
     /*
-     * scala.ebnf:157
+     * scala.ebnf:166
      * instance_expression                  ::= 3('new' _expression)
      */
     instance_expression: $ => prec(3, seq('new', $._expression)),
     /*
-     * scala.ebnf:158
-     * infix_expression                     ::= <2((_expression: left) ((identifier | operator_identifier): operator) (_expression: right))
+     * scala.ebnf:167
+     * infix_expression                     ::= <2((_simple_expression: left) ((identifier): operator) (_expression: right))
      */
     infix_expression: $ => prec.left(
                              2,
                              seq(
-                               field('left', $._expression),
-                               field('operator', choice($.identifier, $.operator_identifier)),
+                               field('left', $._simple_expression),
+                               field('operator', $.identifier),
                                field('right', $._expression)
                              )
                            ),
     /*
-     * scala.ebnf:159
-     * prefix_expression                    ::= 3(('+' | '-' | '!' | '~') _expression)
+     * scala.ebnf:168
+     * prefix_expression                    ::= 3(('+' | '-' | '!' | '~') _simple_expression)
      */
-    prefix_expression: $ => prec(3, seq(choice('+', '-', '!', '~'), $._expression)),
+    prefix_expression: $ => prec(3, seq(choice('+', '-', '!', '~'), $._simple_expression)),
     /*
-     * scala.ebnf:160
+     * scala.ebnf:169
      * tuple_expression                     ::= '(' _expression (',' _expression)+ ')'
      */
     tuple_expression: $ => seq('(', $._expression, repeat1(seq(',', $._expression)), ')'),
     /*
-     * scala.ebnf:161
+     * scala.ebnf:170
      * parenthesized_expression             ::= '(' _expression ')'
      */
     parenthesized_expression: $ => seq('(', $._expression, ')'),
     /*
-     * scala.ebnf:162
+     * scala.ebnf:171
      * type_arguments                       ::= '[' (_type (',' _type)*) ']'
      */
     type_arguments: $ => seq('[', seq($._type, repeat(seq(',', $._type))), ']'),
     /*
-     * scala.ebnf:163
+     * scala.ebnf:172
      * arguments                            ::= '(' (_expression (',' _expression)*)? ')'
      */
     arguments: $ => seq('(', optional(seq($._expression, repeat(seq(',', $._expression)))), ')'),
     /*
-     * scala.ebnf:164
-     * identifier                           ::= /[a-zA-Z_]\w*∕
+     * scala.ebnf:190
+     * identifier           ::= /($opchar+|$idRegex|$varidRegex|[`]$varidRegex[`])/
      */
-    identifier: $ => /[a-zA-Z_]\w*/,
+    identifier: $ => /([\-!#%&*+/\\:<=>?@\u005e\u007c~]+|([\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)|[`]([\u0020-\u005f\u0061-\u007f]|(\\u+[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]|\\[btnfr"'\\]))*[`]|[\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?|[`][\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F_][\p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$\p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4\u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C\u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F0-9]*(_[\-!#%&*+/\\:<=>?@\u005e\u007c~]+)?[`])/,
     /*
-     * scala.ebnf:165
+     * scala.ebnf:191
      * wildcard                             ::= '_'
      */
     wildcard: $ => '_',
     /*
-     * scala.ebnf:166
-     * operator_identifier                  ::= /[^\s\w\(\)\[\]\{\}'"`\.;,]+/
+     * scala.ebnf:203
+     * number                               ::= $integer_literal | $floating_point_literal
      */
-    operator_identifier: $ => /[^\s\w\(\)\[\]\{\}'"`\.;,]+/,
+    number: $ => choice(
+                   /-?([0-9]+|0[xX][0-9a-fA-F]+)[Ll]?/,
+                   /-?([0-9]+[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[.][0-9]+([Ee][+-]?[0-9]+)?[FfDd]?|[0-9]+([Ee][+-]?[0-9]+)?[FfDd]|[0-9]+([Ee][+-]?[0-9]+)[FfDd]?)/
+                 ),
     /*
-     * scala.ebnf:167
-     * number                               ::= /[\d\.]+/
+     * scala.ebnf:204
+     * boolean_literal                      ::= 'true' | 'false'
      */
-    number: $ => /[\d\.]+/,
+    boolean_literal: $ => choice('true', 'false'),
     /*
-     * scala.ebnf:168
+     * scala.ebnf:205
+     * character_literal                    ::= /'([\u0020-\u0026\u0028-\u007f]|\\[btnfr"'\\]|\\u+[0-9a-fA-F]{4})'/
+     */
+    character_literal: $ => /'([\u0020-\u0026\u0028-\u007f]|\\[btnfr"'\\]|\\u+[0-9a-fA-F]{4})'/,
+    /*
+     * scala.ebnf:206
+     * symbol_literal                       ::= @("'" [^\\'\n]+)
+     */
+    symbol_literal: $ => token(seq("'", repeat1(/[^\\'\n]/))),
+    /*
+     * scala.ebnf:207
      * interpolated_string_expression       ::= identifier interpolated_string
      */
     interpolated_string_expression: $ => seq($.identifier, $.interpolated_string),
     /*
-     * scala.ebnf:169
+     * scala.ebnf:208
      * _interpolated_string_start           ::= '"'
      */
     _interpolated_string_start: $ => '"',
     /*
-     * scala.ebnf:170
+     * scala.ebnf:209
      * _interpolated_multiline_string_start ::= '"""'
      */
     _interpolated_multiline_string_start: $ => '"""',
     /*
-     * scala.ebnf:171
-     * interpolation                        ::= '$' (identifier | block)
+     * scala.ebnf:210
+     * interpolation                        ::= '$' (identifier | block | '$')
      */
-    interpolation: $ => seq('$', choice($.identifier, $.block)),
+    interpolation: $ => seq('$', choice($.identifier, $.block, '$')),
     /*
-     * scala.ebnf:172-173
+     * scala.ebnf:211-212
      * interpolated_string                  ::= (_interpolated_string_start (_interpolated_string_middle interpolation)* _interpolated_string_end)
      *                                        | (_interpolated_multiline_string_start (_interpolated_multiline_string_middle interpolation)* _interpolated_multiline_string_end)
      */
@@ -853,17 +973,17 @@ module.exports = grammar({
                                 )
                               ),
     /*
-     * scala.ebnf:174
+     * scala.ebnf:213
      * string                               ::= _simple_string | _simple_multiline_string
      */
     string: $ => choice($._simple_string, $._simple_multiline_string),
     /*
-     * scala.ebnf:175
+     * scala.ebnf:214
      * _semicolon                           ::= ';' | _automatic_semicolon
      */
     _semicolon: $ => choice(';', $._automatic_semicolon),
     /*
-     * scala.ebnf:176
+     * scala.ebnf:215
      * comment                              ::= @(('//' /.*∕) | ('/*' /[^*]*\*+([^/*][^*]*\*+)*∕ '/'))
      */
     comment: $ => token(choice(seq('//', /.*/), seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/')))

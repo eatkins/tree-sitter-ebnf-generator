@@ -162,7 +162,7 @@ def main() {
     (block
       (try_expression
         (call_expression (identifier) (arguments))
-        (finally_clause (infix_expression (identifier) (operator_identifier) (number))))
+        (finally_clause (infix_expression (identifier) (identifier) (number))))
       (try_expression
         (block (call_expression (identifier) (arguments)))
         (catch_clause (case_block (case_clause
@@ -279,7 +279,6 @@ class C {
 }
 
 ---
-
 (compilation_unit
   (class_definition
     (identifier)
@@ -291,10 +290,11 @@ class C {
           (assignment_expression
             (identifier)
             (infix_expression (identifier) (identifier) (identifier)))
-          (infix_expression
-            (infix_expression (identifier) (operator_identifier) (identifier))
-            (operator_identifier)
-            (identifier)))))))
+            (infix_expression
+              (identifier)
+              (identifier)
+              (infix_expression (identifier) (identifier) (identifier))))))))
+
 
 ===============================
 Prefix expressions
@@ -303,7 +303,7 @@ Prefix expressions
 class C {
   def main() {
     !a
-    !!a
+    !(!a)
     +a + b
   }
 }
@@ -319,10 +319,10 @@ class C {
         (parameters)
         (block
           (prefix_expression (identifier))
-          (prefix_expression (prefix_expression (identifier)))
+          (prefix_expression (parenthesized_expression (prefix_expression (identifier))))
           (infix_expression
             (prefix_expression (identifier))
-            (operator_identifier)
+            (identifier)
             (identifier)))))))
 
 
@@ -332,5 +332,25 @@ Function argument application
 m.map { case f => f }
 // TODO fix errors
 -----
-(compilation_unit (ERROR (identifier) (identifier) (identifier) (identifier))
-(comment))
+(compilation_unit (ERROR (identifier) (identifier)) (ERROR (identifier)
+(identifier)) (comment))
+
+===============================
+For expressions
+===============================
+object foo {
+	for (x <- Nil) yield x + 1
+  for (x <- y
+    z <- Seq(y) if z) x + 1
+}
+-------------------------------
+(compilation_unit (object_definition (identifier)
+  (template_body
+    (for_expression
+      (enumerators (generator (identifier) (identifier)))
+      (infix_expression (identifier) (identifier) (number)))
+    (for_expression
+      (enumerators
+        (generator (identifier) (identifier))
+        (generator (identifier) (call_expression (identifier) (arguments (identifier))) (guard (identifier))))
+      (infix_expression (identifier) (identifier) (number))))))
