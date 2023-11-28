@@ -359,11 +359,11 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_openMultiComment"
+              "name": "openMultiComment"
             },
             {
               "type": "SYMBOL",
-              "name": "_multiComment"
+              "name": "multiComment"
             },
             {
               "type": "STRING",
@@ -399,7 +399,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_automaticNewline"
+          "name": "_automaticSemicolon"
         }
       ]
     },
@@ -435,7 +435,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_interpStart"
+              "name": "interpStart"
             },
             {
               "type": "SYMBOL",
@@ -1636,7 +1636,7 @@
     },
     "PostfixExpr": {
       "type": "PREC",
-      "value": 1,
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -2182,13 +2182,13 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_empty"
+          "name": "empty"
         }
       ]
     },
     "ResultExpr": {
       "type": "PREC",
-      "value": 10,
+      "value": -10,
       "content": {
         "type": "CHOICE",
         "members": [
@@ -3054,7 +3054,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_trailingComma"
+              "name": "trailingComma"
             },
             {
               "type": "BLANK"
@@ -3676,7 +3676,7 @@
           },
           {
             "type": "SYMBOL",
-            "name": "_empty"
+            "name": "empty"
           }
         ]
       }
@@ -3898,7 +3898,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_val"
+              "name": "val"
             },
             {
               "type": "SYMBOL",
@@ -3911,7 +3911,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_var"
+              "name": "var"
             },
             {
               "type": "SYMBOL",
@@ -3924,7 +3924,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_def1"
+              "name": "def1"
             },
             {
               "type": "SYMBOL",
@@ -4834,7 +4834,7 @@
     },
     "ClassTemplate": {
       "type": "PREC",
-      "value": 1,
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -4871,7 +4871,7 @@
     },
     "TraitTemplate": {
       "type": "PREC",
-      "value": 1,
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -5111,7 +5111,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_empty"
+              "name": "empty"
             },
             {
               "type": "BLANK"
@@ -5421,39 +5421,39 @@
   "externals": [
     {
       "type": "SYMBOL",
-      "name": "_multiComment"
+      "name": "multiComment"
     },
     {
       "type": "SYMBOL",
-      "name": "_automaticNewline"
+      "name": "_automaticSemicolon"
     },
     {
       "type": "SYMBOL",
-      "name": "_val"
+      "name": "val"
     },
     {
       "type": "SYMBOL",
-      "name": "_var"
+      "name": "var"
     },
     {
       "type": "SYMBOL",
-      "name": "_def1"
+      "name": "def1"
     },
     {
       "type": "SYMBOL",
-      "name": "_interpStart"
+      "name": "interpStart"
     },
     {
       "type": "SYMBOL",
-      "name": "_openMultiComment"
+      "name": "openMultiComment"
     },
     {
       "type": "SYMBOL",
-      "name": "_empty"
+      "name": "empty"
     },
     {
       "type": "SYMBOL",
-      "name": "_trailingComma"
+      "name": "trailingComma"
     }
   ],
   "inline": [],

@@ -40,7 +40,7 @@ rules:
   _import_expression                   ::= ((stable_identifier | identifier): path) ('.' (wildcard | import_selectors))?
   import_selectors                     ::= '{' ((identifier | renamed_identifier) (',' (identifier | renamed_identifier))*) '}'
   renamed_identifier                   ::= (identifier: name) '=>' ((identifier | wildcard): alias)
-  object_definition                    ::= 'case'? 'object' _object_definition
+  object_definition                    ::= annotation* modifiers? 'case'? 'object' _object_definition
   _object_definition                   ::= (identifier: name) (extends_clause?: extend) (template_body?: body)
   class_definition                     ::= annotation* modifiers? 'case'? 'class' (identifier: name)
                                              (type_parameters?: type_parameters) (class_parameters*: class_parameters)
@@ -70,14 +70,10 @@ rules:
                                              (('=' (_expression: body)) | (block: body))
   function_declaration                 ::= annotation* modifiers? 'def' (identifier: name) (type_parameters?: type_parameters)
                                              (parameters*: parameters) (':' (_type: return_type))?
-  modifiers                            ::= ('abstract'
-                                         | 'final'
-                                         | 'sealed'
-                                         | 'implicit'
-                                         | 'lazy'
-                                         | 'override'
-                                         | 'private'
-                                         | 'protected')+
+  local_modifier                       ::= ('abstract' | 'final' | 'sealed' | 'implicit' | 'lazy')
+  access_modifier                      ::= ('private' | 'protected') access_qualifier?
+  access_qualifier                     ::= '[' (identifier | 'this') ']'
+  modifiers                            ::= (local_modifier | access_modifier | 'override')+
   extends_clause                       ::= 'extends' (_type: type) arguments?
   class_parameters                     ::= '(' 'implicit'? (class_parameter (',' class_parameter)*)? ')'
   parameters                           ::= '(' 'implicit'? (parameter (',' parameter)*)? ')'
@@ -91,7 +87,7 @@ rules:
   _simple_type                         ::= generic_type | projected_type | tuple_type | stable_type_identifier | _type_identifier
   compound_type                        ::= 3((_annotated_type: base) ('with' (_annotated_type: extra))+)
   infix_type                           ::= <2(((compound_type | infix_type | _annotated_type): left)
-                                             ((identifier | operator_identifier): operator)
+                                             ((identifier): operator)
                                              ((compound_type | infix_type | _annotated_type): right))
   tuple_type                           ::= '(' (_type (',' _type)*) ')'
   stable_type_identifier               ::= (identifier | stable_identifier) '.' _type_identifier
@@ -115,10 +111,13 @@ rules:
                                          | alternative_pattern
                                          | typed_pattern
                                          | number
+                                         | boolean_literal
+                                         | character_literal
+                                         | symbol_literal
                                          | string
                                          | wildcard
   case_class_pattern                   ::= ((_type_identifier | stable_type_identifier): type) '(' ((_pattern (',' _pattern)*)?: pattern) ')'
-  infix_pattern                        ::= <2((_pattern: left) ((identifier | operator_identifier): operator) (_pattern: right))
+  infix_pattern                        ::= <2((_pattern: left) ((identifier): operator) (_pattern: right))
   capture_pattern                      ::= 1((identifier: name) '@' (_pattern: pattern))
   typed_pattern                        ::= -1((_pattern: pattern) ':' (_type: type))
   alternative_pattern                  ::= <-2(_pattern '|' _pattern)
@@ -126,20 +125,25 @@ rules:
   _expression                          ::= if_expression
                                          | match_expression
                                          | try_expression
+                                         | for_expression
                                          | call_expression
                                          | generic_function
                                          | assignment_expression
+                                         | infix_expression
+                                         | _simple_expression
+  _simple_expression                   ::= interpolated_string_expression
                                          | parenthesized_expression
-                                         | interpolated_string_expression
                                          | field_expression
                                          | instance_expression
-                                         | infix_expression
                                          | prefix_expression
                                          | tuple_expression
                                          | case_block
                                          | block
                                          | identifier
                                          | number
+                                         | boolean_literal
+                                         | character_literal
+                                         | symbol_literal
                                          | string
   if_expression                        ::= >('if' (parenthesized_expression: condition) (_expression: consequence)
                                              ('else' (_expression: alternative))?)
@@ -150,25 +154,60 @@ rules:
   case_block                           ::= -1('{' '}') | ('{' case_clause+ '}')
   case_clause                          ::= <('case' (_pattern: pattern) guard? '=>' (_block?: body))
   guard                                ::= 'if' (_expression: condition)
+
+  enumerators          ::= <(generator (_semicolon generator)*)
+  generator            ::= <(_pattern '<-' _expression (_semicolon? guard | _semicolon _pattern '=' _expression)*)
+  for_expression        ::= 3<('for' ('(' enumerators ')' | '{' enumerators _semicolon?  '}') '\n'* 'yield'? _expression)
+
   assignment_expression                ::= >1((_expression: left) '=' (_expression: right))
   generic_function                     ::= 4((_expression: function) (type_arguments: type_arguments))
   call_expression                      ::= 4((_expression: function) (arguments: arguments) ((block | case_block)?: body))
   field_expression                     ::= 4((_expression: value) '.' (identifier: field))
   instance_expression                  ::= 3('new' _expression)
-  infix_expression                     ::= <2((_expression: left) ((identifier | operator_identifier): operator) (_expression: right))
-  prefix_expression                    ::= 3(('+' | '-' | '!' | '~') _expression)
+  infix_expression                     ::= <2((_simple_expression: left) ((identifier): operator) (_expression: right))
+  prefix_expression                    ::= 3(('+' | '-' | '!' | '~') _simple_expression)
   tuple_expression                     ::= '(' _expression (',' _expression)+ ')'
   parenthesized_expression             ::= '(' _expression ')'
   type_arguments                       ::= '[' (_type (',' _type)*) ']'
   arguments                            ::= '(' (_expression (',' _expression)*)? ')'
-  identifier                           ::= /[a-zA-Z_]\w*/
+  charEscapeSeq        :=  \\[btnfr"'\\]
+  hexDigit             :=  [0-9a-fA-F]
+  unicodeEscape        :=  \\u+$hexDigit$hexDigit$hexDigit$hexDigit
+  escapeSeq            :=  ($unicodeEscape|$charEscapeSeq)
+  charNoBQOrNL         :=  [\u0020-\u005f\u0061-\u007f]
+  opchar               :=  [\-!#%&*+/\\:<=>?@\u005e\u007c~]
+  upper                :=  [$upperChars]
+  upperChars           :=  \p{Lu}\p{Lt}\p{Nl}\p{Lo}\p{Lm}\$
+  letter               :=  $upperChars$lowerChars
+  idrest               :=  [$(letter)0-9]*(_$opchar+)?
+  plainid              :=  ($upper$idrest|$varidRegex|$opchar+)
+  idRegex              :=  $plainid|[`]($charNoBQOrNL|$escapeSeq)*[`]
+  lowerChars1          :=  \p{Ll}_\u00AA\u00BB\u02B0-\u02B8\u02C0-\u02C1\u02E0-\u02E4
+  lowerChars2          :=  \u037A\u1D78\u1D9B-\u1DBF\u2071\u207F\u2090-\u209C
+  lowerChars3          :=  \u2C7C-\u2C7D\uA69C-\uA69D\uA770\uA7F8-\uA7F9\uAB5C-\uAB5F
+  lowerChars           :=  $lowerChars1$lowerChars2$lowerChars3
+  varidRegex           :=  [$(lowerChars)_]$idrest
+  identifier           ::= /($opchar+|$idRegex|$varidRegex|[`]$varidRegex[`])/
   wildcard                             ::= '_'
-  operator_identifier                  ::= /[^\s\w\(\)\[\]\{\}'"`\.;,]+/
-  number                               ::= /[\d\.]+/
+  decimal_numeral       :=  [0-9]+
+  hex_numeral           :=  0[xX]$hexDigit+
+  integer_literal       := /-?($decimal_numeral|$hex_numeral)[Ll]?/
+  hexDigit             :=  [0-9a-fA-F]
+  fp_lit_1               :=  $decimal_numeral[.]$decimal_numeral$exponentPart?$floatType?
+  fp_lit_2               :=  [.]$decimal_numeral$exponentPart?$floatType?
+  fp_lit_3               :=  $decimal_numeral$exponentPart?$floatType
+  fp_lit_4               :=  $decimal_numeral$exponentPart$floatType?
+  floating_point_literal := /-?($fp_lit_1|$fp_lit_2|$fp_lit_3|$fp_lit_4)/
+  exponentPart         :=  ([Ee][+-]?$decimal_numeral)
+  floatType            :=  [FfDd]
+  number                               ::= $integer_literal | $floating_point_literal
+  boolean_literal                      ::= 'true' | 'false'
+  character_literal                    ::= /'([\u0020-\u0026\u0028-\u007f]|\\[btnfr"'\\]|\\u+[0-9a-fA-F]{4})'/
+  symbol_literal                       ::= @("'" [^\\'\n]+)
   interpolated_string_expression       ::= identifier interpolated_string
   _interpolated_string_start           ::= '"'
   _interpolated_multiline_string_start ::= '"""'
-  interpolation                        ::= '$' (identifier | block)
+  interpolation                        ::= '$' (identifier | block | '$')
   interpolated_string                  ::= (_interpolated_string_start (_interpolated_string_middle interpolation)* _interpolated_string_end)
                                          | (_interpolated_multiline_string_start (_interpolated_multiline_string_middle interpolation)* _interpolated_multiline_string_end)
   string                               ::= _simple_string | _simple_multiline_string

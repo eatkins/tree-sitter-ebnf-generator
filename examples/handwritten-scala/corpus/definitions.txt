@@ -144,7 +144,7 @@ class A(b: B) extends C(b || ok) {
     (extends_clause
       (type_identifier)
       (arguments
-        (infix_expression (identifier) (operator_identifier) (identifier))))
+        (infix_expression (identifier) (identifier) (identifier))))
     (template_body)))
 
 =======================================
@@ -165,50 +165,31 @@ class Point(val x: Int, val y: Int)(implicit coord: Coord)
       (class_parameter (identifier) (type_identifier)))))
 
 =======================================
-Class definitions with access modifiers
-=======================================
-
-class Foo private (val x: Int)
-class Foo protected ()
-// TODO fix the errors
----
-(compilation_unit (class_definition (identifier)) (val_declaration (modifiers)
-(ERROR) (identifier) (type_identifier)) (ERROR) (class_definition (identifier))
-(ERROR) (ERROR) (comment))
-
-=======================================
-Class definitions with constructor annotations
-=======================================
-
-class Foo @foo() (val x: Int)
-class Foo @foo(x = 1) protected ()
-// TODO fix errors
----
-(compilation_unit (class_definition (identifier)) (class_definition (annotation
-(type_identifier) (arguments) (arguments (infix_expression (identifier)
-(identifier) (ERROR) (identifier)))) (identifier)) (ERROR (annotation
-(type_identifier) (arguments (assignment_expression (identifier) (number)))))
-(ERROR) (comment))
-
-=======================================
 Modifiers
 =======================================
 implicit final sealed class Point {
   private override def getX() = 1
+  protected[this] def getY(): Int = 2
 }
 
 ---
-
 (compilation_unit
   (class_definition
-    (modifiers)
-    (identifier)
-    (template_body
-      (function_definition
-        (modifiers)
-        (identifier)
-        (parameters)
-        (number)))))
+    (modifiers (local_modifier) (local_modifier) (local_modifier)) (identifier)
+      (template_body
+        (function_definition
+          (modifiers (access_modifier))
+          (identifier)
+          (parameters)
+          (number))
+        (function_definition
+          (modifiers (access_modifier (access_qualifier)))
+          (identifier)
+          (parameters)
+          (type_identifier)
+          (number)))))
+
+
 
 =======================================
 Multiple variable declarations
@@ -217,7 +198,7 @@ var x, y, z: Int = _
 // TODO fix parsed syntax, which is not correct
 ---
 (compilation_unit (var_declaration (identifier) (identifier) (identifier)
-(infix_type (type_identifier) (operator_identifier) (type_identifier)))
+(infix_type (type_identifier) (identifier) (type_identifier)))
 (comment))
 
 
@@ -438,7 +419,7 @@ class A(val x: Int, val y: Int) {
       (class_parameter (identifier) (type_identifier)))
     (template_body
       (call_expression (identifier)
-        (arguments (infix_expression (identifier) (operator_identifier) (number)))))))
+        (arguments (infix_expression (identifier) (identifier) (number)))))))
 
 =======================================
 Optional parameters
@@ -453,6 +434,6 @@ def mkLines(header: String, indented: Boolean = false, embraced: Boolean = false
     (identifier)
     (parameters
       (parameter (identifier) (type_identifier))
-      (parameter (identifier) (type_identifier) (identifier))
-      (parameter (identifier) (type_identifier) (identifier)))
+      (parameter (identifier) (type_identifier) (boolean_literal))
+      (parameter (identifier) (type_identifier) (boolean_literal)))
     (type_identifier) (block)))

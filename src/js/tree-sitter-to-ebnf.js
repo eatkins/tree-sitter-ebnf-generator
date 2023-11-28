@@ -1,5 +1,15 @@
 #!/usr/bin/env node
 
+if(!String.replaceAll)
+{
+	function escapeRegExp(string) {
+		return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+	}
+	String.prototype.replaceAll = function (find, replace) {
+		return this.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+	};
+}
+
 console.assert(process.argv.length > 1, 'Usage: specify filename')
 const grammar_js_fname = process.argv[2];
 const acorn = require('acorn')
@@ -77,6 +87,7 @@ function choice() {
   var result = ""
   for (i in arguments) {
     if (result.length > 0) result = result + " | "
+    //if (result.length > 0) result = result + "\n\t| "
     var arg = arguments[i]
     result = result + maybe_add_quotes(arg)
   }
@@ -101,8 +112,8 @@ function seq() {
     var arg = arguments[i]
     result = result + maybe_add_quotes(arg)
   }
-  //if(arguments.length > 1) console.log("***** " + arguments[1].content);
-  result = arguments.length > 1 && (arguments[1].content && arguments[1].content(" ")) ? '(' + result + ')' : result
+  //print(arguments);
+  result = arguments.length > 1 || (!arguments[1] || arguments[1].content(" ")) ? '(' + result + ')' : result
   return { value: result }
 }
 function expandRhs(rhs, debug) {
@@ -134,12 +145,14 @@ function grammar(parts) {
       case 'rules': break;
       default:
         print(key, " ::= ", cleanup(expandRhs(parts[key]($), true)))
+        //print(key, " ::=\n\t", cleanup(expandRhs(parts[key]($), true)), "\n")
         print("")
     }
   }
   print("rules:")
   for (const key in rules) {
     print(" ", key, " ::= ", cleanup(expandRhs(rules[key]($))))
+    //print(" ", key, " ::=\n\t", cleanup(expandRhs(rules[key]($))), "\n")
   }
 }
 fs.readFile(grammar_js_fname, 'utf-8', function (err, data) {

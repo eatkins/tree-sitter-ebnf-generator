@@ -1,4 +1,4 @@
-externals ::= { multiComment automaticNewline val var def1 interpStart openMultiComment empty trailingComma }
+externals ::= { multiComment _automaticSemicolon val var def1 interpStart openMultiComment empty trailingComma }
 
 extras    ::= { whiteSpace comment }
 
@@ -62,11 +62,11 @@ rules:
   charEscapeSeq        :=  \\[btnfr"'\\]
   escapeSeq            :=  ($unicodeEscape|$charEscapeSeq)
   idrest               :=  [$(letter)0-9]*(_$opchar+)?
-  varidRegex           :=  [$lowerChars_]$idrest
+  varidRegex           :=  [$(lowerChars)_]$idrest
   [v]arid              ::= /$varidRegex/
   boundvarid           ::= /($varidRegex|[`]$varidRegex[`])/
-  plainid              :=  ($upper$idrest|$varidRegex|$opchar+)
   charNoBQOrNL         :=  [\u0020-\u005f\u0061-\u007f]
+  plainid              :=  ($upper$idrest|$varidRegex|$opchar+)
   idRegex              :=  $plainid|[`]($charNoBQOrNL|$escapeSeq)*[`]
   identifier           ::= /($opchar+|$idRegex|$varidRegex|[`]$varidRegex[`])/
   decimalNumeral       :=  [0-9]+
@@ -95,7 +95,7 @@ rules:
   symbolLiteral        ::= /[']$plainid/
   comment              ::= openMultiComment multiComment "*/" | "//" /.*/
   nl                   ::= "\\n"
-  semi                 ::= (';' | automaticNewline)
+  semi                 ::= (';' | _automaticSemicolon)
   id                   ::= /$idRegex/
 
 ; context free section

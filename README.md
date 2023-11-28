@@ -119,8 +119,6 @@ Expressions:
     tree-sitter: optional("foo"), optional($.bar), optional(choice($.foo, $.bar))
 
     matches the expression immediately to the left of the ? or nothing.
-    Tree-sitter equivalent:
-
 
   "foo"*, bar*, (foo | bar)*
   tree-sitter: repeat("foo"), repeat($.bar), repeat(choice($.foo, $.bar))
@@ -139,7 +137,7 @@ Expressions:
 
     matches either the expression to the left of the | or the expression
     to the right. Concatenation has higher precedence than alternation
-    so (A B) | (C | D) is equivalent to A B | C D.
+    so (A B) | (C D) is equivalent to A B | C D.
 
   <("foo" bar)
   tree-sitter: prec.left("foo", $.bar)
@@ -188,7 +186,7 @@ Expressions:
 
     aliases a rule. If the right hand side is a string literal, then the
     tree-sitter node will be anonymous. Otherwise it will be a named node. Note
-    that -> has the highest precedence so that "foo" "bar" -> $.baz is
+    that `->` has the highest precedence so that "foo" "bar" -> $.baz is
     equivalent to seq("foo", alias("foo", $.baz). Use explicit grouping if
     necessary, i.e. `("foo" "bar") -> baz` to generate
     `alias(seq("foo", "bar"), $.baz)`
@@ -198,7 +196,7 @@ Expressions:
 
     defines a field name . Quotation marks are optional because the field name
     must be a string literal. Quotations marks are however necessary if the
-    field name has spaces in it. Note that:has the highest precedence so that
+    field name has spaces in it. Note that `:` has the highest precedence so that
     "foo" "bar": baz is equivalent to seq("foo", field("baz", "bar"). Use
     explicit grouping if necessary, i.e. `("foo" "bar"): baz` to generate
     `field("baz", seq("foo", "bar"))`
@@ -206,10 +204,10 @@ Expressions:
 
 ### tree-sitter to EBNF
 
-There is also a node.js (using the nodejs version 15.*) script that converts a tree-sitter grammar.js file into
+There is also a node.js script that converts a tree-sitter grammar.js file into
 the EBNF format. It is found at
 [tree-sitter-to-ebnf.js](src/js/tree-sitter-to-ebnf.js). To run the script, it
 may be necessary to run `npm install` in the src/js directory. The input to the
 script is just the name of a tree-sitter grammar.js file, e.g
-`./src/js/tree-sitter-to-ebnf.js examples/handwritten-scala/grammar.js`. The
+`./src/js/tree-sitter-to-ebnf.js examples/handwritten-scala/scala.ebnf`. The
 output can be redirected to a file.

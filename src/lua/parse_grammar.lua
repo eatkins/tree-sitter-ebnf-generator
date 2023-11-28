@@ -16,7 +16,8 @@ Options:
                       default: true if output_file == nil, otherwise false
   -q|--quiet        disables printing the parsed tree to stdout
                       default: false
-  -s|--show-hidden  shows hidden nodes
+  --hide-lower-case hides nodes that begin with a lower case letter unless
+                    first character is bracketed, e.g. [f]oo ::= "foo"
   --camel-to-snake  converts camel case references to snake case
   -h|--help         prints this message
 ]]
@@ -193,14 +194,7 @@ local file = nil
 local unpack = unpack or table.unpack
 local tokens = {}
 local tokenmap = {}
-local id = nil
-local body = nil
-local def = nil
-local line_num = nil
-local count = 0
-local is_value = nil
 local values = {}
-local rules = nil
 local hidden = nil
 local camel_to_snake = nil
 
@@ -212,7 +206,7 @@ local function parse_args()
       verbose = true
     elseif arg == "-q" or arg == "--quiet" then
       quiet = true
-    elseif arg == "-s" or arg == "--show-hidden" then
+    elseif arg == "--hide-lower-case" then
       hidden = true
     elseif arg == "--camel-to-snake" then
       camel_to_snake = true
@@ -282,74 +276,84 @@ local function is_lower_byte(s, i)
   local b = s:byte(i, i)
   return b > 96 and b < 123
 end
-local function savetoken(clear)
-  if id and body and is_value then
-    values[id] = { raw = table.concat(body, " ") }
-  elseif id and body and def then
-    local full_body = table.concat(body, " ")
-    local start, _, literal = id:find("%[([a-z])]")
-    if literal then
-      id = format_reference(literal .. id:sub(4))
-    else
-      if is_lower_byte(id, 1) and rules and (not hidden or id == "whiteSpace") then
-        id = "_" .. format_reference(id)
+local function scan_file()
+  local id = nil
+  local body = nil
+  local def = nil
+  local line_num = nil
+  local count = 0
+  local is_value = nil
+  local rules = nil
+  local function savetoken(clear)
+    if id and body and is_value then
+      values[id] = { raw = table.concat(body, " ") }
+    elseif id and body and def then
+      local full_body = table.concat(body, " ")
+      local start, _, literal = id:find("%[([a-z])]")
+      if literal then
+        id = format_reference(literal .. id:sub(4))
       else
-        id = format_reference(id)
-      end
-    end
-    table.insert(tokens, { id, full_body , rules })
-    tokenmap[id] = { def, line_num, math.max(count - 1, line_num) }
-  end
-  id = nil
-  body = nil
-  def = nil
-  line_num = nil
-  is_value = nil
-end
-for line in io.lines(file) do
-  count = count + 1
-  local is_comment = line:find("%s*;") == 1
-  if line == "rules:" then
-    rules = true
-  elseif #line == 0 then
-    savetoken(true)
-  elseif is_comment then
-    if def then table.insert(def, line) end
-  else
-    local leading = "[%w_%[%]]"
-    local prefix = leading .. leading .. "?" .. leading .. "?"
-    local s, _, i, a, b = line:find("(" .. prefix .. "[%w_.]*)%s*(:?:=)%s*(.*)")
-    local is_beginning = not rules and s == 1
-    if not is_beginning then
-      local ss, e = line:find("  " .. leading)
-      is_beginning = ss == 1 and e == s
-    end
-    if is_beginning then
-      savetoken()
-      is_value = a == ":="
-      line_num = count
-      id = i
-      body = { b }
-      def = { line }
-    else
-      assert(def, line .. tostring(is_beginning))
-      table.insert(def, line)
-      local rest = line:match("%s+(.*)")
-      if rest then
-        if body then
-          if #rest > 0 then
-            table.insert(body, rest .. "\n")
-          else
-            savetoken()
-          end
+        if hidden and rules and is_lower_byte(id, 1) then
+          id = "_" .. format_reference(id)
         else
-          error("Error: declarations must be aligned in the left-most column")
+          id = format_reference(id)
+        end
+      end
+      table.insert(tokens, { id, full_body , rules })
+      tokenmap[id] = { def, line_num, math.max(count - 1, line_num) }
+    end
+    id = nil
+    body = nil
+    def = nil
+    line_num = nil
+    is_value = nil
+  end
+  for line in io.lines(file) do
+    count = count + 1
+    local is_comment = line:find("%s*;") == 1
+    if line == "rules:" then
+      rules = true
+    elseif #line == 0 then
+      savetoken(true)
+    elseif is_comment then
+      if def then table.insert(def, line) end
+    else
+      local leading = "[%w_%[%]]"
+      local prefix = leading .. leading .. "?" .. leading .. "?"
+      local s, _, i, a, b = line:find("(" .. prefix .. "[%w_.]*)%s*(:?:=)%s*(.*)")
+      local is_beginning = not rules and s == 1
+      if not is_beginning then
+        local ss, e = line:find("  " .. leading)
+        is_beginning = ss == 1 and e == s
+      end
+      if is_beginning then
+        savetoken()
+        is_value = a == ":="
+        line_num = count
+        id = i
+        body = { b }
+        def = { line }
+      else
+        assert(def, line .. tostring(is_beginning))
+        table.insert(def, line)
+        local rest = line:match("%s+(.*)")
+        if rest then
+          if body then
+            if #rest > 0 then
+              table.insert(body, rest .. "\n")
+            else
+              savetoken()
+            end
+          else
+            error("Error: declarations must be aligned in the left-most column")
+          end
         end
       end
     end
   end
+  savetoken()
 end
-savetoken()
+scan_file()
 
 local contextFree = {}
 
@@ -462,9 +466,9 @@ local function print_node(n, offset, max_width)
         if multi_line then
           local lines = {}
           for line in part:gmatch("([^\n]+)") do table.insert(lines, line) end
-          for i2, line in ipairs(lines) do
+          for j, line in ipairs(lines) do
             write("  " .. line)
-            if i2 < #lines then write("\n") end
+            if j < #lines then write("\n") end
           end
         else
           write(part)
@@ -605,7 +609,7 @@ local function flatten(n, string)
       for _, v in ipairs(n.children) do table.insert(children, flatten(v, string)) end
       for _, v in ipairs(children) do
         if v.kind == CHOICE then
-          for _, n2 in ipairs(v.children) do table.insert(node.children, n2) end
+          for _, cn in ipairs(v.children) do table.insert(node.children, cn) end
         else
           table.insert(node.children, v)
         end
@@ -665,9 +669,9 @@ local function maybe_add_reference_impl(node, current_word, externals, source_in
   elseif id then
     add_reference(node, id)
   elseif externals then
-    local id2 = format_reference(table.concat(current_word))
-    tokenmap[id2] = true
-    add_reference(node, id2)
+    local ref_id = format_reference(table.concat(current_word))
+    tokenmap[ref_id] = true
+    add_reference(node, ref_id)
   else
     source_error("no reference exists for " .. table.concat(current_word), source_info)
   end
@@ -922,36 +926,36 @@ end
 local rule_defs = {}
 
 for _, v in ipairs(tokens) do
-  local id2, body2, in_rules = unpack(v)
-  local replaced = replace_dollars(body2)
+  local id, body, in_rules = unpack(v)
+  local replaced = replace_dollars(body)
   local tree_sitter_body = {}
-  local parsed = parse_body(id2, replaced)
+  local parsed = parse_body(id, replaced)
   local base_indent = in_rules and "    " or "  "
-  local def2 = { base_indent .. id2 .. ": $ => " }
+  local def = { base_indent .. id .. ": $ => " }
   for line in parsed:gmatch("([^\n]*)") do table.insert(tree_sitter_body, line) end
   if #tree_sitter_body == 1 then
-    table.insert(def2, table.remove(tree_sitter_body))
+    table.insert(def, table.remove(tree_sitter_body))
   else
-    local indent = def2[1]:gsub(".", " ")
-    for i, v2 in ipairs(tree_sitter_body) do
-      local indent2 = i > 1 and indent or ""
-      table.insert(def2, indent2 .. v2)
-      if i < #tree_sitter_body then table.insert(def2, "\n") end
+    local indent = def[1]:gsub(".", " ")
+    for i, line in ipairs(tree_sitter_body) do
+      local new_indent = i > 1 and indent or ""
+      table.insert(def, new_indent .. line)
+      if i < #tree_sitter_body then table.insert(def, "\n") end
     end
   end
-  local full_body, start_line, end_line = unpack(tokenmap[id2])
-  local line_num2 = start_line .. ((start_line == end_line and "") or ("-" .. end_line))
-  local index = file .. ":" .. line_num2
+  local full_body, start_line, end_line = unpack(tokenmap[id])
+  local line_num = start_line .. ((start_line == end_line and "") or ("-" .. end_line))
+  local index = file .. ":" .. line_num
   local prefix = { base_indent .. "/*", base_indent .. " * " .. index }
-  for i, v2 in ipairs(full_body) do
-    local start, space_end = v2:find("%s+")
-    if start == 1 then v2 = v2:sub(start + 2) end
-    table.insert(prefix, base_indent .. " * " .. v2:gsub("*/", "*∕")) -- this adds a unicode division sign
+  for i, b in ipairs(full_body) do
+    local start, space_end = b:find("%s+")
+    if start == 1 then b = b:sub(start + 2) end
+    table.insert(prefix, base_indent .. " * " .. b:gsub("*/", "*∕")) -- this adds a unicode division sign
   end
   prefix = table.concat(prefix, "\n") .. "\n" .. base_indent .. " */\n"
-  table.insert(def2, 1, prefix)
+  table.insert(def, 1, prefix)
 
-  table.insert(in_rules and rule_defs or contextFree, table.concat(def2))
+  table.insert(in_rules and rule_defs or contextFree, table.concat(def))
 end
 
 table.insert(contextFree, "  rules: {\n" .. table.concat(rule_defs, ",\n") .. "\n  }\n")
@@ -974,11 +978,11 @@ for _, c in ipairs(constants) do
   local key, value = unpack(c)
   local padding = ""
   for i = #key, key_padding do padding = padding .. " " end
-  local base = key .. padding .. ":= " .. value.raw
+  local base = key .. padding .. ":= " .. value.raw:gsub("*/", "*∕")
   table.insert(constants_comment, " * " .. base)
   if not value.replaced then error(key .. " is unused") end
   if value.replaced ~= value.raw then
-    table.insert(constants_comment, " *     (" .. value.replaced .. ")")
+    table.insert(constants_comment, " *     (" .. value.replaced:gsub("*/", "*∕") .. ")")
   end
 end
 table.insert(constants_comment, " */")
